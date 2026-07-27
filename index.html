@@ -748,10 +748,10 @@
         });
 
         // ============================================================
-        // 7. إرسال إشعارات إلى تيليجرام
+        // 7. إرسال إشعارات إلى تيليجرام (مع التوكن المضبوط)
         // ============================================================
         function sendTelegramNotification(message) {
-            const botToken = 'YOUR_BOT_TOKEN'; // ضع توكن البوت هنا
+            const botToken = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY'; // ✅ التوكن الخاص بك
             const chatId = 1170411845; // الآيدي الخاص بك
 
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -768,11 +768,11 @@
                 if (data.ok) {
                     log('📨 تم إرسال الإشعار إلى تيليجرام!', 'success');
                 } else {
-                    log('⚠️ فشل إرسال الإشعار.', 'error');
+                    log('⚠️ فشل إرسال الإشعار: ' + (data.description || 'خطأ غير معروف'), 'error');
                 }
             })
-            .catch(() => {
-                log('⚠️ تعذر الاتصال بتيلجرام.', 'error');
+            .catch((err) => {
+                log('⚠️ تعذر الاتصال بتيلجرام: ' + err.message, 'error');
             });
         }
 
@@ -870,6 +870,7 @@
         console.log('🪷 نون v7.0 - مملكة الحب');
         console.log('💡 اختصار: Ctrl+Shift+A للوحة السرية');
         console.log('📱 حساب التيلجرام: @u_t_r');
+        console.log('✅ التوكن مضبوط وجاهز للإشعارات!');
     </script>
 </body>
 </html>
