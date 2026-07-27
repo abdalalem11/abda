@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نون - مملكة الحب</title>
+    <title>نون - مملكة الحب التفاعلية</title>
     <style>
         /* ===== الخطوط ===== */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap');
@@ -184,88 +184,34 @@
             opacity: 1;
         }
         
-        /* ===== أزرار الحب ===== */
-        .btn-primary {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #0a0a12;
-            box-shadow: 0 8px 32px -8px rgba(251, 191, 36, 0.25);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 16px 48px -12px rgba(251, 191, 36, 0.35);
-        }
-        
-        .btn-romantic {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            color: white;
-            box-shadow: 0 8px 32px -8px rgba(236, 72, 153, 0.25);
-        }
-        
-        .btn-romantic:hover {
-            transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 16px 48px -12px rgba(236, 72, 153, 0.35);
-        }
-        
-        .btn-rose {
-            background: linear-gradient(135deg, #f472b6, #ec4899);
-            color: white;
-            box-shadow: 0 8px 32px -8px rgba(244, 114, 182, 0.2);
-        }
-        
-        .btn-rose:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 16px 48px -12px rgba(244, 114, 182, 0.3);
-        }
-        
-        .btn-gold {
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            color: #0a0a12;
-            box-shadow: 0 8px 32px -8px rgba(251, 191, 36, 0.2);
-        }
-        
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 16px 48px -12px rgba(251, 191, 36, 0.3);
-        }
-        
-        .btn-lavender {
-            background: linear-gradient(135deg, #a78bfa, #7c3aed);
-            color: white;
-            box-shadow: 0 8px 32px -8px rgba(124, 58, 237, 0.2);
-        }
-        
-        .btn-lavender:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 16px 48px -12px rgba(124, 58, 237, 0.3);
-        }
-        
-        .btn-heart {
-            background: linear-gradient(135deg, #fb7185, #e11d48);
-            color: white;
-            box-shadow: 0 8px 32px -8px rgba(225, 29, 72, 0.2);
-        }
-        
-        .btn-heart:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 16px 48px -12px rgba(225, 29, 72, 0.3);
-        }
-        
-        .btn-soft {
-            background: rgba(255, 255, 255, 0.04);
-            color: #c8d0e0;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(4px);
-        }
-        
-        .btn-soft:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        
         .btn:active {
             transform: scale(0.96);
         }
+        
+        /* ===== ألوان الأزرار ===== */
+        .btn-romantic { background: linear-gradient(135deg, #ec4899, #db2777); color: white; box-shadow: 0 8px 32px -8px rgba(236, 72, 153, 0.25); }
+        .btn-romantic:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 16px 48px -12px rgba(236, 72, 153, 0.35); }
+        
+        .btn-rose { background: linear-gradient(135deg, #f472b6, #ec4899); color: white; box-shadow: 0 8px 32px -8px rgba(244, 114, 182, 0.2); }
+        .btn-rose:hover { transform: translateY(-3px); box-shadow: 0 16px 48px -12px rgba(244, 114, 182, 0.3); }
+        
+        .btn-gold { background: linear-gradient(135deg, #fbbf24, #d97706); color: #0a0a12; box-shadow: 0 8px 32px -8px rgba(251, 191, 36, 0.2); }
+        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 16px 48px -12px rgba(251, 191, 36, 0.3); }
+        
+        .btn-lavender { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: white; box-shadow: 0 8px 32px -8px rgba(124, 58, 237, 0.2); }
+        .btn-lavender:hover { transform: translateY(-3px); box-shadow: 0 16px 48px -12px rgba(124, 58, 237, 0.3); }
+        
+        .btn-heart { background: linear-gradient(135deg, #fb7185, #e11d48); color: white; box-shadow: 0 8px 32px -8px rgba(225, 29, 72, 0.2); }
+        .btn-heart:hover { transform: translateY(-3px); box-shadow: 0 16px 48px -12px rgba(225, 29, 72, 0.3); }
+        
+        .btn-soft { background: rgba(255, 255, 255, 0.04); color: #c8d0e0; border: 1px solid rgba(255, 255, 255, 0.04); backdrop-filter: blur(4px); }
+        .btn-soft:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.08); }
+        
+        .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 8px 32px -8px rgba(34, 197, 94, 0.2); }
+        .btn-green:hover { transform: translateY(-3px); box-shadow: 0 16px 48px -12px rgba(34, 197, 94, 0.3); }
+        
+        .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 8px 32px -8px rgba(59, 130, 246, 0.2); }
+        .btn-blue:hover { transform: translateY(-3px); box-shadow: 0 16px 48px -12px rgba(59, 130, 246, 0.3); }
         
         /* ===== صف الأزرار ===== */
         .btn-row {
@@ -297,6 +243,21 @@
             min-height: 60px;
         }
         
+        /* ===== أزرار الألعاب ===== */
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        
+        .games-grid .btn {
+            padding: 14px 8px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            min-height: 55px;
+        }
+        
         /* ===== المخرجات ===== */
         .output-area {
             margin-top: 24px;
@@ -322,99 +283,12 @@
             font-weight: 300;
         }
         
-        .output-area .love-text {
-            color: #f472b6;
-            font-size: 1.05rem;
-            line-height: 1.8;
-        }
-        
-        .output-area .gold-text {
-            color: #fbbf24;
-            font-weight: 600;
-        }
-        
+        .output-area .love-text { color: #f472b6; font-size: 1.05rem; line-height: 1.8; }
+        .output-area .gold-text { color: #fbbf24; font-weight: 600; }
         .output-area .success { color: #4ade80; }
         .output-area .error { color: #f87171; }
         .output-area .info { color: #60a5fa; }
         .output-area .warning { color: #fbbf24; }
-        
-        /* ===== اللوحة السرية ===== */
-        .admin-panel {
-            margin-top: 22px;
-            padding: 20px;
-            background: rgba(11, 13, 23, 0.5);
-            border-radius: 24px;
-            border: 1px solid rgba(251, 191, 36, 0.04);
-            display: none;
-            backdrop-filter: blur(4px);
-        }
-        
-        .admin-panel.visible {
-            display: block;
-            animation: fadeInUp 0.6s ease;
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .admin-panel h3 {
-            color: #e8edf5;
-            font-size: 0.95rem;
-            margin-bottom: 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            padding-bottom: 10px;
-        }
-        
-        .admin-panel h3 i {
-            color: #fbbf24;
-            margin-left: 8px;
-        }
-        
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-        }
-        
-        .admin-grid .btn {
-            padding: 10px;
-            font-size: 0.7rem;
-            border-radius: 16px;
-        }
-        
-        /* ===== السجل ===== */
-        .command-history {
-            margin-top: 14px;
-            max-height: 120px;
-            overflow-y: auto;
-            background: rgba(0,0,0,0.2);
-            border-radius: 16px;
-            padding: 10px 14px;
-            font-size: 0.75rem;
-            color: #6b7b9a;
-        }
-        
-        .command-history .cmd-item {
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .command-history .cmd-item .time {
-            color: #3f4a60;
-            font-size: 0.65rem;
-        }
-        
-        .command-history .cmd-item .cmd {
-            color: #b0bedb;
-        }
-        
-        .command-history .cmd-item .status {
-            color: #fbbf24;
-        }
         
         /* ===== الفوتر ===== */
         .footer {
@@ -483,34 +357,21 @@
             .container { padding: 28px 18px; border-radius: 36px; }
             .logo h1 { font-size: 2.2rem; }
             .love-grid { grid-template-columns: 1fr 1fr; }
-            .admin-grid { grid-template-columns: 1fr 1fr; }
+            .games-grid { grid-template-columns: 1fr; }
             .btn-row { flex-direction: column; }
             .btn-row .btn { flex: none; }
         }
         
         @media (max-width: 380px) {
             .love-grid { grid-template-columns: 1fr; }
-            .admin-grid { grid-template-columns: 1fr; }
         }
         
-        /* ===== سكرول ===== */
-        .output-area::-webkit-scrollbar,
-        .command-history::-webkit-scrollbar {
-            width: 3px;
-        }
-        .output-area::-webkit-scrollbar-track,
-        .command-history::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .output-area::-webkit-scrollbar-thumb,
-        .command-history::-webkit-scrollbar-thumb {
-            background: rgba(251, 191, 36, 0.15);
-            border-radius: 10px;
-        }
+        .output-area::-webkit-scrollbar { width: 3px; }
+        .output-area::-webkit-scrollbar-track { background: transparent; }
+        .output-area::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.15); border-radius: 10px; }
     </style>
 </head>
 <body>
-    <!-- ===== خلفية القلوب ===== -->
     <div class="floating-hearts" id="heartBg"></div>
 
     <div class="container">
@@ -521,7 +382,7 @@
                 <h1>نون</h1>
             </div>
             <div class="subtitle">
-                💛 <span>مملكة الحب</span> · حكم · أشعار · نصائح
+                💛 <span>مملكة الحب التفاعلية</span> · حب · ألعاب · مفاجآت
                 <br><small>— @u_t_r —</small>
             </div>
         </div>
@@ -535,7 +396,7 @@
         <div class="btn-row">
             <button class="btn btn-soft" id="pingBtn">🏓 اختبار</button>
             <button class="btn btn-soft" id="clearBtn">🗑️ مسح</button>
-            <button class="btn btn-lavender" id="adminToggleBtn">⚙️ لوحة</button>
+            <button class="btn btn-soft" id="surpriseBtn">🎁 مفاجأة</button>
         </div>
         
         <!-- ===== أزرار الحب والأشعار ===== -->
@@ -548,30 +409,22 @@
             <button class="btn btn-romantic" id="notifyBtn">🔔 إشعار</button>
         </div>
         
+        <!-- ===== أزرار الألعاب والتفاعل ===== -->
+        <div class="games-grid">
+            <button class="btn btn-green" id="quizBtn">💞 اختبار الحب</button>
+            <button class="btn btn-blue" id="fortuneBtn">🔮 حظك اليوم</button>
+            <button class="btn btn-rose" id="matchBtn">💑 توافق</button>
+            <button class="btn btn-gold" id="letterBtn">💌 رسالة خاصة</button>
+        </div>
+        
         <!-- ===== المخرجات ===== -->
         <div class="output-area" id="outputArea"></div>
-        
-        <!-- ===== اللوحة السرية ===== -->
-        <div class="admin-panel" id="adminPanel">
-            <h3><i>⚙️</i> لوحة التحكم</h3>
-            <div class="admin-grid">
-                <button class="btn btn-soft" data-cmd="sysinfo">🖥️ نظام</button>
-                <button class="btn btn-soft" data-cmd="scan">🔍 فحص</button>
-                <button class="btn btn-soft" data-cmd="exec">💻 تنفيذ</button>
-                <button class="btn btn-soft" data-cmd="telegram">📡 هجوم</button>
-                <button class="btn btn-soft" data-cmd="download">⬇️ تحميل</button>
-                <button class="btn btn-soft" data-cmd="crypto">🔐 تشفير</button>
-            </div>
-            <div class="command-history" id="commandHistory">
-                <div style="color:#3f4a60; text-align:center; font-size:0.7rem;">📋 سجل الأوامر</div>
-            </div>
-        </div>
         
         <!-- ===== الفوتر ===== -->
         <div class="footer">
             <span class="status-dot"></span> القلب ينبض · <span id="liveTime"></span>
             <div style="margin-top:6px;">
-                <span class="brand">🪷 نون</span> · v7.0 · مملكة الحب
+                <span class="brand">🪷 نون</span> · v8.0 · مملكة الحب التفاعلية
             </div>
         </div>
     </div>
@@ -611,38 +464,18 @@
         // 3. المراجع
         // ============================================================
         const output = document.getElementById('outputArea');
-        const history = document.getElementById('commandHistory');
-        const adminPanel = document.getElementById('adminPanel');
 
         // ============================================================
         // 4. الدوال
         // ============================================================
         function log(message, type = 'info') {
-            const colors = {
-                love: '#f472b6',
-                gold: '#fbbf24',
-                success: '#4ade80',
-                error: '#f87171',
-                info: '#60a5fa',
-                warning: '#fbbf24'
-            };
+            const colors = { love: '#f472b6', gold: '#fbbf24', success: '#4ade80', error: '#f87171', info: '#60a5fa', warning: '#fbbf24' };
             output.innerHTML += `<div style="color:${colors[type] || '#b0bcd9'}; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.02);">${message}</div>`;
             output.scrollTop = output.scrollHeight;
         }
 
-        function clearOutput() {
-            output.innerHTML = '';
-        }
-
-        function addHistory(cmd, status = '💛') {
-            const item = document.createElement('div');
-            item.className = 'cmd-item';
-            const time = new Date().toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            item.innerHTML = `<span class="time">${time}</span><span class="cmd">${cmd}</span><span class="status">${status}</span>`;
-            history.appendChild(item);
-            history.scrollTop = history.scrollHeight;
-            adminPanel.classList.add('visible');
-        }
+        function clearOutput() { output.innerHTML = ''; }
+        function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
         // ============================================================
         // 5. المحتوى الرومانسي
@@ -670,89 +503,162 @@
             '🪷 السعادة في القلب، وليس في الجيوب.',
             '🌹 من زرع الحب حصد السعادة.',
             '✨ الصبر مفتاح الفرج، والحب مفتاح الحياة.',
-            '💕 لا تبحث عن الحب، بل كن أنت الحب.',
-            '🪷 الحياة قصيرة، فاجعلها مليئة بالحب.'
+            '💕 لا تبحث عن الحب، بل كن أنت الحب.'
         ];
 
         const advice = [
             '💖 ابتسم للحياة، تبتسم لك.',
-            '🌹 لا تنتظر من الآخرين أن يجعلوك سعيداً، بل كن أنت مصدر سعادتك.',
+            '🌹 كن أنت مصدر سعادتك.',
             '💛 سامح دائماً، فالقلب النقي هو القلب المحب.',
-            '🪷 كل يوم هو فرصة جديدة للحب والعطاء.',
-            '✨ لا تدع أحداً يطفئ نورك، فأنت مميز.',
-            '💕 كن كما أنت، فالحب الحقيقي يقبل الاختلاف.'
+            '🪷 كل يوم فرصة جديدة للحب.',
+            '✨ لا تدع أحداً يطفئ نورك.'
         ];
 
         const quotes = [
             '✨ "الحب هو الجواب لكل شيء." — رومي',
             '💛 "أنتِ نون، والحروف كلها تبدأ منكِ."',
             '🪷 "في الحب لا قوانين، فقط قلوب تنبض."',
-            '🌹 "الحب الحقيقي لا يموت، بل يتجدد كل يوم."',
-            '💕 "نون.. حرفٌ يحمل كل المعاني الجميلة."'
+            '🌹 "الحب الحقيقي لا يموت، بل يتجدد."'
         ];
 
         const notifications = [
             '🔔 لديك 5 رسائل حب جديدة 💕',
             '🔔 روان أرسلت لك وردة 🌹',
             '🔔 حكم جديدة تنتظرك 💛',
-            '🔔 اقتباس رومانسي خاص بك ✨',
-            '🔔 تم إضافة قصة حب جديدة 🪷',
-            '🔔 لديك إشعار من قلب نون 💖'
+            '🔔 اقتباس رومانسي خاص بك ✨'
         ];
 
         // ============================================================
-        // 6. أزرار المحتوى
+        // 6. المحتوى التفاعلي (ألعاب)
         // ============================================================
-        function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        const quizQuestions = [
+            '💞 ما هو لون الحب عندك؟\nأ) أحمر ❤️\nب) وردي 💗\nج) ذهبي 💛\nد) أزرق 💙',
+            '💞 ما هي أغنية الحب المفضلة لديك؟\nأ) كلاسيكية 🎵\nب) رومانسية 🎶\nج) حديثة 💃\nد) هادئة 🌙',
+            '💞 كيف تعبر عن حبك؟\nأ) بالكلمات 📝\nب) بالأفعال 🤝\nج) بالهدايا 🎁\nد) بالنظرات 👀'
+        ];
 
+        const fortunes = [
+            '🔮 حظك اليوم: الحب في انتظارك! 💕',
+            '🔮 حظك اليوم: ابتسامة جميلة ستغير يومك 😊',
+            '🔮 حظك اليوم: رسالة حب في طريقها إليك 💌',
+            '🔮 حظك اليوم: لقاء رومانسي قريب 🌹',
+            '🔮 حظك اليوم: قلبك سيمتلئ بالفرح 💛'
+        ];
+
+        const matches = [
+            '💑 توافقك مع شريكك: 95% · أنتما متطابقان تماماً!',
+            '💑 توافقك مع شريكك: 87% · علاقة قوية ومستقرة!',
+            '💑 توافقك مع شريكك: 78% · تحتاجان إلى مزيد من الوقت معاً.',
+            '💑 توافقك مع شريكك: 92% · أنتما صنعاء لبعضكما!',
+            '💑 توافقك مع شريكك: 70% · الحب يحتاج إلى رعاية.'
+        ];
+
+        const letters = [
+            '💌 عزيزتي روان،\nأنتِ كل شيء في حياتي.\nأحبكِ أكثر من أي شيء.\n— نون',
+            '💌 إلى أجمل قلب،\nكل يوم معكِ هو حلم.\nأتمنى أن نكون معاً للأبد.',
+            '💌 حبيبتي،\nكلماتي لا تكفي لوصف حبي لكِ.\nأنتِ مملكتي.'
+        ];
+
+        // ============================================================
+        // 7. أزرار المحتوى الأساسي
+        // ============================================================
         document.getElementById('loveBtn').addEventListener('click', function() {
             const msg = randomFrom(loveMessages);
             log(`💕 ${msg}`, 'love');
-            addHistory('رسالة حب', '💕');
             sendTelegramNotification('❤️ رسالة حب: ' + msg);
         });
 
         document.getElementById('poemBtn').addEventListener('click', function() {
             const p = randomFrom(poems);
             log(`🪷 ${p.replace(/\n/g, '<br>')}`, 'love');
-            addHistory('شعر', '🪷');
             sendTelegramNotification('🪷 شعر جديد: ' + p.replace(/\n/g, ' ').slice(0, 80));
         });
 
         document.getElementById('wisdomBtn').addEventListener('click', function() {
             const w = randomFrom(wisdom);
             log(`💛 ${w}`, 'gold');
-            addHistory('حكمة', '💛');
             sendTelegramNotification('💛 حكمة: ' + w);
         });
 
         document.getElementById('adviceBtn').addEventListener('click', function() {
             const a = randomFrom(advice);
             log(`💖 ${a}`, 'love');
-            addHistory('نصيحة', '💖');
             sendTelegramNotification('💖 نصيحة: ' + a);
         });
 
         document.getElementById('quoteBtn').addEventListener('click', function() {
             const q = randomFrom(quotes);
             log(`✨ ${q}`, 'gold');
-            addHistory('اقتباس', '✨');
             sendTelegramNotification('✨ اقتباس: ' + q);
         });
 
         document.getElementById('notifyBtn').addEventListener('click', function() {
             const n = randomFrom(notifications);
             log(`🔔 ${n}`, 'gold');
-            addHistory('إشعار', '🔔');
             sendTelegramNotification('🔔 إشعار: ' + n);
         });
 
         // ============================================================
-        // 7. إرسال إشعارات إلى تيليجرام (مع التوكن المضبوط)
+        // 8. أزرار الألعاب والتفاعل
+        // ============================================================
+        document.getElementById('quizBtn').addEventListener('click', function() {
+            const q = randomFrom(quizQuestions);
+            log(`💞 ${q.replace(/\n/g, '<br>')}`, 'love');
+            sendTelegramNotification('💞 اختبار حب جديد');
+        });
+
+        document.getElementById('fortuneBtn').addEventListener('click', function() {
+            const f = randomFrom(fortunes);
+            log(`🔮 ${f}`, 'gold');
+            sendTelegramNotification('🔮 حظ اليوم: ' + f);
+        });
+
+        document.getElementById('matchBtn').addEventListener('click', function() {
+            const m = randomFrom(matches);
+            log(`💑 ${m}`, 'love');
+            sendTelegramNotification('💑 نتيجة التوافق: ' + m);
+        });
+
+        document.getElementById('letterBtn').addEventListener('click', function() {
+            const l = randomFrom(letters);
+            log(`💌 ${l.replace(/\n/g, '<br>')}`, 'love');
+            sendTelegramNotification('💌 رسالة خاصة: ' + l.replace(/\n/g, ' ').slice(0, 80));
+        });
+
+        // ============================================================
+        // 9. زر المفاجأة
+        // ============================================================
+        document.getElementById('surpriseBtn').addEventListener('click', function() {
+            const surprises = [
+                '🎁 مفاجأة! لديك هدية حب في انتظارك!',
+                '🎁 مفاجأة! شخص ما يفكر بك الآن 💕',
+                '🎁 مفاجأة! اقتباس حب جديد لك: "الحب هو الحياة."',
+                '🎁 مفاجأة! أغنية حب قادمة إليك 🎵'
+            ];
+            const s = randomFrom(surprises);
+            log(`🎁 ${s}`, 'success');
+            sendTelegramNotification('🎁 مفاجأة: ' + s);
+        });
+
+        // ============================================================
+        // 10. الأزرار الأخرى
+        // ============================================================
+        document.getElementById('pingBtn').addEventListener('click', function() {
+            log('🏓 القلب ينبض 💛', 'success');
+            sendTelegramNotification('🏓 اختبار: القلب ينبض');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            clearOutput();
+            log('🗑️ تم المسح.', 'warning');
+        });
+
+        // ============================================================
+        // 11. إرسال إشعارات إلى تيليجرام
         // ============================================================
         function sendTelegramNotification(message) {
-            const botToken = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY'; // ✅ التوكن الخاص بك
-            const chatId = 1170411845; // الآيدي الخاص بك
+            const botToken = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+            const chatId = 1170411845;
 
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
@@ -766,111 +672,22 @@
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    log('📨 تم إرسال الإشعار إلى تيليجرام!', 'success');
+                    log('📨 تم إرسال الإشعار!', 'success');
                 } else {
-                    log('⚠️ فشل إرسال الإشعار: ' + (data.description || 'خطأ غير معروف'), 'error');
+                    log('⚠️ فشل الإرسال.', 'error');
                 }
             })
-            .catch((err) => {
-                log('⚠️ تعذر الاتصال بتيلجرام: ' + err.message, 'error');
+            .catch(() => {
+                log('⚠️ تعذر الاتصال.', 'error');
             });
         }
 
         // ============================================================
-        // 8. الأزرار الأخرى
-        // ============================================================
-        document.getElementById('pingBtn').addEventListener('click', function() {
-            log('🏓 القلب ينبض 💛', 'success');
-            addHistory('Ping', '✅');
-            sendTelegramNotification('🏓 اختبار الاتصال: القلب ينبض');
-        });
-
-        document.getElementById('clearBtn').addEventListener('click', function() {
-            clearOutput();
-            log('🗑️ تم مسح المخرجات.', 'warning');
-            addHistory('مسح', '🗑️');
-        });
-
-        document.getElementById('adminToggleBtn').addEventListener('click', function() {
-            adminPanel.classList.toggle('visible');
-            log(adminPanel.classList.contains('visible') ? '🔓 تم فتح اللوحة.' : '🔒 تم الإغلاق.', 'info');
-        });
-
-        // ============================================================
-        // 9. أزرار اللوحة
-        // ============================================================
-        document.querySelectorAll('.admin-grid .btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const cmd = this.dataset.cmd;
-                const names = {
-                    sysinfo: 'معلومات النظام',
-                    scan: 'فحص الشبكة',
-                    exec: 'تنفيذ أمر',
-                    telegram: 'هجوم تيليجرام',
-                    download: 'تحميل ملف',
-                    crypto: 'تشفير'
-                };
-                log(`⚡ تنفيذ: ${names[cmd] || cmd}...`, 'warning');
-                addHistory(`تنفيذ: ${names[cmd] || cmd}`, '⚡');
-
-                const responses = {
-                    sysinfo: `🖥️ نظام: Linux\n🧠 نواة: 4\n💾 ذاكرة: 15.6GB`,
-                    scan: `🔍 منافذ: 22,80,443 مفتوحة`,
-                    exec: `👤 مستخدم: root\n✅ تم.`,
-                    telegram: `📡 تم إرسال 1,234 رسالة`,
-                    download: `⬇️ تم التحميل`,
-                    crypto: `🔐 تم تشفير 47 ملفاً`
-                };
-                log(responses[cmd] || '✅ تم التنفيذ.', 'success');
-                sendTelegramNotification(`⚡ تم تنفيذ أمر: ${names[cmd] || cmd}`);
-            });
-        });
-
-        // ============================================================
-        // 10. اختصار Ctrl+Shift+A
-        // ============================================================
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                e.preventDefault();
-                adminPanel.classList.toggle('visible');
-                log(adminPanel.classList.contains('visible') ? '🔓 لوحة (اختصار).' : '🔒', 'info');
-            }
-        });
-
-        // ============================================================
-        // 11. localStorage
-        // ============================================================
-        window.addEventListener('load', function() {
-            const saved = localStorage.getItem('noon_history');
-            if (saved) {
-                try {
-                    JSON.parse(saved).forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'cmd-item';
-                        div.innerHTML = `<span class="time">${item.time}</span><span class="cmd">${item.cmd}</span><span class="status">${item.status}</span>`;
-                        history.appendChild(div);
-                    });
-                } catch(e) {}
-            }
-            setInterval(() => {
-                const items = [];
-                document.querySelectorAll('.cmd-item').forEach(el => {
-                    const time = el.querySelector('.time')?.textContent || '';
-                    const cmd = el.querySelector('.cmd')?.textContent || '';
-                    const status = el.querySelector('.status')?.textContent || '';
-                    items.push({ time, cmd, status });
-                });
-                localStorage.setItem('noon_history', JSON.stringify(items));
-            }, 5000);
-        });
-
-        // ============================================================
         // 12. رسالة ترحيب
         // ============================================================
-        console.log('🪷 نون v7.0 - مملكة الحب');
-        console.log('💡 اختصار: Ctrl+Shift+A للوحة السرية');
-        console.log('📱 حساب التيلجرام: @u_t_r');
-        console.log('✅ التوكن مضبوط وجاهز للإشعارات!');
+        console.log('🪷 نون v8.0 - مملكة الحب التفاعلية');
+        console.log('💡 ألعاب حب، اختبارات، مفاجآت');
+        console.log('📱 @u_t_r');
     </script>
 </body>
 </html>
