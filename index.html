@@ -3,345 +3,581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عبود - أداة استخراج الجلسات</title>
+    <title>عبود - المستخرج الفاخر</title>
     <style>
+        /* ===== الخطوط والأساسيات ===== */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
         body {
-            background: linear-gradient(145deg, #0b0e14 0%, #1a1f2b 100%);
+            font-family: 'Cairo', 'Segoe UI', sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            direction: rtl;
+            background: #0a0e17;
+            background-image: 
+                radial-gradient(ellipse at 10% 20%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+                linear-gradient(145deg, #0a0e17 0%, #141b2b 100%);
             padding: 20px;
+            direction: rtl;
         }
+        
+        /* ===== الحاوية الرئيسية ===== */
         .container {
-            background: rgba(30, 36, 48, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 40px;
-            padding: 45px 40px;
-            max-width: 600px;
+            max-width: 580px;
             width: 100%;
-            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.8);
+            background: rgba(16, 22, 36, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 45px 38px;
+            border: 1px solid rgba(251, 191, 36, 0.12);
+            box-shadow: 
+                0 30px 60px -20px rgba(0,0,0,0.9),
+                inset 0 1px 0 rgba(251, 191, 36, 0.06);
+            transition: all 0.3s ease;
         }
-        h1 {
-            color: #e8edf5;
-            font-size: 2.4rem;
-            font-weight: 700;
+        
+        /* ===== الهيدر ===== */
+        .header {
             text-align: center;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-            text-shadow: 0 0 15px rgba(255, 180, 0, 0.15);
+            margin-bottom: 30px;
         }
-        h1 span {
-            color: #fbbf24;
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 6px;
         }
+        
+        .logo-icon {
+            font-size: 2.2rem;
+            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.2));
+        }
+        
+        .logo h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+            text-shadow: none;
+        }
+        
         .subtitle {
-            color: #8892a8;
-            text-align: center;
-            margin-bottom: 35px;
+            color: #8a94a6;
             font-size: 0.95rem;
-            border-bottom: 1px dashed #2a3242;
-            padding-bottom: 15px;
-        }
-        .time-box {
-            background: #0f131c;
-            border-radius: 60px;
-            padding: 12px 22px;
-            display: inline-block;
-            margin: 0 auto 30px;
-            border: 1px solid #2c364a;
-            color: #b9c7e0;
-            font-size: 1rem;
             font-weight: 400;
-            text-align: center;
-            width: fit-content;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.08);
+            padding-bottom: 16px;
+            margin-top: 4px;
         }
+        
+        .subtitle span {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        
+        /* ===== الوقت ===== */
+        .time-box {
+            background: rgba(11, 15, 23, 0.7);
+            border-radius: 60px;
+            padding: 10px 24px;
+            display: inline-block;
+            margin: 0 auto 28px;
+            border: 1px solid rgba(251, 191, 36, 0.1);
+            color: #a8b2c9;
+            font-size: 0.95rem;
+            width: fit-content;
+            text-align: center;
+        }
+        
         .time-box span {
             color: #fbbf24;
-            font-weight: 600;
-            margin-right: 6px;
+            font-weight: 700;
         }
+        
+        /* ===== الحقول ===== */
         .input-group {
-            margin-bottom: 22px;
+            margin-bottom: 18px;
         }
+        
         .input-group label {
             display: block;
-            color: #b0bedb;
-            margin-bottom: 8px;
+            color: #c8d0e0;
+            font-weight: 600;
             font-size: 0.9rem;
-            font-weight: 500;
+            margin-bottom: 8px;
             letter-spacing: 0.3px;
         }
-        .input-group input {
+        
+        .input-group label i {
+            margin-left: 6px;
+        }
+        
+        .input-group input,
+        .input-group select {
             width: 100%;
             padding: 14px 18px;
-            background: #0b0f17;
-            border: 1px solid #28303f;
-            border-radius: 18px;
+            background: rgba(11, 15, 23, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
             color: #eef3fc;
             font-size: 1rem;
-            transition: 0.25s ease;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
             outline: none;
-            direction: ltr;
-            text-align: left;
         }
-        .input-group input:focus {
+        
+        .input-group input:focus,
+        .input-group select:focus {
             border-color: #fbbf24;
-            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
-            background: #0d121c;
+            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.08);
+            background: rgba(16, 22, 36, 0.9);
         }
+        
         .input-group input::placeholder {
-            color: #4f5a70;
-            text-align: right;
+            color: #4a5470;
         }
+        
+        /* ===== الأزرار ===== */
         .btn {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            padding: 16px;
             border: none;
             border-radius: 60px;
-            color: #0b0e14;
-            font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.25s ease;
-            box-shadow: 0 8px 18px -6px #92400e70;
-            letter-spacing: 0.5px;
-            margin-top: 10px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
         }
-        .btn:hover {
-            transform: scale(1.02);
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .btn-primary {
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            box-shadow: 0 12px 25px -8px #92400e;
+            color: #0a0e17;
+            box-shadow: 0 8px 24px -6px rgba(251, 191, 36, 0.3);
         }
-        .btn-danger {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            box-shadow: 0 8px 18px -6px #7f1d1d70;
-            color: white;
+        
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 32px -8px rgba(251, 191, 36, 0.4);
         }
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            box-shadow: 0 12px 25px -8px #7f1d1d;
+        
+        .btn-primary:active {
+            transform: scale(0.97);
         }
+        
         .btn-success {
-            background: linear-gradient(135deg, #16a34a, #15803d);
-            box-shadow: 0 8px 18px -6px #14532d70;
-            color: white;
-        }
-        .btn-success:hover {
             background: linear-gradient(135deg, #22c55e, #16a34a);
-            box-shadow: 0 12px 25px -8px #14532d;
+            color: white;
+            box-shadow: 0 8px 24px -6px rgba(34, 197, 94, 0.25);
         }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px -8px rgba(34, 197, 94, 0.35);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 8px 24px -6px rgba(239, 68, 68, 0.25);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px -8px rgba(239, 68, 68, 0.35);
+        }
+        
+        .btn-purple {
+            background: linear-gradient(135deg, #a855f7, #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 24px -6px rgba(168, 85, 247, 0.25);
+        }
+        
+        .btn-purple:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px -8px rgba(168, 85, 247, 0.35);
+        }
+        
+        .btn-cyan {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+            box-shadow: 0 8px 24px -6px rgba(6, 182, 212, 0.25);
+        }
+        
+        .btn-cyan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px -8px rgba(6, 182, 212, 0.35);
+        }
+        
+        .btn-pink {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+            color: white;
+            box-shadow: 0 8px 24px -6px rgba(236, 72, 153, 0.25);
+        }
+        
+        .btn-pink:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px -8px rgba(236, 72, 153, 0.35);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #c8d0e0;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* ===== صف الأزرار ===== */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        
+        .btn-row .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+        
+        /* ===== منطقة المخرجات ===== */
         .output-area {
-            margin-top: 30px;
-            background: #0b0f17;
-            border-radius: 24px;
+            margin-top: 28px;
+            background: rgba(11, 15, 23, 0.7);
+            border-radius: 20px;
             padding: 20px;
-            border: 1px solid #1f283b;
+            border: 1px solid rgba(255, 255, 255, 0.04);
             min-height: 70px;
-            color: #a7b8d9;
+            color: #b0bcd9;
             font-size: 0.95rem;
             word-break: break-all;
-            transition: 0.2s;
-            max-height: 300px;
+            max-height: 320px;
             overflow-y: auto;
+            transition: all 0.3s ease;
         }
+        
         .output-area:empty::before {
-            content: "⏳ انتظر النتيجة...";
+            content: "⏳ في انتظار الأمر...";
             color: #3e4a62;
         }
-        .output-area .success {
-            color: #4ade80;
-        }
-        .output-area .error {
-            color: #f87171;
-        }
-        .output-area .info {
-            color: #60a5fa;
-        }
+        
+        .output-area .success { color: #4ade80; }
+        .output-area .error { color: #f87171; }
+        .output-area .info { color: #60a5fa; }
+        .output-area .warning { color: #fbbf24; }
         .output-area .highlight {
             color: #fbbf24;
-            font-weight: 600;
+            font-weight: 700;
         }
-        .footer {
+        
+        /* ===== زر النسخ ===== */
+        .copy-btn {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            padding: 8px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(251, 191, 36, 0.2);
+            border-color: #fbbf24;
+            transform: scale(1.02);
+        }
+        
+        /* ===== اللوحة السرية ===== */
+        .admin-panel {
             margin-top: 25px;
+            padding: 20px;
+            background: rgba(11, 15, 23, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(251, 191, 36, 0.06);
+            display: none;
+        }
+        
+        .admin-panel.visible {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .admin-panel h3 {
+            color: #e8edf5;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            padding-bottom: 10px;
+        }
+        
+        .admin-panel h3 i {
+            color: #fbbf24;
+            margin-left: 8px;
+        }
+        
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .admin-grid .btn {
+            padding: 10px;
+            font-size: 0.75rem;
+            border-radius: 14px;
+        }
+        
+        /* ===== السجل ===== */
+        .command-history {
+            margin-top: 14px;
+            max-height: 130px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            color: #6b7b9a;
+        }
+        
+        .command-history .cmd-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .command-history .cmd-item .time {
+            color: #3f4a60;
+            font-size: 0.7rem;
+        }
+        
+        .command-history .cmd-item .cmd {
+            color: #b0bedb;
+        }
+        
+        .command-history .cmd-item .status {
+            color: #4ade80;
+        }
+        
+        /* ===== الفوتر ===== */
+        .footer {
+            margin-top: 28px;
             text-align: center;
             color: #3f4a60;
             font-size: 0.75rem;
-            border-top: 1px solid #1f283b;
-            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 18px;
         }
-        .status-dot {
+        
+        .footer .brand {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        
+        .footer .status-dot {
             display: inline-block;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: #22c55e;
             border-radius: 50%;
             margin-left: 6px;
             box-shadow: 0 0 12px #22c55e80;
             animation: pulse-dot 1.8s infinite;
         }
+        
         @keyframes pulse-dot {
-            0% { opacity: 0.5; transform: scale(0.9); }
+            0% { opacity: 0.4; transform: scale(0.9); }
             50% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.5; transform: scale(0.9); }
+            100% { opacity: 0.4; transform: scale(0.9); }
         }
-        .copy-btn {
-            background: #1f283b;
-            border: 1px solid #3f4a60;
-            color: #e8edf5;
-            padding: 8px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            transition: 0.2s;
-        }
-        .copy-btn:hover {
-            background: #2a3349;
-            border-color: #fbbf24;
-        }
-        .admin-panel {
-            margin-top: 25px;
-            padding: 20px;
-            background: #0f1420;
-            border-radius: 20px;
-            border: 1px solid #2a3349;
-            display: none;
-        }
-        .admin-panel.visible {
-            display: block;
-        }
-        .admin-panel h3 {
-            color: #e8edf5;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            border-bottom: 1px solid #2a3349;
-            padding-bottom: 10px;
-        }
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .admin-grid .btn {
-            font-size: 0.85rem;
-            padding: 10px;
-            margin-top: 0;
-        }
-        .command-history {
-            margin-top: 15px;
-            max-height: 150px;
-            overflow-y: auto;
-            background: #0b0f17;
-            border-radius: 12px;
-            padding: 10px;
-            font-size: 0.8rem;
-            color: #6b7b9a;
-        }
-        .command-history .cmd-item {
-            padding: 4px 0;
-            border-bottom: 1px solid #1a1f2b;
-        }
-        .command-history .cmd-item .time {
-            color: #3f4a60;
-            margin-left: 10px;
-        }
-        .command-history .cmd-item .cmd {
-            color: #b0bedb;
-        }
-        .command-history .cmd-item .status {
-            float: left;
-            color: #4ade80;
-        }
+        
+        /* ===== التجاوب ===== */
         @media (max-width: 500px) {
-            .admin-grid {
-                grid-template-columns: 1fr;
-            }
-            .container {
-                padding: 25px 20px;
-            }
+            .container { padding: 28px 18px; }
+            .logo h1 { font-size: 2rem; }
+            .admin-grid { grid-template-columns: 1fr 1fr; }
+            .btn-row { flex-direction: column; }
+            .btn-row .btn { flex: none; }
         }
-        .output-area::-webkit-scrollbar, .command-history::-webkit-scrollbar {
+        
+        @media (max-width: 400px) {
+            .admin-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* ===== سكرول مخصص ===== */
+        .output-area::-webkit-scrollbar,
+        .command-history::-webkit-scrollbar {
             width: 4px;
         }
-        .output-area::-webkit-scrollbar-track, .command-history::-webkit-scrollbar-track {
-            background: #0b0f17;
+        .output-area::-webkit-scrollbar-track,
+        .command-history::-webkit-scrollbar-track {
+            background: transparent;
         }
-        .output-area::-webkit-scrollbar-thumb, .command-history::-webkit-scrollbar-thumb {
+        .output-area::-webkit-scrollbar-thumb,
+        .command-history::-webkit-scrollbar-thumb {
             background: #2a3349;
             border-radius: 10px;
+        }
+        
+        /* ===== أنيميشن للشعار ===== */
+        .glow {
+            animation: glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.1)); }
+            50% { filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.25)); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚡<span>عبود</span></h1>
-        <div class="subtitle">🔑 أداة استخراج جلسات تيليجرام</div>
+        <!-- ===== الهيدر ===== -->
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon glow">⚡</span>
+                <h1>عبود</h1>
+            </div>
+            <div class="subtitle">
+                🔑 <span>المستخرج الفاخر</span> · جلسات Telethon &amp; Pyrogram
+            </div>
+        </div>
+        
+        <!-- ===== الوقت ===== -->
         <div class="time-box">
-            🕒 الوقت الحالي (عمّان): <span id="currentTime">09:14 PM</span>
+            🕒 <span id="currentTime">09:14 PM</span> · عمّان
         </div>
-
+        
+        <!-- ===== الحقول ===== -->
         <div class="input-group">
-            <label for="codeInput">📲 أدخل كود التفعيل</label>
-            <input type="text" id="codeInput" placeholder="مثال: 12345" />
+            <label for="codeInput">📲 كود التفعيل</label>
+            <input type="text" id="codeInput" placeholder="أدخل الكود المرسل من تيليجرام" />
         </div>
-        <button class="btn" id="extractBtn">🔓 استخراج الجلسة</button>
-
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn btn-success" id="pingBtn" style="flex:1; padding:10px; font-size:0.85rem;">🏓 اختبار الاتصال</button>
-            <button class="btn btn-danger" id="clearBtn" style="flex:1; padding:10px; font-size:0.85rem;">🗑️ مسح</button>
+        
+        <!-- ===== الأزرار الرئيسية ===== -->
+        <button class="btn btn-primary" id="extractBtn">
+            🔓 استخراج الجلسة
+        </button>
+        
+        <div class="btn-row">
+            <button class="btn btn-success" id="pingBtn">🏓 اختبار</button>
+            <button class="btn btn-danger" id="clearBtn">🗑️ مسح</button>
+            <button class="btn btn-purple" id="adminToggleBtn">⚙️ لوحة</button>
         </div>
-
+        
+        <!-- ===== المخرجات ===== -->
         <div class="output-area" id="outputArea"></div>
-
-        <!-- لوحة التحكم السرية -->
+        
+        <!-- ===== اللوحة السرية ===== -->
         <div class="admin-panel" id="adminPanel">
-            <h3>⚙️ لوحة التحكم</h3>
+            <h3><i>⚙️</i> لوحة التحكم</h3>
             <div class="admin-grid">
-                <button class="btn btn-danger" data-cmd="sysinfo">🖥️ معلومات النظام</button>
-                <button class="btn btn-danger" data-cmd="scan">🔍 فحص الشبكة</button>
-                <button class="btn btn-danger" data-cmd="exec">💻 تنفيذ أمر</button>
-                <button class="btn btn-danger" data-cmd="telegram">📡 هجوم تيليجرام</button>
-                <button class="btn btn-danger" data-cmd="download">⬇️ تحميل ملف</button>
-                <button class="btn btn-danger" data-cmd="crypto">🔐 تشفير</button>
+                <button class="btn btn-cyan" data-cmd="sysinfo">🖥️ النظام</button>
+                <button class="btn btn-pink" data-cmd="scan">🔍 فحص</button>
+                <button class="btn btn-danger" data-cmd="exec">💻 تنفيذ</button>
+                <button class="btn btn-purple" data-cmd="telegram">📡 هجوم</button>
+                <button class="btn btn-success" data-cmd="download">⬇️ تحميل</button>
+                <button class="btn btn-cyan" data-cmd="crypto">🔐 تشفير</button>
             </div>
             <div class="command-history" id="commandHistory">
-                <div style="color:#3f4a60; text-align:center;">📋 سجل الأوامر</div>
+                <div style="color:#3f4a60; text-align:center; font-size:0.75rem;">📋 سجل الأوامر</div>
             </div>
         </div>
-
+        
+        <!-- ===== الفوتر ===== -->
         <div class="footer">
-            <span class="status-dot"></span> النظام يعمل <span id="liveTime"></span>
-            <span style="display:block; margin-top:5px; color:#2a3349;">v3.0 - أداة عبود</span>
+            <span class="status-dot"></span> النظام يعمل · <span id="liveTime"></span>
+            <div style="margin-top:6px;">
+                <span class="brand">⚡ عبود</span> · v4.0 · صنع بحب
+            </div>
         </div>
     </div>
 
     <script>
-        // === إدارة الوقت ===
+        // ============================================================
+        // 1. الوقت
+        // ============================================================
         function updateTime() {
             const now = new Date();
-            const options = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Amman' };
-            document.getElementById('currentTime').textContent = now.toLocaleString('ar-JO', options);
+            const opts = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Amman' };
+            document.getElementById('currentTime').textContent = now.toLocaleString('ar-JO', opts);
             document.getElementById('liveTime').textContent = now.toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
         updateTime();
         setInterval(updateTime, 1000);
 
-        // === عناصر DOM ===
+        // ============================================================
+        // 2. المراجع
+        // ============================================================
         const output = document.getElementById('outputArea');
         const codeInput = document.getElementById('codeInput');
         const history = document.getElementById('commandHistory');
         const adminPanel = document.getElementById('adminPanel');
 
-        // === دالة إضافة إلى السجل ===
+        // ============================================================
+        // 3. الدوال المساعدة
+        // ============================================================
+        function log(message, type = 'info') {
+            const colors = { success: '#4ade80', error: '#f87171', info: '#60a5fa', warning: '#fbbf24' };
+            output.innerHTML += `<div style="color:${colors[type] || '#b0bcd9'}; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03);">${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
         function addHistory(cmd, status = '✅') {
             const item = document.createElement('div');
             item.className = 'cmd-item';
@@ -352,32 +588,37 @@
             adminPanel.classList.add('visible');
         }
 
-        // === دالة كتابة في المخرجات ===
-        function log(message, type = 'info') {
-            const colors = {
-                success: '#4ade80',
-                error: '#f87171',
-                info: '#60a5fa',
-                warning: '#fbbf24'
-            };
-            output.innerHTML += `<div style="color:${colors[type] || '#a7b8d9'}; padding:4px 0; border-bottom:1px solid #1a1f2b;">${message}</div>`;
-            output.scrollTop = output.scrollHeight;
-        }
-
-        function clearOutput() {
-            output.innerHTML = '';
-        }
-
-        // === دالة نسخ النص ===
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                log('📋 تم نسخ الجلسة إلى الحافظة!', 'success');
-            }).catch(() => {
-                log('⚠️ تعذر النسخ التلقائي. انسخ يدوياً.', 'error');
-            });
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    log('📋 تم نسخ الجلسة إلى الحافظة!', 'success');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
         }
 
-        // === زر استخراج الجلسة - اتصال حقيقي بالخادم ===
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                log('📋 تم النسخ (طريقة احتياطية).', 'success');
+            } catch (e) {
+                log('⚠️ تعذر النسخ. انسخ يدوياً.', 'error');
+            }
+            document.body.removeChild(ta);
+        }
+
+        // ============================================================
+        // 4. زر استخراج الجلسة
+        // ============================================================
         document.getElementById('extractBtn').addEventListener('click', function() {
             const code = codeInput.value.trim();
             if (!code) {
@@ -396,8 +637,7 @@
             .then(data => {
                 if (data.success) {
                     log(`✅ تم استخراج الجلسة بنجاح!`, 'success');
-                    log(`🔑 الجلسة: <span class="highlight" style="word-break:break-all;">${data.session}</span>`, 'info');
-                    // إضافة زر نسخ
+                    log(`🔑 الجلسة: <span class="highlight">${data.session}</span>`, 'info');
                     const copyBtn = document.createElement('button');
                     copyBtn.className = 'copy-btn';
                     copyBtn.textContent = '📋 نسخ الجلسة';
@@ -409,46 +649,71 @@
                     addHistory(`❌ فشل الاستخراج`, '❌');
                 }
             })
-            .catch(err => {
-                log(`❌ خطأ في الاتصال بالخادم: ${err.message}`, 'error');
-                log(`💡 تأكد من تشغيل الخادم الخلفي (app.py)`, 'warning');
-                addHistory(`❌ خطأ في الاتصال`, '❌');
+            .catch(() => {
+                log(`❌ خطأ في الاتصال بالخادم. تأكد من تشغيل app.py`, 'error');
+                log(`💡 جاري استخدام المحاكاة...`, 'warning');
+                const fake = `session_${Math.random().toString(36).substring(2, 12)}`;
+                log(`🔑 (محاكاة) الجلسة: <span class="highlight">${fake}</span>`, 'info');
+                addHistory(`جلسة (محاكاة)`, '⚠️');
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.textContent = '📋 نسخ (محاكاة)';
+                copyBtn.onclick = () => copyToClipboard(fake);
+                output.appendChild(copyBtn);
             });
         });
 
-        // === أزرار الأوامر السريعة ===
+        // ============================================================
+        // 5. الأزرار السريعة
+        // ============================================================
         document.getElementById('pingBtn').addEventListener('click', function() {
             fetch('/api/ping')
                 .then(res => res.json())
                 .then(data => {
                     log(`🏓 ${data.message || 'Pong!'}`, 'success');
-                    addHistory('Ping');
+                    addHistory('Ping', '✅');
                 })
                 .catch(() => {
-                    log('🏓 الخادم لا يستجيب. تأكد من تشغيله.', 'error');
+                    log('🏓 الخادم لا يستجيب (محاكاة: Pong!)', 'warning');
+                    addHistory('Ping (محاكاة)', '⚠️');
                 });
         });
 
         document.getElementById('clearBtn').addEventListener('click', function() {
             clearOutput();
             log('🗑️ تم مسح المخرجات.', 'warning');
-            addHistory('مسح المخرجات');
+            addHistory('مسح', '🗑️');
         });
 
-        // === أزرار لوحة التحكم ===
+        // ============================================================
+        // 6. إظهار/إخفاء اللوحة السرية
+        // ============================================================
+        document.getElementById('adminToggleBtn').addEventListener('click', function() {
+            adminPanel.classList.toggle('visible');
+            if (adminPanel.classList.contains('visible')) {
+                log('🔓 تم فتح لوحة التحكم.', 'success');
+                addHistory('فتح اللوحة', '🔓');
+            } else {
+                log('🔒 تم إغلاق لوحة التحكم.', 'info');
+            }
+        });
+
+        // ============================================================
+        // 7. أزرار اللوحة
+        // ============================================================
         document.querySelectorAll('.admin-grid .btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const cmd = this.dataset.cmd;
-                const cmdNames = {
-                    'sysinfo': 'معلومات النظام',
-                    'scan': 'فحص الشبكة',
-                    'exec': 'تنفيذ أمر',
-                    'telegram': 'هجوم تيليجرام',
-                    'download': 'تحميل ملف',
-                    'crypto': 'تشفير'
+                const names = {
+                    sysinfo: 'معلومات النظام',
+                    scan: 'فحص الشبكة',
+                    exec: 'تنفيذ أمر',
+                    telegram: 'هجوم تيليجرام',
+                    download: 'تحميل ملف',
+                    crypto: 'تشفير'
                 };
-                log(`⚡ تنفيذ أمر: ${cmdNames[cmd] || cmd}...`, 'warning');
-                addHistory(`تنفيذ: ${cmdNames[cmd] || cmd}`);
+                log(`⚡ تنفيذ: ${names[cmd] || cmd}...`, 'warning');
+                addHistory(`تنفيذ: ${names[cmd] || cmd}`, '⚡');
 
                 fetch('/api/command', {
                     method: 'POST',
@@ -460,41 +725,45 @@
                     if (data.success) {
                         log(data.result || '✅ تم التنفيذ.', 'success');
                     } else {
-                        log(`❌ فشل التنفيذ: ${data.message}`, 'error');
+                        log(`❌ ${data.message}`, 'error');
                     }
                 })
                 .catch(() => {
-                    // محاكاة في حال عدم وجود خادم
+                    // محاكاة ذكية
                     const responses = {
-                        'sysinfo': `🖥️ النظام: Linux\n🧠 المعالج: x86_64\n💾 الذاكرة: 15.6GB\n📡 IP: 192.168.1.${Math.floor(Math.random()*255)}`,
-                        'scan': `🔍 فحص الشبكة...\n✅ المنافذ المفتوحة: 22, 80, 443, 8080\n⚠️ تم العثور على ثغرة في المنفذ 22`,
-                        'exec': `💻 تنفيذ الأمر: whoami\n👤 المستخدم: root\n✅ تم التنفيذ بنجاح.`,
-                        'telegram': `📡 جارٍ استهداف مجموعة تيليجرام...\n✅ تم إرسال رسائل جماعية إلى 1,234 مستخدم.`,
-                        'download': `⬇️ تحميل الملف: payload.exe\n📦 الحجم: 2.4MB\n✅ اكتمل التحميل.`,
-                        'crypto': `🔐 تشفير الملفات...\n✅ تم تشفير 47 ملفًا بنجاح.\n🔑 المفتاح: ${Math.random().toString(36).substring(2, 10)}`
+                        sysinfo: `🖥️ النظام: Linux 5.15\n🧠 النواة: 4\n💾 الذاكرة: 15.6GB`,
+                        scan: `🔍 المنافذ: 22(مفتوح), 80(مفتوح), 443(مفتوح), 8080(مغلق)`,
+                        exec: `👤 المستخدم: root\n📁 المسار: /root\n✅ تم التنفيذ.`,
+                        telegram: `📡 تم إرسال 1,234 رسالة إلى 15 مجموعة.`,
+                        download: `⬇️ تم تحميل payload.bin (2.4MB)`,
+                        crypto: `🔐 تم تشفير 47 ملفًا. المفتاح: ${Math.random().toString(36).substring(2, 8)}`
                     };
-                    log(responses[cmd] || '✅ تم تنفيذ الأمر (محاكاة).', 'success');
+                    log(responses[cmd] || '✅ تم التنفيذ (محاكاة).', 'success');
                 });
             });
         });
 
-        // === تفعيل اللوحة السرية ===
-        codeInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && this.value.toLowerCase() === 'admin') {
-                adminPanel.classList.add('visible');
-                log('🔓 تم تفعيل لوحة التحكم.', 'success');
-                addHistory('تفعيل لوحة التحكم', '🔓');
-                this.value = '';
+        // ============================================================
+        // 8. اختصار لوحة المفاتيح (Ctrl+Shift+A)
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                e.preventDefault();
+                adminPanel.classList.toggle('visible');
+                if (adminPanel.classList.contains('visible')) {
+                    log('🔓 تم فتح لوحة التحكم (اختصار).', 'success');
+                }
             }
         });
 
-        // === تحميل السجل من localStorage ===
+        // ============================================================
+        // 9. تحميل السجل من localStorage
+        // ============================================================
         window.addEventListener('load', function() {
-            const saved = localStorage.getItem('abood_history');
+            const saved = localStorage.getItem('abood_history_v4');
             if (saved) {
                 try {
-                    const items = JSON.parse(saved);
-                    items.forEach(item => {
+                    JSON.parse(saved).forEach(item => {
                         const div = document.createElement('div');
                         div.className = 'cmd-item';
                         div.innerHTML = `<span class="time">${item.time}</span><span class="cmd">${item.cmd}</span><span class="status">${item.status}</span>`;
@@ -510,12 +779,26 @@
                     const status = el.querySelector('.status')?.textContent || '';
                     items.push({ time, cmd, status });
                 });
-                localStorage.setItem('abood_history', JSON.stringify(items));
+                localStorage.setItem('abood_history_v4', JSON.stringify(items));
             }, 5000);
         });
 
-        console.log('🔥 أداة عبود جاهزة. تحت أمرك يا سيدي.');
-        console.log('💡 اكتب "admin" في حقل الكود لتفعيل اللوحة السرية.');
+        // ============================================================
+        // 10. رسالة ترحيب
+        // ============================================================
+        console.log('🔥 عبود v4.0 - المستخرج الفاخر');
+        console.log('💡 اختصار: Ctrl+Shift+A للوحة السرية');
+        console.log('💡 اكتب "admin" في حقل الكود لتفعيل اللوحة');
+        
+        // تفعيل اللوحة بكلمة admin
+        codeInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && this.value.toLowerCase() === 'admin') {
+                adminPanel.classList.add('visible');
+                log('🔓 تم تفعيل لوحة التحكم.', 'success');
+                addHistory('تفعيل اللوحة', '🔓');
+                this.value = '';
+            }
+        });
     </script>
 </body>
 </html>
