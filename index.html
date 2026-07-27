@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عراب روان - المستخرج الرومانسي</title>
+    <title>نون - مملكة الحب</title>
     <style>
-        /* ===== الخطوط والأساسيات ===== */
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+        /* ===== الخطوط ===== */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap');
         
         * {
             margin: 0;
@@ -20,143 +20,132 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #0a0e17;
+            background: #0a0a12;
             background-image: 
-                radial-gradient(ellipse at 10% 20%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 90% 80%, rgba(244, 114, 182, 0.08) 0%, transparent 50%),
-                linear-gradient(145deg, #0a0e17 0%, #1a1025 100%);
+                radial-gradient(ellipse at 20% 30%, rgba(251, 191, 36, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(236, 72, 153, 0.06) 0%, transparent 50%),
+                linear-gradient(145deg, #0a0a12 0%, #14141f 50%, #1a1025 100%);
             padding: 20px;
             direction: rtl;
+            min-height: 100vh;
         }
         
-        /* ===== الحاوية الرئيسية ===== */
+        /* ===== الحاوية ===== */
         .container {
-            max-width: 580px;
+            max-width: 620px;
             width: 100%;
-            background: rgba(16, 22, 36, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 48px;
-            padding: 45px 38px;
-            border: 1px solid rgba(236, 72, 153, 0.15);
+            background: rgba(16, 18, 30, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 56px;
+            padding: 48px 40px;
+            border: 1px solid rgba(251, 191, 36, 0.08);
             box-shadow: 
-                0 30px 60px -20px rgba(0,0,0,0.9),
-                inset 0 1px 0 rgba(236, 72, 153, 0.06);
-            transition: all 0.3s ease;
+                0 40px 80px -30px rgba(0,0,0,0.9),
+                inset 0 1px 0 rgba(251, 191, 36, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(251, 191, 36, 0.02) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         /* ===== الهيدر ===== */
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
         }
         
         .logo {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 6px;
+            gap: 12px;
+            margin-bottom: 4px;
         }
         
         .logo-icon {
-            font-size: 2.2rem;
-            filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.3));
-            animation: floatHeart 3s ease-in-out infinite;
+            font-size: 2.6rem;
+            filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.2));
+            animation: floatN 4s ease-in-out infinite;
         }
         
-        @keyframes floatHeart {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-5px) scale(1.05); }
+        @keyframes floatN {
+            0%, 100% { transform: translateY(0) rotate(-3deg) scale(1); }
+            50% { transform: translateY(-8px) rotate(3deg) scale(1.05); }
         }
         
         .logo h1 {
-            font-size: 2.6rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ec4899, #f472b6, #db2777);
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #ec4899, #f472b6);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: -1px;
-            text-shadow: none;
+            animation: gradShift 6s ease-in-out infinite;
+            letter-spacing: -2px;
+        }
+        
+        @keyframes gradShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         
         .subtitle {
             color: #8a94a6;
             font-size: 0.95rem;
-            font-weight: 400;
-            border-bottom: 1px solid rgba(236, 72, 153, 0.1);
-            padding-bottom: 16px;
-            margin-top: 4px;
+            font-weight: 300;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.06);
+            padding-bottom: 14px;
+            margin-top: 2px;
+            letter-spacing: 1px;
         }
         
         .subtitle span {
-            background: linear-gradient(135deg, #ec4899, #f472b6);
+            background: linear-gradient(135deg, #fbbf24, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 600;
+            font-weight: 700;
+        }
+        
+        .subtitle small {
+            color: #4a5470;
+            font-size: 0.7rem;
+            -webkit-text-fill-color: #4a5470;
         }
         
         /* ===== الوقت ===== */
         .time-box {
-            background: rgba(11, 15, 23, 0.7);
+            background: rgba(11, 13, 23, 0.6);
             border-radius: 60px;
-            padding: 10px 24px;
+            padding: 8px 24px;
             display: inline-block;
-            margin: 0 auto 28px;
-            border: 1px solid rgba(236, 72, 153, 0.1);
+            margin: 0 auto 24px;
+            border: 1px solid rgba(251, 191, 36, 0.06);
             color: #a8b2c9;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             width: fit-content;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         
         .time-box span {
-            color: #f472b6;
+            background: linear-gradient(135deg, #fbbf24, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: 700;
-        }
-        
-        /* ===== الحقول ===== */
-        .input-group {
-            margin-bottom: 18px;
-        }
-        
-        .input-group label {
-            display: block;
-            color: #c8d0e0;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            letter-spacing: 0.3px;
-        }
-        
-        .input-group label i {
-            margin-left: 6px;
-        }
-        
-        .input-group input,
-        .input-group select {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(11, 15, 23, 0.8);
-            border: 1.5px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            color: #eef3fc;
-            font-size: 1rem;
-            font-family: 'Cairo', sans-serif;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        
-        .input-group input:focus,
-        .input-group select:focus {
-            border-color: #ec4899;
-            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
-            background: rgba(16, 22, 36, 0.9);
-        }
-        
-        .input-group input::placeholder {
-            color: #4a5470;
         }
         
         /* ===== الأزرار ===== */
@@ -169,108 +158,120 @@
             font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            letter-spacing: 0.3px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             position: relative;
             overflow: hidden;
+            letter-spacing: 0.5px;
         }
         
         .btn::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 60%);
             opacity: 0;
-            transition: opacity 0.4s;
+            transition: opacity 0.5s;
         }
         
         .btn:hover::after {
             opacity: 1;
         }
         
-        /* ===== أزرار رومانسية ===== */
+        /* ===== أزرار الحب ===== */
+        .btn-primary {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0a0a12;
+            box-shadow: 0 8px 32px -8px rgba(251, 191, 36, 0.25);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 16px 48px -12px rgba(251, 191, 36, 0.35);
+        }
+        
         .btn-romantic {
             background: linear-gradient(135deg, #ec4899, #db2777);
             color: white;
-            box-shadow: 0 8px 24px -6px rgba(236, 72, 153, 0.35);
+            box-shadow: 0 8px 32px -8px rgba(236, 72, 153, 0.25);
         }
         
         .btn-romantic:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 12px 32px -8px rgba(236, 72, 153, 0.45);
-        }
-        
-        .btn-romantic:active {
-            transform: scale(0.97);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 16px 48px -12px rgba(236, 72, 153, 0.35);
         }
         
         .btn-rose {
             background: linear-gradient(135deg, #f472b6, #ec4899);
             color: white;
-            box-shadow: 0 8px 24px -6px rgba(244, 114, 182, 0.3);
+            box-shadow: 0 8px 32px -8px rgba(244, 114, 182, 0.2);
         }
         
         .btn-rose:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px -8px rgba(244, 114, 182, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px -12px rgba(244, 114, 182, 0.3);
         }
         
-        .btn-heart {
-            background: linear-gradient(135deg, #fb7185, #e11d48);
-            color: white;
-            box-shadow: 0 8px 24px -6px rgba(225, 29, 72, 0.3);
+        .btn-gold {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: #0a0a12;
+            box-shadow: 0 8px 32px -8px rgba(251, 191, 36, 0.2);
         }
         
-        .btn-heart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px -8px rgba(225, 29, 72, 0.4);
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px -12px rgba(251, 191, 36, 0.3);
         }
         
         .btn-lavender {
             background: linear-gradient(135deg, #a78bfa, #7c3aed);
             color: white;
-            box-shadow: 0 8px 24px -6px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 8px 32px -8px rgba(124, 58, 237, 0.2);
         }
         
         .btn-lavender:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px -8px rgba(124, 58, 237, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px -12px rgba(124, 58, 237, 0.3);
         }
         
-        .btn-gold {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #0a0e17;
-            box-shadow: 0 8px 24px -6px rgba(251, 191, 36, 0.3);
+        .btn-heart {
+            background: linear-gradient(135deg, #fb7185, #e11d48);
+            color: white;
+            box-shadow: 0 8px 32px -8px rgba(225, 29, 72, 0.2);
         }
         
-        .btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px -8px rgba(251, 191, 36, 0.4);
+        .btn-heart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px -12px rgba(225, 29, 72, 0.3);
         }
         
         .btn-soft {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             color: #c8d0e0;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(4px);
         }
         
         .btn-soft:hover {
             background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        
+        .btn:active {
+            transform: scale(0.96);
         }
         
         /* ===== صف الأزرار ===== */
         .btn-row {
             display: flex;
             gap: 10px;
-            margin-top: 14px;
+            margin-top: 12px;
             flex-wrap: wrap;
         }
         
@@ -278,104 +279,96 @@
             flex: 1;
             padding: 12px;
             font-size: 0.85rem;
-            min-width: 80px;
+            min-width: 70px;
         }
         
-        /* ===== منطقة المخرجات ===== */
-        .output-area {
-            margin-top: 28px;
-            background: rgba(11, 15, 23, 0.7);
+        /* ===== أزرار الحب والأشعار ===== */
+        .love-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        
+        .love-grid .btn {
+            padding: 14px 8px;
+            font-size: 0.8rem;
             border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            min-height: 70px;
+            min-height: 60px;
+        }
+        
+        /* ===== المخرجات ===== */
+        .output-area {
+            margin-top: 24px;
+            background: rgba(11, 13, 23, 0.6);
+            border-radius: 24px;
+            padding: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            min-height: 80px;
             color: #b0bcd9;
             font-size: 0.95rem;
             word-break: break-all;
-            max-height: 320px;
+            max-height: 350px;
             overflow-y: auto;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(4px);
+            position: relative;
+            z-index: 1;
         }
         
         .output-area:empty::before {
-            content: "🌙 في انتظار أمرك يا عراب...";
+            content: "🌙 في انتظار نبضك...";
             color: #3e4a62;
+            font-weight: 300;
+        }
+        
+        .output-area .love-text {
+            color: #f472b6;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+        
+        .output-area .gold-text {
+            color: #fbbf24;
+            font-weight: 600;
         }
         
         .output-area .success { color: #4ade80; }
         .output-area .error { color: #f87171; }
         .output-area .info { color: #60a5fa; }
         .output-area .warning { color: #fbbf24; }
-        .output-area .love { color: #f472b6; }
-        .output-area .highlight {
-            color: #ec4899;
-            font-weight: 700;
-        }
-        
-        /* ===== زر النسخ ===== */
-        .copy-btn {
-            background: rgba(236, 72, 153, 0.1);
-            border: 1px solid rgba(236, 72, 153, 0.2);
-            color: #f472b6;
-            padding: 8px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .copy-btn:hover {
-            background: rgba(236, 72, 153, 0.2);
-            border-color: #ec4899;
-            transform: scale(1.02);
-        }
-        
-        /* ===== اللوحات الرومانسية ===== */
-        .romantic-panels {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .romantic-panels .btn {
-            font-size: 0.85rem;
-            padding: 12px;
-        }
         
         /* ===== اللوحة السرية ===== */
         .admin-panel {
-            margin-top: 25px;
+            margin-top: 22px;
             padding: 20px;
-            background: rgba(11, 15, 23, 0.6);
-            border-radius: 20px;
-            border: 1px solid rgba(236, 72, 153, 0.08);
+            background: rgba(11, 13, 23, 0.5);
+            border-radius: 24px;
+            border: 1px solid rgba(251, 191, 36, 0.04);
             display: none;
+            backdrop-filter: blur(4px);
         }
         
         .admin-panel.visible {
             display: block;
-            animation: fadeInUp 0.5s ease;
+            animation: fadeInUp 0.6s ease;
         }
         
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
         .admin-panel h3 {
             color: #e8edf5;
-            font-size: 1rem;
+            font-size: 0.95rem;
             margin-bottom: 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             padding-bottom: 10px;
         }
         
         .admin-panel h3 i {
-            color: #ec4899;
+            color: #fbbf24;
             margin-left: 8px;
         }
         
@@ -387,32 +380,32 @@
         
         .admin-grid .btn {
             padding: 10px;
-            font-size: 0.75rem;
-            border-radius: 14px;
+            font-size: 0.7rem;
+            border-radius: 16px;
         }
         
         /* ===== السجل ===== */
         .command-history {
             margin-top: 14px;
-            max-height: 130px;
+            max-height: 120px;
             overflow-y: auto;
-            background: rgba(0,0,0,0.3);
-            border-radius: 14px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
             padding: 10px 14px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #6b7b9a;
         }
         
         .command-history .cmd-item {
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
             display: flex;
             justify-content: space-between;
         }
         
         .command-history .cmd-item .time {
             color: #3f4a60;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
         
         .command-history .cmd-item .cmd {
@@ -420,7 +413,7 @@
         }
         
         .command-history .cmd-item .status {
-            color: #4ade80;
+            color: #fbbf24;
         }
         
         /* ===== الفوتر ===== */
@@ -428,37 +421,38 @@
             margin-top: 28px;
             text-align: center;
             color: #3f4a60;
-            font-size: 0.75rem;
-            border-top: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.7rem;
+            border-top: 1px solid rgba(255,255,255,0.02);
             padding-top: 18px;
+            position: relative;
+            z-index: 1;
         }
         
         .footer .brand {
-            background: linear-gradient(135deg, #ec4899, #f472b6);
+            background: linear-gradient(135deg, #fbbf24, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 700;
-            font-size: 0.85rem;
+            font-weight: 800;
+            font-size: 0.9rem;
         }
         
         .footer .status-dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
+            width: 7px;
+            height: 7px;
+            background: #fbbf24;
             border-radius: 50%;
             margin-left: 6px;
-            box-shadow: 0 0 12px #22c55e80;
-            animation: pulse-dot 1.8s infinite;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+            animation: pulseDot 2s infinite;
         }
         
-        @keyframes pulse-dot {
-            0% { opacity: 0.4; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.4; transform: scale(0.9); }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
         }
         
-        /* ===== زينة رومانسية ===== */
+        /* ===== خلفية القلوب ===== */
         .floating-hearts {
             position: fixed;
             top: 0;
@@ -466,42 +460,43 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: -1;
+            z-index: 0;
             overflow: hidden;
         }
         
         .heart-particle {
             position: absolute;
-            color: rgba(236, 72, 153, 0.05);
-            font-size: 20px;
-            animation: floatUp 20s linear infinite;
+            color: rgba(251, 191, 36, 0.03);
+            font-size: 22px;
+            animation: floatHeartSlow 25s linear infinite;
         }
         
-        @keyframes floatUp {
-            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+        @keyframes floatHeartSlow {
+            0% { transform: translateY(110vh) rotate(0deg) scale(0.4); opacity: 0; }
             10% { opacity: 1; }
             90% { opacity: 1; }
-            100% { transform: translateY(-10vh) rotate(720deg) scale(1.5); opacity: 0; }
+            100% { transform: translateY(-10vh) rotate(720deg) scale(1.8); opacity: 0; }
         }
         
         /* ===== التجاوب ===== */
-        @media (max-width: 500px) {
-            .container { padding: 28px 18px; }
-            .logo h1 { font-size: 2rem; }
+        @media (max-width: 520px) {
+            .container { padding: 28px 18px; border-radius: 36px; }
+            .logo h1 { font-size: 2.2rem; }
+            .love-grid { grid-template-columns: 1fr 1fr; }
             .admin-grid { grid-template-columns: 1fr 1fr; }
             .btn-row { flex-direction: column; }
             .btn-row .btn { flex: none; }
-            .romantic-panels { grid-template-columns: 1fr; }
         }
         
-        @media (max-width: 400px) {
+        @media (max-width: 380px) {
+            .love-grid { grid-template-columns: 1fr; }
             .admin-grid { grid-template-columns: 1fr; }
         }
         
-        /* ===== سكرول مخصص ===== */
+        /* ===== سكرول ===== */
         .output-area::-webkit-scrollbar,
         .command-history::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
         .output-area::-webkit-scrollbar-track,
         .command-history::-webkit-scrollbar-track {
@@ -509,65 +504,48 @@
         }
         .output-area::-webkit-scrollbar-thumb,
         .command-history::-webkit-scrollbar-thumb {
-            background: #2a3349;
+            background: rgba(251, 191, 36, 0.15);
             border-radius: 10px;
-        }
-        
-        /* ===== وميض رومانسي ===== */
-        .glow-romantic {
-            animation: glowRomantic 3s ease-in-out infinite;
-        }
-        
-        @keyframes glowRomantic {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.1)); }
-            50% { filter: drop-shadow(0 0 30px rgba(236, 72, 153, 0.25)); }
         }
     </style>
 </head>
 <body>
-    <!-- ===== خلفية القلوب العائمة ===== -->
-    <div class="floating-hearts" id="heartBackground"></div>
+    <!-- ===== خلفية القلوب ===== -->
+    <div class="floating-hearts" id="heartBg"></div>
 
     <div class="container">
         <!-- ===== الهيدر ===== -->
         <div class="header">
             <div class="logo">
-                <span class="logo-icon glow-romantic">🌹</span>
-                <h1>عراب روان</h1>
+                <span class="logo-icon">🪷</span>
+                <h1>نون</h1>
             </div>
             <div class="subtitle">
-                💕 <span>المستخرج الرومانسي</span> · جلسات Telethon &amp; Pyrogram
+                💛 <span>مملكة الحب</span> · حكم · أشعار · نصائح
+                <br><small>— @u_t_r —</small>
             </div>
         </div>
         
         <!-- ===== الوقت ===== -->
         <div class="time-box">
-            🕒 <span id="currentTime">09:14 PM</span> · عمّان
+            🕊️ <span id="currentTime">09:14 PM</span> · عمّان
         </div>
         
-        <!-- ===== الحقول ===== -->
-        <div class="input-group">
-            <label for="codeInput">📲 كود التفعيل</label>
-            <input type="text" id="codeInput" placeholder="أدخل الكود المرسل من تيليجرام" />
-        </div>
-        
-        <!-- ===== الأزرار الرئيسية ===== -->
-        <button class="btn btn-romantic" id="extractBtn">
-            💖 استخراج الجلسة
-        </button>
-        
+        <!-- ===== أزرار سريعة ===== -->
         <div class="btn-row">
-            <button class="btn btn-rose" id="pingBtn">🏓 اختبار</button>
-            <button class="btn btn-heart" id="clearBtn">🗑️ مسح</button>
+            <button class="btn btn-soft" id="pingBtn">🏓 اختبار</button>
+            <button class="btn btn-soft" id="clearBtn">🗑️ مسح</button>
             <button class="btn btn-lavender" id="adminToggleBtn">⚙️ لوحة</button>
         </div>
         
-        <!-- ===== اللوحات الرومانسية ===== -->
-        <div class="romantic-panels">
-            <button class="btn btn-rose" id="loveBtn">💌 رسالة حب</button>
-            <button class="btn btn-heart" id="roseBtn">🌹 وردة</button>
-            <button class="btn btn-romantic" id="storyBtn">📖 قصة</button>
-            <button class="btn btn-gold" id="songBtn">🎵 أغنية</button>
+        <!-- ===== أزرار الحب والأشعار ===== -->
+        <div class="love-grid">
+            <button class="btn btn-romantic" id="loveBtn">💕 حب</button>
+            <button class="btn btn-rose" id="poemBtn">🪷 شعر</button>
+            <button class="btn btn-gold" id="wisdomBtn">💛 حكمة</button>
+            <button class="btn btn-heart" id="adviceBtn">💖 نصيحة</button>
+            <button class="btn btn-lavender" id="quoteBtn">✨ اقتباس</button>
+            <button class="btn btn-romantic" id="notifyBtn">🔔 إشعار</button>
         </div>
         
         <!-- ===== المخرجات ===== -->
@@ -577,15 +555,15 @@
         <div class="admin-panel" id="adminPanel">
             <h3><i>⚙️</i> لوحة التحكم</h3>
             <div class="admin-grid">
-                <button class="btn btn-rose" data-cmd="sysinfo">🖥️ النظام</button>
-                <button class="btn btn-heart" data-cmd="scan">🔍 فحص</button>
-                <button class="btn btn-romantic" data-cmd="exec">💻 تنفيذ</button>
-                <button class="btn btn-lavender" data-cmd="telegram">📡 هجوم</button>
-                <button class="btn btn-gold" data-cmd="download">⬇️ تحميل</button>
-                <button class="btn btn-rose" data-cmd="crypto">🔐 تشفير</button>
+                <button class="btn btn-soft" data-cmd="sysinfo">🖥️ نظام</button>
+                <button class="btn btn-soft" data-cmd="scan">🔍 فحص</button>
+                <button class="btn btn-soft" data-cmd="exec">💻 تنفيذ</button>
+                <button class="btn btn-soft" data-cmd="telegram">📡 هجوم</button>
+                <button class="btn btn-soft" data-cmd="download">⬇️ تحميل</button>
+                <button class="btn btn-soft" data-cmd="crypto">🔐 تشفير</button>
             </div>
             <div class="command-history" id="commandHistory">
-                <div style="color:#3f4a60; text-align:center; font-size:0.75rem;">📋 سجل الأوامر</div>
+                <div style="color:#3f4a60; text-align:center; font-size:0.7rem;">📋 سجل الأوامر</div>
             </div>
         </div>
         
@@ -593,27 +571,27 @@
         <div class="footer">
             <span class="status-dot"></span> القلب ينبض · <span id="liveTime"></span>
             <div style="margin-top:6px;">
-                <span class="brand">🌹 عراب روان</span> · v5.0 · بحب
+                <span class="brand">🪷 نون</span> · v7.0 · مملكة الحب
             </div>
         </div>
     </div>
 
     <script>
         // ============================================================
-        // 1. خلفية القلوب العائمة
+        // 1. خلفية القلوب
         // ============================================================
         (function createHearts() {
-            const container = document.getElementById('heartBackground');
-            const symbols = ['♥', '♡', '❤', '💕', '💖', '💗', '✨'];
-            for (let i = 0; i < 30; i++) {
-                const span = document.createElement('span');
-                span.className = 'heart-particle';
-                span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                span.style.left = Math.random() * 100 + '%';
-                span.style.fontSize = (10 + Math.random() * 25) + 'px';
-                span.style.animationDuration = (15 + Math.random() * 25) + 's';
-                span.style.animationDelay = (Math.random() * 20) + 's';
-                container.appendChild(span);
+            const c = document.getElementById('heartBg');
+            const s = ['♥', '♡', '❤', '💕', '💖', '💗', '✨', '🪷'];
+            for (let i = 0; i < 35; i++) {
+                const el = document.createElement('span');
+                el.className = 'heart-particle';
+                el.textContent = s[Math.floor(Math.random() * s.length)];
+                el.style.left = Math.random() * 100 + '%';
+                el.style.fontSize = (8 + Math.random() * 28) + 'px';
+                el.style.animationDuration = (18 + Math.random() * 30) + 's';
+                el.style.animationDelay = (Math.random() * 25) + 's';
+                c.appendChild(el);
             }
         })();
 
@@ -633,22 +611,22 @@
         // 3. المراجع
         // ============================================================
         const output = document.getElementById('outputArea');
-        const codeInput = document.getElementById('codeInput');
         const history = document.getElementById('commandHistory');
         const adminPanel = document.getElementById('adminPanel');
 
         // ============================================================
-        // 4. الدوال المساعدة
+        // 4. الدوال
         // ============================================================
         function log(message, type = 'info') {
-            const colors = { 
-                success: '#4ade80', 
-                error: '#f87171', 
-                info: '#60a5fa', 
-                warning: '#fbbf24',
-                love: '#f472b6'
+            const colors = {
+                love: '#f472b6',
+                gold: '#fbbf24',
+                success: '#4ade80',
+                error: '#f87171',
+                info: '#60a5fa',
+                warning: '#fbbf24'
             };
-            output.innerHTML += `<div style="color:${colors[type] || '#b0bcd9'}; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03);">${message}</div>`;
+            output.innerHTML += `<div style="color:${colors[type] || '#b0bcd9'}; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.02);">${message}</div>`;
             output.scrollTop = output.scrollHeight;
         }
 
@@ -656,7 +634,7 @@
             output.innerHTML = '';
         }
 
-        function addHistory(cmd, status = '💕') {
+        function addHistory(cmd, status = '💛') {
             const item = document.createElement('div');
             item.className = 'cmd-item';
             const time = new Date().toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -666,152 +644,145 @@
             adminPanel.classList.add('visible');
         }
 
-        function copyToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    log('📋 تم نسخ الجلسة إلى الحافظة!', 'success');
-                }).catch(() => {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                log('📋 تم النسخ (طريقة احتياطية).', 'success');
-            } catch (e) {
-                log('⚠️ تعذر النسخ. انسخ يدوياً.', 'error');
-            }
-            document.body.removeChild(ta);
-        }
-
         // ============================================================
-        // 5. رسائل رومانسية
+        // 5. المحتوى الرومانسي
         // ============================================================
         const loveMessages = [
             '💕 أنتِ نبض قلبي وروح حياتي.',
             '🌹 لو كان الحب كلمة، لكان اسمكِ روان.',
             '💖 كل لحظة معكِ أجمل من الخيال.',
             '✨ عيناكِ بحر يغرقني في سعادة.',
-            '🌙 أنتِ قمري في ليل حياتي.'
+            '🌙 أنتِ قمري في ليل حياتي.',
+            '🪷 أنتِ زهرة في حديقتي.',
+            '💛 حبك يضيء دربي.',
+            '🌷 أنتِ أجمل ما في هذا الكون.'
         ];
 
-        const roseMessages = [
-            '🌹 وردة حمراء لعينيكِ الجميلتين.',
-            '💐 باقة ورد لروحكِ الطيبة.',
-            '🌷 كل وردة تنادي باسمكِ.',
-            '🌸 أنتِ أجمل من كل الورود.'
+        const poems = [
+            '🪷 يا نون، يا ضوء القمر، يا نبض السهر.\nفي عينيكِ بحر من السحر، وفي قلبكِ دفء المطر.',
+            '💛 قلتُ لها: أحبكِ.\nقالت: نون.\nفأصبح الحبُّ كوناً بلا حدود.',
+            '🌹 في مملكة الحب، أنتِ الملكة.\nونون تاجٌ على رأسِ الهوى.',
+            '💕 يا نون، يا حرفاً في قلبي لا يمحى.\nأنتِ البداية والنهاية.'
         ];
 
-        const stories = [
-            '📖 كان هناك عراب وسيم اسمه روان... وكانت كل ليلة يهمس لنجوم السماء باسم حبيبته.',
-            '💕 في يوم من الأيام، أهدى عراب روان قلبه لروح جميلة، ومنذ ذلك الحين أصبح الحب عنوانهما.',
-            '🌙 تحت ضوء القمر، كتب عراب روان رسالة حب بعطر الورد.'
+        const wisdom = [
+            '💛 الحب الحقيقي لا يُرى بالعين، بل يُشعر بالروح.',
+            '🪷 السعادة في القلب، وليس في الجيوب.',
+            '🌹 من زرع الحب حصد السعادة.',
+            '✨ الصبر مفتاح الفرج، والحب مفتاح الحياة.',
+            '💕 لا تبحث عن الحب، بل كن أنت الحب.',
+            '🪷 الحياة قصيرة، فاجعلها مليئة بالحب.'
         ];
 
-        const songs = [
-            '🎵 يا ليلة العمر، غني لحبيبي روان.',
-            '🎶 كل الأغاني تحكي قصتنا.',
-            '💖 لحن الحب يملأ الكون حين نكون معاً.'
+        const advice = [
+            '💖 ابتسم للحياة، تبتسم لك.',
+            '🌹 لا تنتظر من الآخرين أن يجعلوك سعيداً، بل كن أنت مصدر سعادتك.',
+            '💛 سامح دائماً، فالقلب النقي هو القلب المحب.',
+            '🪷 كل يوم هو فرصة جديدة للحب والعطاء.',
+            '✨ لا تدع أحداً يطفئ نورك، فأنت مميز.',
+            '💕 كن كما أنت، فالحب الحقيقي يقبل الاختلاف.'
+        ];
+
+        const quotes = [
+            '✨ "الحب هو الجواب لكل شيء." — رومي',
+            '💛 "أنتِ نون، والحروف كلها تبدأ منكِ."',
+            '🪷 "في الحب لا قوانين، فقط قلوب تنبض."',
+            '🌹 "الحب الحقيقي لا يموت، بل يتجدد كل يوم."',
+            '💕 "نون.. حرفٌ يحمل كل المعاني الجميلة."'
+        ];
+
+        const notifications = [
+            '🔔 لديك 5 رسائل حب جديدة 💕',
+            '🔔 روان أرسلت لك وردة 🌹',
+            '🔔 حكم جديدة تنتظرك 💛',
+            '🔔 اقتباس رومانسي خاص بك ✨',
+            '🔔 تم إضافة قصة حب جديدة 🪷',
+            '🔔 لديك إشعار من قلب نون 💖'
         ];
 
         // ============================================================
-        // 6. زر استخراج الجلسة
+        // 6. أزرار المحتوى
         // ============================================================
-        document.getElementById('extractBtn').addEventListener('click', function() {
-            const code = codeInput.value.trim();
-            if (!code) {
-                log('⚠️ الرجاء إدخال الكود أولاً.', 'error');
-                return;
-            }
-            log(`📤 جاري معالجة الكود: ${code}...`, 'info');
-            addHistory(`استخراج جلسة: ${code}`);
+        function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-            fetch('/api/extract', {
+        document.getElementById('loveBtn').addEventListener('click', function() {
+            const msg = randomFrom(loveMessages);
+            log(`💕 ${msg}`, 'love');
+            addHistory('رسالة حب', '💕');
+            sendTelegramNotification('❤️ رسالة حب: ' + msg);
+        });
+
+        document.getElementById('poemBtn').addEventListener('click', function() {
+            const p = randomFrom(poems);
+            log(`🪷 ${p.replace(/\n/g, '<br>')}`, 'love');
+            addHistory('شعر', '🪷');
+            sendTelegramNotification('🪷 شعر جديد: ' + p.replace(/\n/g, ' ').slice(0, 80));
+        });
+
+        document.getElementById('wisdomBtn').addEventListener('click', function() {
+            const w = randomFrom(wisdom);
+            log(`💛 ${w}`, 'gold');
+            addHistory('حكمة', '💛');
+            sendTelegramNotification('💛 حكمة: ' + w);
+        });
+
+        document.getElementById('adviceBtn').addEventListener('click', function() {
+            const a = randomFrom(advice);
+            log(`💖 ${a}`, 'love');
+            addHistory('نصيحة', '💖');
+            sendTelegramNotification('💖 نصيحة: ' + a);
+        });
+
+        document.getElementById('quoteBtn').addEventListener('click', function() {
+            const q = randomFrom(quotes);
+            log(`✨ ${q}`, 'gold');
+            addHistory('اقتباس', '✨');
+            sendTelegramNotification('✨ اقتباس: ' + q);
+        });
+
+        document.getElementById('notifyBtn').addEventListener('click', function() {
+            const n = randomFrom(notifications);
+            log(`🔔 ${n}`, 'gold');
+            addHistory('إشعار', '🔔');
+            sendTelegramNotification('🔔 إشعار: ' + n);
+        });
+
+        // ============================================================
+        // 7. إرسال إشعارات إلى تيليجرام
+        // ============================================================
+        function sendTelegramNotification(message) {
+            const botToken = 'YOUR_BOT_TOKEN'; // ضع توكن البوت هنا
+            const chatId = 1170411845; // الآيدي الخاص بك
+
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code })
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: `🪷 نون · مملكة الحب\n\n${message}\n\n— @u_t_r`,
+                    parse_mode: 'HTML'
+                })
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    log(`💖 تم استخراج الجلسة بنجاح يا عراب!`, 'love');
-                    log(`🔑 الجلسة: <span class="highlight">${data.session}</span>`, 'info');
-                    const copyBtn = document.createElement('button');
-                    copyBtn.className = 'copy-btn';
-                    copyBtn.textContent = '📋 نسخ الجلسة';
-                    copyBtn.onclick = () => copyToClipboard(data.session);
-                    output.appendChild(copyBtn);
-                    addHistory(`✅ جلسة مستخرجة`, '💕');
+                if (data.ok) {
+                    log('📨 تم إرسال الإشعار إلى تيليجرام!', 'success');
                 } else {
-                    log(`❌ فشل الاستخراج: ${data.message}`, 'error');
-                    addHistory(`❌ فشل الاستخراج`, '💔');
+                    log('⚠️ فشل إرسال الإشعار.', 'error');
                 }
             })
             .catch(() => {
-                log(`❌ خطأ في الاتصال بالخادم. تأكد من تشغيل app.py`, 'error');
-                log(`💡 جاري استخدام المحاكاة...`, 'warning');
-                const fake = `session_${Math.random().toString(36).substring(2, 12)}`;
-                log(`🔑 (محاكاة) الجلسة: <span class="highlight">${fake}</span>`, 'info');
-                addHistory(`جلسة (محاكاة)`, '🌹');
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.textContent = '📋 نسخ (محاكاة)';
-                copyBtn.onclick = () => copyToClipboard(fake);
-                output.appendChild(copyBtn);
+                log('⚠️ تعذر الاتصال بتيلجرام.', 'error');
             });
-        });
+        }
 
         // ============================================================
-        // 7. الأزرار الرومانسية
-        // ============================================================
-        document.getElementById('loveBtn').addEventListener('click', function() {
-            const msg = loveMessages[Math.floor(Math.random() * loveMessages.length)];
-            log(`💕 ${msg}`, 'love');
-            addHistory('رسالة حب', '💕');
-        });
-
-        document.getElementById('roseBtn').addEventListener('click', function() {
-            const msg = roseMessages[Math.floor(Math.random() * roseMessages.length)];
-            log(`🌹 ${msg}`, 'love');
-            addHistory('وردة', '🌹');
-        });
-
-        document.getElementById('storyBtn').addEventListener('click', function() {
-            const msg = stories[Math.floor(Math.random() * stories.length)];
-            log(`📖 ${msg}`, 'love');
-            addHistory('قصة', '📖');
-        });
-
-        document.getElementById('songBtn').addEventListener('click', function() {
-            const msg = songs[Math.floor(Math.random() * songs.length)];
-            log(`🎵 ${msg}`, 'love');
-            addHistory('أغنية', '🎵');
-        });
-
-        // ============================================================
-        // 8. الأزرار السريعة
+        // 8. الأزرار الأخرى
         // ============================================================
         document.getElementById('pingBtn').addEventListener('click', function() {
-            fetch('/api/ping')
-                .then(res => res.json())
-                .then(data => {
-                    log(`🏓 ${data.message || 'Pong!'}`, 'success');
-                    addHistory('Ping', '✅');
-                })
-                .catch(() => {
-                    log('🏓 الخادم لا يستجيب (محاكاة: Pong!)', 'warning');
-                    addHistory('Ping (محاكاة)', '⚠️');
-                });
+            log('🏓 القلب ينبض 💛', 'success');
+            addHistory('Ping', '✅');
+            sendTelegramNotification('🏓 اختبار الاتصال: القلب ينبض');
         });
 
         document.getElementById('clearBtn').addEventListener('click', function() {
@@ -820,21 +791,13 @@
             addHistory('مسح', '🗑️');
         });
 
-        // ============================================================
-        // 9. إظهار/إخفاء اللوحة السرية
-        // ============================================================
         document.getElementById('adminToggleBtn').addEventListener('click', function() {
             adminPanel.classList.toggle('visible');
-            if (adminPanel.classList.contains('visible')) {
-                log('🔓 تم فتح لوحة التحكم.', 'success');
-                addHistory('فتح اللوحة', '🔓');
-            } else {
-                log('🔒 تم إغلاق لوحة التحكم.', 'info');
-            }
+            log(adminPanel.classList.contains('visible') ? '🔓 تم فتح اللوحة.' : '🔒 تم الإغلاق.', 'info');
         });
 
         // ============================================================
-        // 10. أزرار اللوحة
+        // 9. أزرار اللوحة
         // ============================================================
         document.querySelectorAll('.admin-grid .btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -850,51 +813,35 @@
                 log(`⚡ تنفيذ: ${names[cmd] || cmd}...`, 'warning');
                 addHistory(`تنفيذ: ${names[cmd] || cmd}`, '⚡');
 
-                fetch('/api/command', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cmd: cmd })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        log(data.result || '✅ تم التنفيذ.', 'success');
-                    } else {
-                        log(`❌ ${data.message}`, 'error');
-                    }
-                })
-                .catch(() => {
-                    const responses = {
-                        sysinfo: `🖥️ النظام: Linux 5.15\n🧠 النواة: 4\n💾 الذاكرة: 15.6GB`,
-                        scan: `🔍 المنافذ: 22(مفتوح), 80(مفتوح), 443(مفتوح), 8080(مغلق)`,
-                        exec: `👤 المستخدم: root\n📁 المسار: /root\n✅ تم التنفيذ.`,
-                        telegram: `📡 تم إرسال 1,234 رسالة إلى 15 مجموعة.`,
-                        download: `⬇️ تم تحميل payload.bin (2.4MB)`,
-                        crypto: `🔐 تم تشفير 47 ملفًا. المفتاح: ${Math.random().toString(36).substring(2, 8)}`
-                    };
-                    log(responses[cmd] || '✅ تم التنفيذ (محاكاة).', 'success');
-                });
+                const responses = {
+                    sysinfo: `🖥️ نظام: Linux\n🧠 نواة: 4\n💾 ذاكرة: 15.6GB`,
+                    scan: `🔍 منافذ: 22,80,443 مفتوحة`,
+                    exec: `👤 مستخدم: root\n✅ تم.`,
+                    telegram: `📡 تم إرسال 1,234 رسالة`,
+                    download: `⬇️ تم التحميل`,
+                    crypto: `🔐 تم تشفير 47 ملفاً`
+                };
+                log(responses[cmd] || '✅ تم التنفيذ.', 'success');
+                sendTelegramNotification(`⚡ تم تنفيذ أمر: ${names[cmd] || cmd}`);
             });
         });
 
         // ============================================================
-        // 11. اختصار لوحة المفاتيح (Ctrl+Shift+A)
+        // 10. اختصار Ctrl+Shift+A
         // ============================================================
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey && e.key === 'A') {
                 e.preventDefault();
                 adminPanel.classList.toggle('visible');
-                if (adminPanel.classList.contains('visible')) {
-                    log('🔓 تم فتح لوحة التحكم (اختصار).', 'success');
-                }
+                log(adminPanel.classList.contains('visible') ? '🔓 لوحة (اختصار).' : '🔒', 'info');
             }
         });
 
         // ============================================================
-        // 12. تحميل السجل من localStorage
+        // 11. localStorage
         // ============================================================
         window.addEventListener('load', function() {
-            const saved = localStorage.getItem('arab_rovan_history');
+            const saved = localStorage.getItem('noon_history');
             if (saved) {
                 try {
                     JSON.parse(saved).forEach(item => {
@@ -913,26 +860,16 @@
                     const status = el.querySelector('.status')?.textContent || '';
                     items.push({ time, cmd, status });
                 });
-                localStorage.setItem('arab_rovan_history', JSON.stringify(items));
+                localStorage.setItem('noon_history', JSON.stringify(items));
             }, 5000);
         });
 
         // ============================================================
-        // 13. رسالة ترحيب
+        // 12. رسالة ترحيب
         // ============================================================
-        console.log('🌹 عراب روان v5.0 - المستخرج الرومانسي');
+        console.log('🪷 نون v7.0 - مملكة الحب');
         console.log('💡 اختصار: Ctrl+Shift+A للوحة السرية');
-        console.log('💡 اكتب "admin" في حقل الكود لتفعيل اللوحة');
-        
-        // تفعيل اللوحة بكلمة admin
-        codeInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && this.value.toLowerCase() === 'admin') {
-                adminPanel.classList.add('visible');
-                log('🔓 تم تفعيل لوحة التحكم.', 'success');
-                addHistory('تفعيل اللوحة', '🔓');
-                this.value = '';
-            }
-        });
+        console.log('📱 حساب التيلجرام: @u_t_r');
     </script>
 </body>
 </html>
