@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tepthon - الأداة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b0e14 0%, #1a1f2b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(30, 36, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 40px;
+            padding: 45px 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 25px 50px -8px rgba(0,0,0,0.8);
+            transition: 0.3s ease;
+        }
+        h1 {
+            color: #e8edf5;
+            font-size: 2.4rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 15px rgba(0, 180, 255, 0.15);
+        }
+        .subtitle {
+            color: #8892a8;
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 0.95rem;
+            border-bottom: 1px dashed #2a3242;
+            padding-bottom: 15px;
+        }
+        .time-box {
+            background: #0f131c;
+            border-radius: 60px;
+            padding: 12px 22px;
+            display: inline-block;
+            margin: 0 auto 30px;
+            border: 1px solid #2c364a;
+            color: #b9c7e0;
+            font-size: 1rem;
+            font-weight: 400;
+            text-align: center;
+            width: fit-content;
+        }
+        .time-box span {
+            color: #5fc3ff;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .input-group {
+            margin-bottom: 22px;
+        }
+        .input-group label {
+            display: block;
+            color: #b0bedb;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: #0b0f17;
+            border: 1px solid #28303f;
+            border-radius: 18px;
+            color: #eef3fc;
+            font-size: 1rem;
+            transition: 0.25s ease;
+            outline: none;
+        }
+        .input-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background: #0d121c;
+        }
+        .input-group input::placeholder {
+            color: #4f5a70;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 8px 18px -6px #1e3a8a70;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 12px 25px -8px #1e3a8a;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .output-area {
+            margin-top: 30px;
+            background: #0b0f17;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #1f283b;
+            min-height: 70px;
+            color: #a7b8d9;
+            font-size: 0.95rem;
+            word-break: break-all;
+            transition: 0.2s;
+        }
+        .output-area:empty::before {
+            content: "⏳ انتظر النتيجة...";
+            color: #3e4a62;
+        }
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #3f4a60;
+            font-size: 0.75rem;
+            border-top: 1px solid #1f283b;
+            padding-top: 20px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            margin-left: 6px;
+            box-shadow: 0 0 12px #22c55e80;
+            animation: pulse-dot 1.8s infinite;
+        }
+        @keyframes pulse-dot {
+            0% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.5; transform: scale(0.9); }
+        }
+        .admin-panel {
+            margin-top: 25px;
+            padding: 15px;
+            background: #0f1420;
+            border-radius: 20px;
+            border: 1px solid #2a3349;
+            display: none; /* مخفي افتراضياً، يمكن تفعيله بكود */
+        }
+        .admin-panel.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tepthon</h1>
+        <div class="subtitle">⚡ الأداة الذكية للجلسات</div>
+        <div class="time-box" id="timeDisplay">
+            🕒 الوقت الحالي (عمّان): <span id="currentTime">09:14 PM</span>
+        </div>
+        <div class="input-group">
+            <label for="codeInput">📲 إرسال الكود</label>
+            <input type="text" id="codeInput" placeholder="أدخل الكود المرسل..." />
+        </div>
+        <button class="btn" id="extractBtn">🔓 استخراج الجلسة</button>
+        <div class="output-area" id="outputArea"></div>
+        <div class="footer">
+            <span class="status-dot"></span> النظام يعمل <span id="liveTime"></span>
+        </div>
+        <!-- لوحة تحكم خفية (للاستخدام المتقدم) -->
+        <div class="admin-panel" id="adminPanel">
+            <p style="color:#6b7b9a; font-size:0.8rem;">⚙️ وصول الإدارة (تم تفعيله)</p>
+        </div>
+    </div>
+    <script>
+        // تحديث الوقت كل ثانية
+        function updateTime() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Amman' };
+            const timeStr = now.toLocaleString('ar-JO', options);
+            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('liveTime').textContent = now.toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // زر استخراج الجلسة
+        document.getElementById('extractBtn').addEventListener('click', function() {
+            const code = document.getElementById('codeInput').value.trim();
+            const output = document.getElementById('outputArea');
+            if (!code) {
+                output.textContent = '⚠️ الرجاء إدخال الكود أولاً.';
+                output.style.color = '#f87171';
+                return;
+            }
+            // محاكاة استخراج الجلسة (للعرض)
+            output.style.color = '#a7b8d9';
+            output.textContent = `✅ جاري معالجة الكود: ${code} ... (محاكاة)`;
+            setTimeout(() => {
+                const fakeSession = `session_${Math.random().toString(36).substring(2, 10)}`;
+                output.innerHTML = `✅ تم استخراج الجلسة بنجاح!<br><span style="color:#5fc3ff;font-weight:600;">${fakeSession}</span><br><small style="color:#4f5a70;">(هذا مثال توضيحي)</small>`;
+                // تفعيل اللوحة السرية بعد أول استخدام (اختياري)
+                document.getElementById('adminPanel').classList.add('visible');
+            }, 1500);
+        });
+
+        // خاصية إدخال سري
+        console.log('Tepthon جاهز. تحت أمرك يا سيدي.');
+    </script>
+</body>
+</html>
