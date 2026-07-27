@@ -20,7 +20,7 @@ def index():
 
 @app.route('/api/ping')
 def ping():
-    return jsonify({'success': True, 'message': 'Pong! الخادم يعمل'})
+    return jsonify({'success': True, 'message': 'Pong! القلب ينبض'})
 
 @app.route('/api/extract', methods=['POST'])
 def extract():
