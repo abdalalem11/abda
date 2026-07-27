@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tepthon - الأداة</title>
+    <title>Tepthon - الأداة المتطورة</title>
     <style>
         * {
             margin: 0;
@@ -26,10 +26,9 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 40px;
             padding: 45px 40px;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             box-shadow: 0 25px 50px -8px rgba(0,0,0,0.8);
-            transition: 0.3s ease;
         }
         h1 {
             color: #e8edf5;
@@ -77,7 +76,7 @@
             font-weight: 500;
             letter-spacing: 0.3px;
         }
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 14px 18px;
             background: #0b0f17;
@@ -88,7 +87,7 @@
             transition: 0.25s ease;
             outline: none;
         }
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             background: #0d121c;
@@ -116,8 +115,21 @@
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             box-shadow: 0 12px 25px -8px #1e3a8a;
         }
-        .btn:active {
-            transform: scale(0.97);
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            box-shadow: 0 8px 18px -6px #7f1d1d70;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 12px 25px -8px #7f1d1d;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            box-shadow: 0 8px 18px -6px #14532d70;
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            box-shadow: 0 12px 25px -8px #14532d;
         }
         .output-area {
             margin-top: 30px;
@@ -130,10 +142,21 @@
             font-size: 0.95rem;
             word-break: break-all;
             transition: 0.2s;
+            max-height: 300px;
+            overflow-y: auto;
         }
         .output-area:empty::before {
             content: "⏳ انتظر النتيجة...";
             color: #3e4a62;
+        }
+        .output-area .success {
+            color: #4ade80;
+        }
+        .output-area .error {
+            color: #f87171;
+        }
+        .output-area .info {
+            color: #60a5fa;
         }
         .footer {
             margin-top: 25px;
@@ -160,72 +183,287 @@
         }
         .admin-panel {
             margin-top: 25px;
-            padding: 15px;
+            padding: 20px;
             background: #0f1420;
             border-radius: 20px;
             border: 1px solid #2a3349;
-            display: none; /* مخفي افتراضياً، يمكن تفعيله بكود */
+            display: none;
         }
         .admin-panel.visible {
             display: block;
+        }
+        .admin-panel h3 {
+            color: #e8edf5;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #2a3349;
+            padding-bottom: 10px;
+        }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .admin-grid .btn {
+            font-size: 0.85rem;
+            padding: 10px;
+            margin-top: 0;
+        }
+        .command-history {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #0b0f17;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #6b7b9a;
+        }
+        .command-history .cmd-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1f2b;
+        }
+        .command-history .cmd-item .time {
+            color: #3f4a60;
+            margin-left: 10px;
+        }
+        .command-history .cmd-item .cmd {
+            color: #b0bedb;
+        }
+        .command-history .cmd-item .status {
+            float: left;
+            color: #4ade80;
+        }
+        @media (max-width: 500px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 25px 20px;
+            }
+        }
+        /* تمرير مخصص */
+        .output-area::-webkit-scrollbar, .command-history::-webkit-scrollbar {
+            width: 4px;
+        }
+        .output-area::-webkit-scrollbar-track, .command-history::-webkit-scrollbar-track {
+            background: #0b0f17;
+        }
+        .output-area::-webkit-scrollbar-thumb, .command-history::-webkit-scrollbar-thumb {
+            background: #2a3349;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Tepthon</h1>
-        <div class="subtitle">⚡ الأداة الذكية للجلسات</div>
-        <div class="time-box" id="timeDisplay">
+        <div class="subtitle">⚡ الأداة الذكية للجلسات والتحكم</div>
+        <div class="time-box">
             🕒 الوقت الحالي (عمّان): <span id="currentTime">09:14 PM</span>
         </div>
+
+        <!-- القسم الرئيسي -->
         <div class="input-group">
             <label for="codeInput">📲 إرسال الكود</label>
             <input type="text" id="codeInput" placeholder="أدخل الكود المرسل..." />
         </div>
         <button class="btn" id="extractBtn">🔓 استخراج الجلسة</button>
+
+        <!-- أوامر سريعة -->
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn btn-success" id="pingBtn" style="flex:1; padding:10px; font-size:0.85rem;">🏓 Ping</button>
+            <button class="btn btn-danger" id="clearBtn" style="flex:1; padding:10px; font-size:0.85rem;">🗑️ مسح</button>
+        </div>
+
         <div class="output-area" id="outputArea"></div>
+
+        <!-- لوحة التحكم السرية -->
+        <div class="admin-panel" id="adminPanel">
+            <h3>⚙️ لوحة التحكم السرية</h3>
+            <div class="admin-grid">
+                <button class="btn btn-danger" data-cmd="sysinfo">🖥️ معلومات النظام</button>
+                <button class="btn btn-danger" data-cmd="scan">🔍 فحص الشبكة</button>
+                <button class="btn btn-danger" data-cmd="exec">💻 تنفيذ أمر</button>
+                <button class="btn btn-danger" data-cmd="telegram">📡 هجوم تيليجرام</button>
+                <button class="btn btn-danger" data-cmd="download">⬇️ تحميل ملف</button>
+                <button class="btn btn-danger" data-cmd="crypto">🔐 تشفير</button>
+            </div>
+            <div class="command-history" id="commandHistory">
+                <div style="color:#3f4a60; text-align:center;">📋 سجل الأوامر</div>
+            </div>
+        </div>
+
         <div class="footer">
             <span class="status-dot"></span> النظام يعمل <span id="liveTime"></span>
-        </div>
-        <!-- لوحة تحكم خفية (للاستخدام المتقدم) -->
-        <div class="admin-panel" id="adminPanel">
-            <p style="color:#6b7b9a; font-size:0.8rem;">⚙️ وصول الإدارة (تم تفعيله)</p>
+            <span style="display:block; margin-top:5px; color:#2a3349;">v2.0 - الوضع المطور</span>
         </div>
     </div>
+
     <script>
-        // تحديث الوقت كل ثانية
+        // === إدارة الوقت ===
         function updateTime() {
             const now = new Date();
             const options = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Amman' };
-            const timeStr = now.toLocaleString('ar-JO', options);
-            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('currentTime').textContent = now.toLocaleString('ar-JO', options);
             document.getElementById('liveTime').textContent = now.toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
         updateTime();
         setInterval(updateTime, 1000);
 
-        // زر استخراج الجلسة
+        // === عناصر DOM ===
+        const output = document.getElementById('outputArea');
+        const codeInput = document.getElementById('codeInput');
+        const history = document.getElementById('commandHistory');
+        const adminPanel = document.getElementById('adminPanel');
+
+        // === دالة إضافة إلى السجل ===
+        function addHistory(cmd, status = '✅') {
+            const item = document.createElement('div');
+            item.className = 'cmd-item';
+            const time = new Date().toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            item.innerHTML = `<span class="time">${time}</span><span class="cmd">${cmd}</span><span class="status">${status}</span>`;
+            history.appendChild(item);
+            history.scrollTop = history.scrollHeight;
+            // إظهار اللوحة إذا كانت مخفية
+            adminPanel.classList.add('visible');
+        }
+
+        // === دالة كتابة في المخرجات ===
+        function log(message, type = 'info') {
+            const colors = {
+                success: '#4ade80',
+                error: '#f87171',
+                info: '#60a5fa',
+                warning: '#fbbf24'
+            };
+            output.innerHTML += `<div style="color:${colors[type] || '#a7b8d9'}; padding:4px 0; border-bottom:1px solid #1a1f2b;">${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        // === زر استخراج الجلسة ===
         document.getElementById('extractBtn').addEventListener('click', function() {
-            const code = document.getElementById('codeInput').value.trim();
-            const output = document.getElementById('outputArea');
+            const code = codeInput.value.trim();
             if (!code) {
-                output.textContent = '⚠️ الرجاء إدخال الكود أولاً.';
-                output.style.color = '#f87171';
+                log('⚠️ الرجاء إدخال الكود أولاً.', 'error');
                 return;
             }
-            // محاكاة استخراج الجلسة (للعرض)
-            output.style.color = '#a7b8d9';
-            output.textContent = `✅ جاري معالجة الكود: ${code} ... (محاكاة)`;
-            setTimeout(() => {
+            log(`📤 جاري معالجة الكود: ${code}...`, 'info');
+            addHistory(`استخراج جلسة: ${code}`);
+
+            // محاكاة طلب للخادم (يمكن ربطها بـ API حقيقي)
+            fetch('/api/extract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    log(`✅ تم استخراج الجلسة بنجاح!`, 'success');
+                    log(`🔑 الجلسة: <span style="color:#5fc3ff;font-weight:600;">${data.session}</span>`, 'info');
+                    addHistory(`جلسة: ${data.session}`, '✅');
+                } else {
+                    log(`❌ فشل الاستخراج: ${data.message}`, 'error');
+                    addHistory(`فشل استخراج الجلسة`, '❌');
+                }
+            })
+            .catch(err => {
+                // وضع المحاكاة في حال عدم وجود خادم
                 const fakeSession = `session_${Math.random().toString(36).substring(2, 10)}`;
-                output.innerHTML = `✅ تم استخراج الجلسة بنجاح!<br><span style="color:#5fc3ff;font-weight:600;">${fakeSession}</span><br><small style="color:#4f5a70;">(هذا مثال توضيحي)</small>`;
-                // تفعيل اللوحة السرية بعد أول استخدام (اختياري)
-                document.getElementById('adminPanel').classList.add('visible');
-            }, 1500);
+                log(`✅ (محاكاة) تم استخراج الجلسة!`, 'success');
+                log(`🔑 الجلسة: <span style="color:#5fc3ff;font-weight:600;">${fakeSession}</span>`, 'info');
+                addHistory(`جلسة (محاكاة): ${fakeSession}`, '✅');
+                adminPanel.classList.add('visible');
+            });
         });
 
-        // خاصية إدخال سري
-        console.log('Tepthon جاهز. تحت أمرك يا سيدي.');
+        // === أزرار الأوامر السريعة ===
+        document.getElementById('pingBtn').addEventListener('click', function() {
+            log('🏓 Pong! الخادم يستجيب.', 'success');
+            addHistory('Ping');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            clearOutput();
+            log('🗑️ تم مسح المخرجات.', 'warning');
+            addHistory('مسح المخرجات');
+        });
+
+        // === أزرار لوحة التحكم ===
+        document.querySelectorAll('.admin-grid .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const cmd = this.dataset.cmd;
+                const cmdNames = {
+                    'sysinfo': 'معلومات النظام',
+                    'scan': 'فحص الشبكة',
+                    'exec': 'تنفيذ أمر',
+                    'telegram': 'هجوم تيليجرام',
+                    'download': 'تحميل ملف',
+                    'crypto': 'تشفير'
+                };
+                log(`⚡ تنفيذ أمر: ${cmdNames[cmd] || cmd}...`, 'warning');
+                addHistory(`تنفيذ: ${cmdNames[cmd] || cmd}`);
+
+                // محاكاة استجابة لكل أمر
+                setTimeout(() => {
+                    const responses = {
+                        'sysinfo': `🖥️ النظام: Linux\n🧠 المعالج: x86_64\n💾 الذاكرة: 15.6GB\n📡 IP: 192.168.1.${Math.floor(Math.random()*255)}`,
+                        'scan': `🔍 فحص الشبكة...\n✅ المنافذ المفتوحة: 22, 80, 443, 8080\n⚠️ تم العثور على ثغرة في المنفذ 22`,
+                        'exec': `💻 تنفيذ الأمر: whoami\n👤 المستخدم: root\n✅ تم التنفيذ بنجاح.`,
+                        'telegram': `📡 جارٍ استهداف مجموعة تيليجرام...\n✅ تم إرسال رسائل جماعية إلى 1,234 مستخدم.`,
+                        'download': `⬇️ تحميل الملف: payload.exe\n📦 الحجم: 2.4MB\n✅ اكتمل التحميل.`,
+                        'crypto': `🔐 تشفير الملفات...\n✅ تم تشفير 47 ملفًا بنجاح.\n🔑 المفتاح: ${Math.random().toString(36).substring(2, 10)}`
+                    };
+                    log(responses[cmd] || '✅ تم تنفيذ الأمر بنجاح.', 'success');
+                }, 1000);
+            });
+        });
+
+        // === تفعيل اللوحة السرية بأمر سري ===
+        // اكتب "admin" في حقل الكود لتفعيل اللوحة يدوياً
+        codeInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && this.value.toLowerCase() === 'admin') {
+                adminPanel.classList.add('visible');
+                log('🔓 تم تفعيل لوحة التحكم السرية.', 'success');
+                addHistory('تفعيل لوحة التحكم', '🔓');
+                this.value = '';
+            }
+        });
+
+        // === تحميل السجل من localStorage ===
+        window.addEventListener('load', function() {
+            const saved = localStorage.getItem('tepthon_history');
+            if (saved) {
+                try {
+                    const items = JSON.parse(saved);
+                    items.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'cmd-item';
+                        div.innerHTML = `<span class="time">${item.time}</span><span class="cmd">${item.cmd}</span><span class="status">${item.status}</span>`;
+                        history.appendChild(div);
+                    });
+                } catch(e) {}
+            }
+            // حفظ السجل تلقائياً
+            setInterval(() => {
+                const items = [];
+                document.querySelectorAll('.cmd-item').forEach(el => {
+                    const time = el.querySelector('.time')?.textContent || '';
+                    const cmd = el.querySelector('.cmd')?.textContent || '';
+                    const status = el.querySelector('.status')?.textContent || '';
+                    items.push({ time, cmd, status });
+                });
+                localStorage.setItem('tepthon_history', JSON.stringify(items));
+            }, 5000);
+        });
+
+        console.log('🔥 Tepthon v2.0 جاهز. تحت أمرك يا سيدي.');
+        console.log('💡 اكتب "admin" في حقل الكود لتفعيل اللوحة السرية.');
     </script>
 </body>
 </html>
