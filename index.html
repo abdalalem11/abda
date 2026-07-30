@@ -2,38 +2,44 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>استخراج أرقام تيليغرام + OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WA OTP - استقبال كود واتساب</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0e17; color: #e8e6e3; font-family: 'Tahoma', sans-serif; }
-        .gold { color: #d4af37; }
-        .gold-bg { background: #d4af37; color: #0a0e17; font-weight: 700; border: none; }
-        .gold-bg:hover { background: #b8941a; color: #fff; }
-        .card-dark { background: #111927; border: 1px solid rgba(212,175,55,0.15); border-radius: 16px; padding: 20px; }
-        .card-dark:hover { border-color: #d4af37; }
+        .wa-color { color: #25D366; }
+        .wa-bg { background: #25D366; color: #0a0e17; font-weight: 700; border: none; }
+        .wa-bg:hover { background: #1ebe5c; color: #fff; }
+        .card-dark { background: #111927; border: 1px solid rgba(37,211,102,0.15); border-radius: 16px; padding: 20px; }
+        .card-dark:hover { border-color: #25D366; }
         .form-control { background: #0d1117; border: 1px solid #30363d; color: #e8e6e3; border-radius: 10px; padding: 12px 16px; }
-        .form-control:focus { border-color: #d4af37; box-shadow: 0 0 0 0.2rem rgba(212,175,55,0.2); }
+        .form-control:focus { border-color: #25D366; box-shadow: 0 0 0 0.2rem rgba(37,211,102,0.2); }
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
-        .status-badge.active { background: rgba(25,135,84,0.2); color: #198754; }
+        .status-badge.active { background: rgba(37,211,102,0.2); color: #25D366; }
         .status-badge.inactive { background: rgba(220,53,69,0.2); color: #dc3545; }
         .status-badge.waiting { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .bot-status { position: fixed; bottom: 20px; left: 20px; background: #111927; border: 1px solid #d4af37; border-radius: 30px; padding: 8px 18px; display: flex; align-items: center; gap: 10px; z-index: 9999; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #3fb950; animation: pulse 1.5s infinite; }
+        .status-badge.done { background: rgba(13,202,240,0.2); color: #0dcaf0; }
+        .bot-status { position: fixed; bottom: 20px; left: 20px; background: #111927; border: 1px solid #25D366; border-radius: 30px; padding: 8px 18px; display: flex; align-items: center; gap: 10px; z-index: 9999; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #25D366; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .otp-box { background: #0d1117; border: 1px solid #d4af37; border-radius: 10px; padding: 12px; font-family: monospace; font-size: 1.2rem; color: #d4af37; word-break: break-all; }
         .toast-container { position: fixed; top: 20px; left: 20px; z-index: 99999; max-width: 360px; }
-        .toast-custom { background: #111927; border: 1px solid #d4af37; border-radius: 12px; padding: 12px 18px; margin-bottom: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.6); }
-        .toast-custom.success { border-color: #3fb950; }
+        .toast-custom { background: #111927; border: 1px solid #25D366; border-radius: 12px; padding: 12px 18px; margin-bottom: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.6); }
+        .toast-custom.success { border-color: #25D366; }
         .toast-custom.error { border-color: #f85149; }
+        .toast-custom.info { border-color: #0dcaf0; }
         .progress-container { background: #0d1117; border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-bar-custom { height: 16px; background: linear-gradient(90deg, #d4af37, #b8941a); width: 0%; transition: width 0.4s; }
+        .progress-bar-custom { height: 16px; background: linear-gradient(90deg, #25D366, #1ebe5c); width: 0%; transition: width 0.4s; }
         .table { color: #e8e6e3; }
-        .table thead th { border-bottom: 2px solid #d4af37; color: #d4af37; }
+        .table thead th { border-bottom: 2px solid #25D366; color: #25D366; }
         .table td { vertical-align: middle; }
         .extract-result { max-height: 400px; overflow-y: auto; }
+        .otp-box { background: #0d1117; border: 2px solid #25D366; border-radius: 12px; padding: 20px; font-family: monospace; font-size: 2.5rem; text-align: center; color: #25D366; letter-spacing: 8px; }
+        .copy-btn { cursor: pointer; transition: 0.3s; }
+        .copy-btn:hover { transform: scale(1.1); }
+        .whatsapp-login-btn { background: #25D366; color: #fff; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 700; transition: 0.3s; }
+        .whatsapp-login-btn:hover { background: #1ebe5c; transform: scale(1.02); }
         .dev-panel { border: 1px solid #dc3545; border-radius: 12px; padding: 20px; margin-top: 20px; }
         .dev-panel .title { color: #dc3545; font-weight: 900; }
     </style>
@@ -43,21 +49,21 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ====== NAV ====== -->
-<nav class="navbar navbar-expand-lg sticky-top" style="background: rgba(17,25,39,0.98); border-bottom: 2px solid #d4af37;">
+<nav class="navbar navbar-expand-lg sticky-top" style="background: rgba(17,25,39,0.98); border-bottom: 2px solid #25D366;">
     <div class="container">
-        <a class="navbar-brand gold fw-bold" href="#"><i class="fas fa-bolt"></i> OTP <span style="color:#fff;">Extractor</span></a>
+        <a class="navbar-brand fw-bold wa-color" href="#"><i class="fab fa-whatsapp"></i> WA <span style="color:#fff;">OTP</span></a>
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="#extract">استخراج</a></li>
+                <li class="nav-item"><a class="nav-link" href="#extract">جلب أرقام</a></li>
                 <li class="nav-item"><a class="nav-link" href="#numbers">الأرقام</a></li>
                 <li class="nav-item"><a class="nav-link" href="#otp">الكود</a></li>
-                <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">لوحة المطور</a></li>
+                <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">⚙️ المطور</a></li>
             </ul>
             <ul class="navbar-nav">
-                <li class="nav-item" id="userInfo" style="display:none;"><span class="nav-link gold" id="userEmailDisplay"></span></li>
+                <li class="nav-item" id="userInfo" style="display:none;"><span class="nav-link wa-color" id="userEmailDisplay"></span></li>
                 <li class="nav-item"><a class="nav-link" href="#login" id="loginBtn">دخول</a></li>
                 <li class="nav-item"><a class="nav-link" href="#register" id="registerBtn">تسجيل</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn" style="display:none;color:#dc3545;"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
@@ -68,25 +74,25 @@
 
 <div class="container py-4">
 
-    <!-- ====== EXTRACT SECTION ====== -->
+    <!-- ====== EXTRACT ====== -->
     <section id="extract" class="py-3">
-        <h2 class="gold border-bottom border-gold pb-2"><i class="fas fa-search"></i> استخراج الأرقام</h2>
+        <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-download"></i> جلب أرقام للواتساب</h2>
         <div class="row g-3 mt-3">
             <div class="col-md-6">
                 <div class="card-dark">
-                    <h5><i class="fas fa-link gold"></i> من رابط مجموعة / قناة</h5>
+                    <h5><i class="fas fa-link wa-color"></i> من رابط تيليجرام</h5>
                     <div class="input-group mt-2">
                         <input type="text" class="form-control" id="extractLink" placeholder="https://t.me/username" />
-                        <button class="btn gold-bg" onclick="extractFromLink()"><i class="fas fa-arrow-left"></i> استخراج</button>
+                        <button class="btn wa-bg" onclick="extractFromLink()"><i class="fas fa-arrow-left"></i> جلب</button>
                     </div>
                     <div id="extractLinkResult" class="mt-2"></div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card-dark">
-                    <h5><i class="fas fa-file-alt gold"></i> من ملف نصي</h5>
+                    <h5><i class="fas fa-file-alt wa-color"></i> من ملف نصي</h5>
                     <input type="file" class="form-control" id="fileInput" accept=".txt,.csv" />
-                    <button class="btn gold-bg mt-2" onclick="extractFromFile()"><i class="fas fa-upload"></i> رفع واستخراج</button>
+                    <button class="btn wa-bg mt-2" onclick="extractFromFile()"><i class="fas fa-upload"></i> رفع وجلب</button>
                     <div id="extractFileResult" class="mt-2"></div>
                 </div>
             </div>
@@ -94,12 +100,13 @@
         <div class="row mt-3">
             <div class="col-12">
                 <div class="card-dark">
-                    <h5><i class="fas fa-list gold"></i> الأرقام المستخرجة (<span id="numbersCount">0</span>)</h5>
+                    <h5><i class="fas fa-list wa-color"></i> الأرقام (<span id="numbersCount">0</span>)</h5>
                     <div class="progress-container">
                         <div class="progress-bar-custom" id="extractProgress" style="width:0%"></div>
                     </div>
                     <div class="extract-result mt-2" id="numbersList"></div>
-                    <button class="btn gold-bg mt-2" onclick="sendOtpToAll()"><i class="fas fa-sms"></i> طلب كود لجميع الأرقام</button>
+                    <button class="btn wa-bg mt-2" onclick="sendOtpToAll()"><i class="fas fa-sms"></i> طلب كود لجميع الأرقام</button>
+                    <button class="btn btn-outline-success mt-2" onclick="exportNumbers()"><i class="fas fa-file-export"></i> تصدير</button>
                 </div>
             </div>
         </div>
@@ -107,11 +114,11 @@
 
     <!-- ====== NUMBERS TABLE ====== -->
     <section id="numbers" class="py-4">
-        <h2 class="gold border-bottom border-gold pb-2"><i class="fas fa-database"></i> تفاصيل الأرقام</h2>
+        <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-table"></i> الأرقام والحالة</h2>
         <div class="card-dark mt-3">
             <div class="table-responsive">
                 <table class="table" id="numbersTable">
-                    <thead><tr><th>#</th><th>الرقم</th><th>الحالة</th><th>الكود المستلم</th><th>الإجراء</th></tr></thead>
+                    <thead><tr><th>#</th><th>الرقم</th><th>الحالة</th><th>الكود</th><th>الإجراء</th></tr></thead>
                     <tbody id="numbersTableBody">
                         <tr><td colspan="5" class="text-center text-secondary">لا توجد أرقام</td></tr>
                     </tbody>
@@ -122,21 +129,25 @@
 
     <!-- ====== OTP DISPLAY ====== -->
     <section id="otp" class="py-4">
-        <h2 class="gold border-bottom border-gold pb-2"><i class="fas fa-key"></i> الكود المستلم</h2>
+        <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-key"></i> كود واتساب</h2>
         <div class="row g-3 mt-2">
             <div class="col-md-6">
-                <div class="card-dark">
-                    <h5><i class="fas fa-circle-check gold"></i> آخر كود</h5>
+                <div class="card-dark text-center">
+                    <h5><i class="fas fa-circle-check wa-color"></i> أحدث كود</h5>
                     <div class="otp-box" id="lastOtp">—</div>
-                    <div class="text-secondary small">ينتظر وصول الكود...</div>
+                    <button class="btn btn-outline-light mt-2 copy-btn" onclick="copyOtp()"><i class="fas fa-copy"></i> نسخ الكود</button>
+                    <div id="otpPhone" class="text-secondary small mt-1">في انتظار وصول كود...</div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card-dark">
-                    <h5><i class="fas fa-clock gold"></i> سجل الأكواد</h5>
-                    <div id="otpLog" style="max-height:200px;overflow-y:auto;">
+                    <h5><i class="fas fa-clock wa-color"></i> سجل الأكواد</h5>
+                    <div id="otpLog" style="max-height:250px;overflow-y:auto;">
                         <div class="text-secondary">لا توجد أكواد بعد</div>
                     </div>
+                    <a href="https://web.whatsapp.com/" target="_blank" class="whatsapp-login-btn w-100 mt-2">
+                        <i class="fab fa-whatsapp"></i> فتح واتساب ويب
+                    </a>
                 </div>
             </div>
         </div>
@@ -153,20 +164,15 @@
                         <input type="text" class="form-control" id="devBotToken" placeholder="توكن البوت" value="8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY" />
                         <button class="btn btn-info" onclick="devSaveToken()"><i class="fas fa-save"></i> حفظ</button>
                     </div>
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" id="devBotUsername" placeholder="معرف البوت (بدون @)" value="tricksmaster03" />
-                        <button class="btn btn-info" onclick="devSaveUsername()"><i class="fas fa-save"></i> حفظ</button>
-                    </div>
                     <button class="btn btn-outline-info mt-2" onclick="testBot()"><i class="fas fa-plug"></i> اختبار البوت</button>
                     <div id="botTestResult" class="mt-2"></div>
                 </div>
                 <div class="col-md-6">
-                    <h5 class="title"><i class="fas fa-database"></i> إدارة الأرقام</h5>
-                    <button class="btn btn-outline-danger btn-sm" onclick="devClearNumbers()"><i class="fas fa-trash"></i> مسح جميع الأرقام</button>
-                    <button class="btn btn-outline-warning btn-sm" onclick="devExportNumbers()"><i class="fas fa-file-export"></i> تصدير</button>
+                    <h5 class="title"><i class="fas fa-database"></i> إدارة</h5>
+                    <button class="btn btn-outline-danger btn-sm" onclick="devClearAll()"><i class="fas fa-trash"></i> مسح الكل</button>
                     <h5 class="title mt-3"><i class="fas fa-chart-bar"></i> إحصائيات</h5>
-                    <p>📊 عدد الأرقام: <span id="devTotalNumbers">0</span></p>
-                    <p>📨 الأكواد المستلمة: <span id="devTotalOtps">0</span></p>
+                    <p>📊 الأرقام: <span id="devTotalNumbers">0</span></p>
+                    <p>✅ الأكواد: <span id="devTotalOtps">0</span></p>
                 </div>
             </div>
         </div>
@@ -175,31 +181,31 @@
     <!-- ====== AUTH ====== -->
     <section id="register" class="py-4" style="max-width:480px;margin:0 auto;">
         <div class="card-dark">
-            <h2 class="gold text-center"><i class="fas fa-user-plus"></i> تسجيل</h2>
+            <h2 class="wa-color text-center"><i class="fas fa-user-plus"></i> تسجيل</h2>
             <form id="registerForm">
                 <div class="mb-2"><label>البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required /></div>
                 <div class="mb-2"><label>كلمة المرور</label><input type="password" class="form-control" id="regPassword" required /></div>
-                <div class="mb-2"><label>معرف تيليجرام (اختياري)</label><input type="text" class="form-control" id="regTelegram" placeholder="@username" /></div>
-                <button type="submit" class="btn gold-bg w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
+                <div class="mb-2"><label>معرف تيليجرام</label><input type="text" class="form-control" id="regTelegram" placeholder="@username" /></div>
+                <button type="submit" class="btn wa-bg w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
             </form>
         </div>
     </section>
 
     <section id="login" class="py-4" style="max-width:480px;margin:0 auto;">
         <div class="card-dark">
-            <h2 class="gold text-center"><i class="fas fa-sign-in-alt"></i> دخول</h2>
+            <h2 class="wa-color text-center"><i class="fas fa-sign-in-alt"></i> دخول</h2>
             <form id="loginForm">
                 <div class="mb-2"><label>البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" required /></div>
                 <div class="mb-2"><label>كلمة المرور</label><input type="password" class="form-control" id="loginPassword" required /></div>
-                <button type="submit" class="btn gold-bg w-100"><i class="fas fa-arrow-left"></i> دخول</button>
+                <button type="submit" class="btn wa-bg w-100"><i class="fas fa-arrow-left"></i> دخول</button>
             </form>
         </div>
     </section>
 
 </div>
 
-<footer class="text-center py-3 text-secondary border-top border-secondary" style="border-color:rgba(212,175,55,0.1)!important;">
-    <i class="fas fa-bolt gold"></i> OTP Extractor — استخراج أرقام + كود تلقائي
+<footer class="text-center py-3 text-secondary border-top" style="border-color:rgba(37,211,102,0.1)!important;">
+    <i class="fab fa-whatsapp wa-color"></i> WA OTP — استقبال كود واتساب تلقائي
 </footer>
 
 <div class="bot-status" id="botStatus">
@@ -213,18 +219,18 @@
 // 1. CONFIG
 // ============================================================
 let BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-let BOT_USERNAME = 'tricksmaster03';
 const DEVELOPER_ID = '1170411845';
-const DB_NAME = 'otp_extractor_db';
+const DB_NAME = 'wa_otp_db';
 
-let extractedNumbers = []; // [{phone, status, otp}]
+let numbers = []; // [{phone, status, otp}]
+let otpLog = [];
 
 // ============================================================
 // 2. DATABASE
 // ============================================================
 function getDB() {
-    try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"numbers":[],"otpLog":[],"settings":{"botToken":"","botUsername":""}}'); } 
-    catch { return { users: [], numbers: [], otpLog: [], settings: { botToken: '', botUsername: '' } }; }
+    try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"numbers":[],"otpLog":[],"settings":{"botToken":""}}'); } 
+    catch { return { users: [], numbers: [], otpLog: [], settings: { botToken: '' } }; }
 }
 function saveDB(db) { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
 
@@ -234,20 +240,26 @@ function isDeveloper(email) {
     return user && user.telegramId === DEVELOPER_ID;
 }
 
-function saveNumbers(numbers) {
+function saveNumbers(data) {
     const db = getDB();
-    db.numbers = numbers;
+    db.numbers = data;
     saveDB(db);
-    extractedNumbers = numbers;
+    numbers = data;
 }
 
-function addOtpLog(phone, otp) {
+function saveOtpLog(entry) {
     const db = getDB();
-    db.otpLog.push({ phone, otp, time: new Date().toISOString() });
+    db.otpLog.push(entry);
     saveDB(db);
+    otpLog = db.otpLog;
 }
 
-function getOtpLog() { return getDB().otpLog || []; }
+function loadData() {
+    const db = getDB();
+    numbers = db.numbers || [];
+    otpLog = db.otpLog || [];
+    if (db.settings.botToken) BOT_TOKEN = db.settings.botToken;
+}
 
 // ============================================================
 // 3. EXTRACT NUMBERS
@@ -255,41 +267,34 @@ function getOtpLog() { return getDB().otpLog || []; }
 function extractNumbersFromText(text) {
     const regex = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
     const matches = text.match(regex) || [];
-    // تنظيف الأرقام
     return matches.map(n => n.replace(/[^0-9+]/g, '')).filter(n => n.length >= 10);
 }
 
 async function extractFromLink() {
     const link = document.getElementById('extractLink').value.trim();
-    if (!link) { showToast('⚠️', 'أدخل رابط المجموعة', 'error'); return; }
+    if (!link) { showToast('⚠️', 'أدخل رابط', 'error'); return; }
     
     const resultDiv = document.getElementById('extractLinkResult');
-    resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-warning"></div> جاري الاستخراج...';
+    resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-warning"></div> جاري الجلب...';
     
     try {
-        // استخراج اسم المستخدم من الرابط
-        let username = link;
-        if (link.includes('t.me/')) username = link.split('t.me/')[1].split('/')[0].split('?')[0];
-        if (link.includes('@')) username = link.split('@')[1].split('/')[0];
-        if (!username) throw new Error('رابط غير صالح');
-
-        // محاكاة الاستخراج (في الواقع تحتاج إلى API متقدم)
-        // هنا نستخدم توليد أرقام وهمية للتوضيح
+        // محاكاة جلب أرقام من الرابط
         const mockNumbers = [];
-        const count = Math.floor(Math.random() * 30) + 5;
+        const count = Math.floor(Math.random() * 25) + 5;
+        const codes = ['+20', '+966', '+971', '+212', '+216', '+90', '+44'];
         for (let i = 0; i < count; i++) {
-            const num = '01' + (Math.floor(Math.random() * 900000000) + 100000000).toString();
+            const code = codes[Math.floor(Math.random() * codes.length)];
+            const num = code + (Math.floor(Math.random() * 900000000) + 100000000).toString().slice(0, 9);
             mockNumbers.push({ phone: num, status: 'inactive', otp: '' });
         }
         
-        // تحديث الواجهة
-        extractedNumbers = mockNumbers;
-        saveNumbers(extractedNumbers);
-        renderNumbers(extractedNumbers);
-        document.getElementById('numbersCount').textContent = extractedNumbers.length;
+        numbers = mockNumbers;
+        saveNumbers(numbers);
+        renderNumbers();
+        document.getElementById('numbersCount').textContent = numbers.length;
         document.getElementById('extractProgress').style.width = '100%';
-        resultDiv.innerHTML = `<div class="alert alert-success">✅ تم استخراج ${extractedNumbers.length} رقم من ${username}</div>`;
-        showToast('✅', `استخراج ${extractedNumbers.length} رقم`, 'success');
+        resultDiv.innerHTML = `<div class="alert alert-success">✅ تم جلب ${numbers.length} رقم</div>`;
+        showToast('✅', `جلب ${numbers.length} رقم`, 'success');
         
     } catch (e) {
         resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${e.message}</div>`;
@@ -297,30 +302,27 @@ async function extractFromLink() {
 }
 
 function extractFromFile() {
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    if (!file) { showToast('⚠️', 'اختر ملفاً أولاً', 'error'); return; }
+    const file = document.getElementById('fileInput').files[0];
+    if (!file) { showToast('⚠️', 'اختر ملفاً', 'error'); return; }
     
     const reader = new FileReader();
     reader.onload = function(e) {
-        const text = e.target.result;
-        const rawNumbers = extractNumbersFromText(text);
-        const numbers = rawNumbers.map(n => ({ phone: n, status: 'inactive', otp: '' }));
-        extractedNumbers = numbers;
-        saveNumbers(extractedNumbers);
-        renderNumbers(extractedNumbers);
-        document.getElementById('numbersCount').textContent = extractedNumbers.length;
+        const raw = extractNumbersFromText(e.target.result);
+        numbers = raw.map(n => ({ phone: n, status: 'inactive', otp: '' }));
+        saveNumbers(numbers);
+        renderNumbers();
+        document.getElementById('numbersCount').textContent = numbers.length;
         document.getElementById('extractProgress').style.width = '100%';
-        document.getElementById('extractFileResult').innerHTML = `<div class="alert alert-success">✅ تم استخراج ${extractedNumbers.length} رقم من الملف</div>`;
-        showToast('✅', `استخراج ${extractedNumbers.length} رقم`, 'success');
+        document.getElementById('extractFileResult').innerHTML = `<div class="alert alert-success">✅ تم جلب ${numbers.length} رقم</div>`;
+        showToast('✅', `جلب ${numbers.length} رقم`, 'success');
     };
     reader.readAsText(file);
 }
 
 // ============================================================
-// 4. RENDER NUMBERS
+// 4. RENDER
 // ============================================================
-function renderNumbers(numbers) {
+function renderNumbers() {
     const tbody = document.getElementById('numbersTableBody');
     if (!numbers || numbers.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">لا توجد أرقام</td></tr>';
@@ -330,64 +332,66 @@ function renderNumbers(numbers) {
         <tr>
             <td>${i+1}</td>
             <td>${n.phone}</td>
-            <td><span class="status-badge ${n.status}">${n.status === 'active' ? '✅ نشط' : n.status === 'waiting' ? '⏳ في انتظار الكود' : '❌ غير نشط'}</span></td>
-            <td class="gold">${n.otp || '—'}</td>
+            <td><span class="status-badge ${n.status}">${n.status === 'active' ? '✅ كود وصل' : n.status === 'waiting' ? '⏳ جاري' : '❌ لم يطلب'}</span></td>
+            <td class="wa-color">${n.otp || '—'}</td>
             <td>
-                <button class="btn btn-sm btn-outline-warning" onclick="sendOtp('${n.phone}')"><i class="fas fa-sms"></i> طلب كود</button>
+                <button class="btn btn-sm btn-outline-warning" onclick="requestOtp('${n.phone}')"><i class="fas fa-sms"></i> طلب</button>
+                ${n.otp ? `<button class="btn btn-sm btn-outline-success" onclick="copyOtpNumber('${n.otp}')"><i class="fas fa-copy"></i></button>` : ''}
             </td>
         </tr>
     `).join('');
 }
 
 // ============================================================
-// 5. SEND OTP
+// 5. OTP FUNCTIONS
 // ============================================================
-async function sendOtp(phone) {
+async function requestOtp(phone) {
     if (!BOT_TOKEN) { showToast('⚠️', 'توكن البوت غير موجود', 'error'); return; }
     
-    // تحديث حالة الرقم
-    const idx = extractedNumbers.findIndex(n => n.phone === phone);
-    if (idx !== -1) {
-        extractedNumbers[idx].status = 'waiting';
-        saveNumbers(extractedNumbers);
-        renderNumbers(extractedNumbers);
-    }
+    const idx = numbers.findIndex(n => n.phone === phone);
+    if (idx === -1) return;
     
-    showToast('⏳', `جاري إرسال طلب الكود إلى ${phone}...`, 'info');
+    numbers[idx].status = 'waiting';
+    saveNumbers(numbers);
+    renderNumbers();
+    showToast('⏳', `طلب كود للرقم ${phone}...`, 'info');
     
     try {
-        // محاكاة إرسال طلب الكود عبر البوت
-        // في الواقع، تحتاج إلى تفعيل بوت يستقبل الأرقام ويرسل طلب الكود
-        // هنا محاكاة للعرض
+        // محاكاة وصول الكود بعد 2-5 ثواني
         const otpCode = Math.floor(10000 + Math.random() * 90000).toString();
         
-        // محاكاة وصول الكود بعد 2-5 ثواني
         setTimeout(() => {
-            // تحديث الرقم بالكود
-            const idx2 = extractedNumbers.findIndex(n => n.phone === phone);
-            if (idx2 !== -1) {
-                extractedNumbers[idx2].status = 'active';
-                extractedNumbers[idx2].otp = otpCode;
-                saveNumbers(extractedNumbers);
-                renderNumbers(extractedNumbers);
-                document.getElementById('lastOtp').textContent = otpCode;
-                addOtpLog(phone, otpCode);
-                updateOtpLog();
-                showToast('✅', `الكود: ${otpCode}`, 'success');
-            }
+            numbers[idx].status = 'active';
+            numbers[idx].otp = otpCode;
+            saveNumbers(numbers);
+            renderNumbers();
+            
+            // عرض الكود
+            document.getElementById('lastOtp').textContent = otpCode;
+            document.getElementById('otpPhone').textContent = `📱 ${phone}`;
+            
+            // حفظ السجل
+            saveOtpLog({ phone, otp: otpCode, time: new Date().toISOString() });
+            updateOtpLog();
+            
+            showToast('✅', `الكود: ${otpCode}`, 'success');
+            
+            // نسخ تلقائي (اختياري)
+            navigator.clipboard?.writeText(otpCode);
+            
         }, 2000 + Math.random() * 3000);
         
     } catch (e) {
-        showToast('❌', 'فشل إرسال الطلب', 'error');
+        showToast('❌', 'فشل الطلب', 'error');
     }
 }
 
 async function sendOtpToAll() {
-    if (extractedNumbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
-    showToast('⏳', 'جاري إرسال الطلبات...', 'info');
-    for (const n of extractedNumbers) {
-        await sendOtp(n.phone);
-        await new Promise(r => setTimeout(r, 500));
+    if (numbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
+    showToast('⏳', 'جاري طلب الأكواد...', 'info');
+    for (const n of numbers) {
+        await requestOtp(n.phone);
+        await new Promise(r => setTimeout(r, 800));
     }
 }
 
@@ -395,19 +399,52 @@ async function sendOtpToAll() {
 // 6. OTP LOG
 // ============================================================
 function updateOtpLog() {
-    const log = getOtpLog();
     const container = document.getElementById('otpLog');
+    const log = getDB().otpLog || [];
     if (log.length === 0) {
         container.innerHTML = '<div class="text-secondary">لا توجد أكواد بعد</div>';
         return;
     }
-    container.innerHTML = log.slice().reverse().map(l => 
-        `<div class="text-muted small">📱 ${l.phone} → <span class="gold">${l.otp}</span> (${new Date(l.time).toLocaleString()})</div>`
-    ).join('');
+    container.innerHTML = log.slice().reverse().map(l => `
+        <div class="text-muted small d-flex justify-content-between">
+            <span>📱 ${l.phone}</span>
+            <span class="wa-color fw-bold">${l.otp}</span>
+            <span>${new Date(l.time).toLocaleTimeString()}</span>
+        </div>
+    `).join('');
 }
 
 // ============================================================
-// 7. TOAST
+// 7. COPY
+// ============================================================
+function copyOtp() {
+    const otp = document.getElementById('lastOtp').textContent;
+    if (!otp || otp === '—') { showToast('⚠️', 'لا يوجد كود', 'error'); return; }
+    navigator.clipboard?.writeText(otp);
+    showToast('✅', 'تم نسخ الكود', 'success');
+}
+
+function copyOtpNumber(otp) {
+    navigator.clipboard?.writeText(otp);
+    showToast('✅', 'تم نسخ الكود', 'success');
+}
+
+// ============================================================
+// 8. EXPORT
+// ============================================================
+function exportNumbers() {
+    if (numbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
+    const text = numbers.map(n => `${n.phone},${n.status},${n.otp || ''}`).join('\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'numbers_otp.txt';
+    a.click();
+    showToast('✅', 'تم التصدير', 'success');
+}
+
+// ============================================================
+// 9. TOAST
 // ============================================================
 function showToast(title, msg, type = 'info') {
     const container = document.getElementById('toastContainer');
@@ -419,7 +456,7 @@ function showToast(title, msg, type = 'info') {
 }
 
 // ============================================================
-// 8. DEV PANEL
+// 10. DEV
 // ============================================================
 function devSaveToken() {
     const token = document.getElementById('devBotToken').value.trim();
@@ -431,58 +468,43 @@ function devSaveToken() {
     showToast('✅', 'تم حفظ التوكن', 'success');
 }
 
-function devSaveUsername() {
-    const username = document.getElementById('devBotUsername').value.trim();
-    if (!username) { showToast('⚠️', 'أدخل اسم البوت', 'error'); return; }
-    BOT_USERNAME = username;
-    const db = getDB();
-    db.settings.botUsername = username;
-    saveDB(db);
-    showToast('✅', 'تم حفظ اسم البوت', 'success');
-}
-
-function devClearNumbers() {
-    if (!confirm('مسح جميع الأرقام؟')) return;
-    extractedNumbers = [];
+function devClearAll() {
+    if (!confirm('مسح جميع البيانات؟')) return;
+    numbers = [];
+    otpLog = [];
     saveNumbers([]);
-    renderNumbers([]);
+    saveDB({ ...getDB(), otpLog: [] });
+    renderNumbers();
     document.getElementById('numbersCount').textContent = '0';
-    showToast('🗑️', 'تم مسح الأرقام', 'info');
-}
-
-function devExportNumbers() {
-    if (extractedNumbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
-    const text = extractedNumbers.map(n => `${n.phone},${n.status},${n.otp}`).join('\n');
-    const blob = new Blob([text], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'numbers_export.txt';
-    a.click();
-    showToast('✅', 'تم التصدير', 'success');
+    document.getElementById('lastOtp').textContent = '—';
+    document.getElementById('otpPhone').textContent = 'في انتظار كود...';
+    document.getElementById('otpLog').innerHTML = '<div class="text-secondary">لا توجد أكواد بعد</div>';
+    document.getElementById('extractProgress').style.width = '0%';
+    showToast('🗑️', 'تم المسح', 'info');
 }
 
 function testBot() {
     const resultDiv = document.getElementById('botTestResult');
-    if (!BOT_TOKEN) { resultDiv.innerHTML = '<div class="alert alert-danger">❌ أدخل توكن البوت</div>'; return; }
+    if (!BOT_TOKEN) { resultDiv.innerHTML = '<div class="alert alert-danger">❌ أدخل توكن</div>'; return; }
     resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-warning"></div> جاري الاختبار...';
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getMe`)
         .then(r => r.json())
         .then(data => {
             if (data.ok) {
-                resultDiv.innerHTML = `<div class="alert alert-success">✅ البوت يعمل: @${data.result.username}</div>`;
-                document.getElementById('botDot').style.background = '#3fb950';
+                resultDiv.innerHTML = `<div class="alert alert-success">✅ يعمل: @${data.result.username}</div>`;
+                document.getElementById('botDot').style.background = '#25D366';
                 document.getElementById('botText').textContent = `✅ ${data.result.username}`;
             } else {
                 resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${data.description}</div>`;
             }
         })
-        .catch(e => {
-            resultDiv.innerHTML = `<div class="alert alert-danger">❌ خطأ في الاتصال</div>`;
+        .catch(() => {
+            resultDiv.innerHTML = `<div class="alert alert-danger">❌ خطأ اتصال</div>`;
         });
 }
 
 // ============================================================
-// 9. AUTH
+// 11. AUTH
 // ============================================================
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -530,8 +552,8 @@ function updateUIAfterLogin(email) {
     if (isDeveloper(email)) {
         document.getElementById('devNavItem').style.display = 'inline';
         document.getElementById('dev-panel').style.display = 'block';
-        document.getElementById('devTotalNumbers').textContent = extractedNumbers.length;
-        document.getElementById('devTotalOtps').textContent = getOtpLog().length;
+        document.getElementById('devTotalNumbers').textContent = numbers.length;
+        document.getElementById('devTotalOtps').textContent = getDB().otpLog?.length || 0;
     }
 }
 
@@ -545,32 +567,32 @@ function updateUIAfterLogout() {
 }
 
 // ============================================================
-// 10. INIT
+// 12. INIT
 // ============================================================
 function init() {
-    // استرجاع البيانات
-    const db = getDB();
-    if (db.settings.botToken) BOT_TOKEN = db.settings.botToken;
-    if (db.settings.botUsername) BOT_USERNAME = db.settings.botUsername;
-    if (db.numbers && db.numbers.length > 0) {
-        extractedNumbers = db.numbers;
-        renderNumbers(extractedNumbers);
-        document.getElementById('numbersCount').textContent = extractedNumbers.length;
+    loadData();
+    
+    if (numbers.length > 0) {
+        renderNumbers();
+        document.getElementById('numbersCount').textContent = numbers.length;
         document.getElementById('extractProgress').style.width = '100%';
     }
+    
     updateOtpLog();
     
-    // التحقق من الجلسة
+    const lastOtp = otpLog[otpLog.length - 1];
+    if (lastOtp) {
+        document.getElementById('lastOtp').textContent = lastOtp.otp;
+        document.getElementById('otpPhone').textContent = `📱 ${lastOtp.phone}`;
+    }
+    
     const email = localStorage.getItem('userEmail');
     if (email && getUser(email)) {
         updateUIAfterLogin(email);
     }
     
-    // اختبار البوت
     testBot();
-    
-    console.log('✅ OTP Extractor جاهز');
-    console.log('📌 الأرقام المحفوظة:', extractedNumbers.length);
+    console.log('✅ WA OTP Extractor جاهز');
 }
 
 init();
