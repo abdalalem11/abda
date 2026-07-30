@@ -12,7 +12,7 @@
         }
 
         body {
-            background: #0a0a12;
+            background: #1a1a2e;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -25,19 +25,23 @@
         .card {
             width: 8.5cm;
             height: 5.4cm;
-            background: linear-gradient(145deg, #0a1e3f 0%, #0d2a5e 40%, #071635 100%);
-            border: 2.5px solid #c9a84c;
+            background: linear-gradient(165deg, #0c2a4a 0%, #1a4a7a 35%, #0d2a5e 65%, #071e3a 100%);
+            border: 2.5px solid #d4af37;
             border-radius: 8px;
             padding: 4px 6px;
             position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 60px rgba(201, 168, 76, 0.04);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 2px 8px rgba(212, 175, 55, 0.2),
+                inset 0 1px 0 rgba(212, 175, 55, 0.15),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
             overflow: hidden;
             direction: rtl;
             color: #ffffff;
             flex-shrink: 0;
         }
 
-        /* خلفية أمنية */
+        /* خلفية أمنية دقيقة */
         .card::before {
             content: '';
             position: absolute;
@@ -48,19 +52,20 @@
             background:
                 repeating-linear-gradient(45deg,
                     transparent,
-                    transparent 10px,
-                    rgba(201, 168, 76, 0.02) 10px,
-                    rgba(201, 168, 76, 0.02) 11px),
+                    transparent 12px,
+                    rgba(212, 175, 55, 0.015) 12px,
+                    rgba(212, 175, 55, 0.015) 13px),
                 repeating-linear-gradient(-45deg,
                     transparent,
-                    transparent 10px,
-                    rgba(201, 168, 76, 0.02) 10px,
-                    rgba(201, 168, 76, 0.02) 11px);
+                    transparent 12px,
+                    rgba(212, 175, 55, 0.015) 12px,
+                    rgba(212, 175, 55, 0.015) 13px),
+                radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* إطار داخلي ذهبي */
+        /* إطار داخلي ذهبي متألق */
         .card::after {
             content: '';
             position: absolute;
@@ -68,10 +73,29 @@
             left: 3px;
             right: 3px;
             bottom: 3px;
-            border: 1px solid rgba(201, 168, 76, 0.25);
+            border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 5px;
             pointer-events: none;
             z-index: 0;
+            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.03);
+        }
+
+        /* تأثير التموج الضوئي */
+        .card .shimmer {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 40%, rgba(212, 175, 55, 0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+            animation: shimmer 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(-10%, -10%) rotate(0deg); opacity: 0.5; }
+            100% { transform: translate(10%, 10%) rotate(5deg); opacity: 1; }
         }
 
         .card-content {
@@ -80,6 +104,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         /* ===== HEADER ===== */
@@ -88,7 +113,7 @@
             align-items: center;
             justify-content: space-between;
             padding-bottom: 2px;
-            border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
             flex-shrink: 0;
         }
 
@@ -101,7 +126,7 @@
         .logo {
             width: 20px;
             height: 20px;
-            background: radial-gradient(circle, #c9a84c 30%, #8a7522 100%);
+            background: radial-gradient(circle at 30% 30%, #f0d060, #b8941a);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -109,8 +134,9 @@
             font-size: 9px;
             font-weight: 900;
             color: #0a1e3f;
-            border: 1.5px solid #c9a84c;
+            border: 1.5px solid #d4af37;
             flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
         }
 
         .header-text {
@@ -121,38 +147,40 @@
         .header-text .republic {
             font-size: 6.5px;
             font-weight: 900;
-            color: #c9a84c;
+            color: #f0d060;
             letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
         }
 
         .header-text .ministry {
             font-size: 6px;
             font-weight: 700;
-            color: #e8d5a8;
+            color: #e8dcc0;
         }
 
         .header-text .dept {
             font-size: 5px;
             font-weight: 400;
-            color: #c9a84c;
+            color: #c9b894;
         }
 
         .title-badge {
             text-align: left;
-            border-right: 2px solid #c9a84c;
+            border-right: 2px solid rgba(212, 175, 55, 0.4);
             padding-right: 4px;
         }
 
         .title-badge .main-title {
             font-size: 7px;
             font-weight: 900;
-            color: #c9a84c;
+            color: #f0d060;
             line-height: 1.1;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
         }
 
         .title-badge .sub-title {
             font-size: 4.5px;
-            color: #e8d5a8;
+            color: #d4c8a8;
             font-weight: 300;
             letter-spacing: 0.3px;
         }
@@ -178,21 +206,22 @@
         .photo-frame {
             width: 28px;
             height: 32px;
-            border: 1.5px solid #c9a84c;
+            border: 1.5px solid rgba(212, 175, 55, 0.4);
             border-radius: 4px;
-            background: rgba(201, 168, 76, 0.08);
+            background: rgba(212, 175, 55, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 4.5px;
-            color: rgba(201, 168, 76, 0.4);
+            color: rgba(212, 175, 55, 0.3);
             text-align: center;
             line-height: 1.2;
+            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.03);
         }
 
         .photo-label {
             font-size: 4px;
-            color: #c9a84c;
+            color: #c9b894;
             margin-top: 1px;
             font-weight: 300;
         }
@@ -206,14 +235,14 @@
         .info-section .field {
             font-size: 5px;
             font-weight: 400;
-            color: #e0d5c0;
+            color: #d4c8b0;
             display: flex;
             align-items: baseline;
             gap: 2px;
         }
 
         .info-section .field .label {
-            color: #c9a84c;
+            color: #f0d060;
             font-weight: 700;
             font-size: 4.5px;
             min-width: 36px;
@@ -229,8 +258,8 @@
 
         /* ===== WEAPON ===== */
         .weapon-section {
-            border-top: 1px solid rgba(201, 168, 76, 0.25);
-            border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
             padding: 1px 0;
             display: flex;
             flex-wrap: wrap;
@@ -240,14 +269,14 @@
 
         .weapon-section .field {
             font-size: 4.5px;
-            color: #e0d5c0;
+            color: #d4c8b0;
             display: flex;
             align-items: baseline;
             gap: 2px;
         }
 
         .weapon-section .field .label {
-            color: #c9a84c;
+            color: #f0d060;
             font-weight: 700;
             font-size: 4px;
         }
@@ -271,11 +300,11 @@
 
         .dates-section .date-field {
             font-size: 4.5px;
-            color: #e0d5c0;
+            color: #d4c8b0;
         }
 
         .dates-section .date-field .label {
-            color: #c9a84c;
+            color: #f0d060;
             font-weight: 700;
             font-size: 4px;
         }
@@ -287,7 +316,7 @@
 
         .conditions {
             font-size: 4px;
-            color: #c9a84c;
+            color: #c9b894;
             font-weight: 300;
             text-align: center;
             letter-spacing: 0.2px;
@@ -299,7 +328,7 @@
             justify-content: space-between;
             align-items: center;
             padding-top: 1px;
-            border-top: 1px solid rgba(201, 168, 76, 0.25);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
             flex-shrink: 0;
         }
 
@@ -309,7 +338,7 @@
 
         .signature .sig-label {
             font-size: 3.5px;
-            color: #c9a84c;
+            color: #c9b894;
             font-weight: 300;
         }
 
@@ -317,14 +346,14 @@
             font-size: 4.5px;
             color: #ffffff;
             font-weight: 700;
-            border-top: 1px solid #c9a84c;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
             padding-top: 1px;
             margin-top: 1px;
         }
 
         .signature .sig-title {
             font-size: 3px;
-            color: #e8d5a8;
+            color: #d4c8a8;
             font-weight: 300;
         }
 
@@ -340,13 +369,14 @@
             height: 30px;
             border-radius: 50%;
             border: 2px solid #c0392b;
-            background: rgba(192, 57, 43, 0.06);
+            background: rgba(192, 57, 43, 0.08);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(192, 57, 43, 0.1);
         }
 
         .seal::before {
@@ -357,7 +387,7 @@
             right: 3px;
             bottom: 3px;
             border-radius: 50%;
-            border: 1px solid rgba(192, 57, 43, 0.3);
+            border: 1px solid rgba(192, 57, 43, 0.25);
         }
 
         .seal .seal-text-top {
@@ -394,7 +424,7 @@
 
         .seal-label {
             font-size: 2.5px;
-            color: #c9a84c;
+            color: #c9b894;
             margin-top: 1px;
             font-weight: 300;
         }
@@ -451,6 +481,7 @@
 <body>
 
     <div class="card">
+        <div class="shimmer"></div>
         <div class="card-content">
 
             <!-- ===== HEADER ===== -->
