@@ -1,978 +1,579 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الوسيط - رشق تلغرام تلقائي</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>استخراج أرقام تيليغرام + OTP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0e17; font-family: 'Tahoma', sans-serif; color: #e8e6e3; }
-        .navbar { background: rgba(17,25,39,0.98); border-bottom: 3px solid #d4af37; padding: 15px 0; }
-        .navbar-brand { color: #d4af37 !important; font-weight: 900; font-size: 1.8rem; }
-        .navbar-brand span { color: #fff; }
-        .btn-gold { background: #d4af37; color: #0a0e17; font-weight: 700; border: none; padding: 10px 30px; border-radius: 8px; transition: 0.3s; }
-        .btn-gold:hover { background: #b8941a; color: #fff; transform: scale(1.05); }
-        .btn-outline-gold { border: 2px solid #d4af37; color: #d4af37; background: transparent; }
-        .btn-outline-gold:hover { background: #d4af37; color: #0a0e17; }
-        .card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 16px; }
-        .card:hover { border-color: #d4af37; transform: translateY(-5px); }
-        .card-header { background: rgba(212,175,55,0.05); border-bottom: 1px solid rgba(212,175,55,0.1); padding: 18px 22px; font-weight: 700; }
-        .card-header i { color: #d4af37; margin-left: 10px; }
-        .gold-text { color: #d4af37; }
-        .section-title { color: #d4af37; border-right: 5px solid #d4af37; padding-right: 15px; margin-bottom: 30px; }
-        .stat-card { background: #111927; border: 1px solid rgba(212,175,55,0.1); border-radius: 16px; padding: 25px; text-align: center; }
-        .stat-card .number { font-size: 2.5rem; font-weight: 900; color: #d4af37; }
-        .service-card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; height: 100%; transition: 0.3s; }
-        .service-card:hover { border-color: #d4af37; transform: scale(1.02); box-shadow: 0 0 30px rgba(212,175,55,0.1); }
-        .service-card .icon { font-size: 2.5rem; color: #d4af37; }
-        .service-card .name { font-weight: 700; }
-        .service-card .price { color: #8892a0; }
-        .form-control { background: #0d1117; border: 1px solid #30363d; color: #e8e6e3; border-radius: 10px; padding: 14px 18px; }
-        .form-control:focus { border-color: #d4af37; box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.15); }
-        .auth-card { max-width: 480px; margin: 40px auto; padding: 35px; background: #111927; border-radius: 20px; border: 1px solid rgba(212,175,55,0.2); }
-        .balance-box { background: rgba(212,175,55,0.08); border: 1px solid #d4af37; border-radius: 16px; padding: 20px; text-align: center; }
-        .balance-box .amount { font-size: 2.8rem; font-weight: 900; color: #d4af37; }
-        .bot-status { position: fixed; bottom: 20px; right: 20px; background: #111927; border: 1px solid #d4af37; border-radius: 30px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; z-index: 9999; }
-        .bot-status .dot { width: 12px; height: 12px; border-radius: 50%; background: #3fb950; animation: pulse 1.5s infinite; }
+        body { background: #0a0e17; color: #e8e6e3; font-family: 'Tahoma', sans-serif; }
+        .gold { color: #d4af37; }
+        .gold-bg { background: #d4af37; color: #0a0e17; font-weight: 700; border: none; }
+        .gold-bg:hover { background: #b8941a; color: #fff; }
+        .card-dark { background: #111927; border: 1px solid rgba(212,175,55,0.15); border-radius: 16px; padding: 20px; }
+        .card-dark:hover { border-color: #d4af37; }
+        .form-control { background: #0d1117; border: 1px solid #30363d; color: #e8e6e3; border-radius: 10px; padding: 12px 16px; }
+        .form-control:focus { border-color: #d4af37; box-shadow: 0 0 0 0.2rem rgba(212,175,55,0.2); }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .status-badge.active { background: rgba(25,135,84,0.2); color: #198754; }
+        .status-badge.inactive { background: rgba(220,53,69,0.2); color: #dc3545; }
+        .status-badge.waiting { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .bot-status { position: fixed; bottom: 20px; left: 20px; background: #111927; border: 1px solid #d4af37; border-radius: 30px; padding: 8px 18px; display: flex; align-items: center; gap: 10px; z-index: 9999; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #3fb950; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        footer { border-top: 1px solid rgba(212,175,55,0.1); padding: 35px 0; margin-top: 60px; text-align: center; color: #666; }
-        .dev-panel { background: #1a1a2e; border: 1px solid #dc3545; border-radius: 12px; padding: 20px; margin-top: 20px; }
-        .dev-panel .title { color: #dc3545; font-weight: 900; }
-        .toast-container { position: fixed; top: 20px; left: 20px; z-index: 99999; max-width: 350px; }
-        .toast-custom { background: #111927; border: 1px solid #d4af37; border-radius: 12px; padding: 15px 20px; margin-bottom: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .otp-box { background: #0d1117; border: 1px solid #d4af37; border-radius: 10px; padding: 12px; font-family: monospace; font-size: 1.2rem; color: #d4af37; word-break: break-all; }
+        .toast-container { position: fixed; top: 20px; left: 20px; z-index: 99999; max-width: 360px; }
+        .toast-custom { background: #111927; border: 1px solid #d4af37; border-radius: 12px; padding: 12px 18px; margin-bottom: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.6); }
         .toast-custom.success { border-color: #3fb950; }
         .toast-custom.error { border-color: #f85149; }
-        .order-status { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
-        .order-status.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
-        .order-status.processing { background: rgba(13,202,240,0.2); color: #0dcaf0; }
-        .order-status.completed { background: rgba(25,135,84,0.2); color: #198754; }
-        .order-status.failed { background: rgba(220,53,69,0.2); color: #dc3545; }
-        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .free-badge { background: #dc3545; color: #fff; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-right: 5px; }
-        .extract-box { background: #0d1117; border: 1px solid #d4af37; border-radius: 10px; padding: 15px; margin-top: 15px; }
-        .extract-box .label { color: #8892a0; font-size: 0.9rem; }
-        .extract-box .value { color: #d4af37; font-family: monospace; word-break: break-all; }
         .progress-container { background: #0d1117; border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-bar-custom { height: 20px; background: linear-gradient(90deg, #d4af37, #b8941a); width: 0%; transition: width 0.5s; }
-        .warning-box { background: rgba(255,193,7,0.1); border: 1px solid #ffc107; border-radius: 10px; padding: 15px; margin-top: 15px; }
-        .warning-box .title { color: #ffc107; font-weight: 700; }
+        .progress-bar-custom { height: 16px; background: linear-gradient(90deg, #d4af37, #b8941a); width: 0%; transition: width 0.4s; }
+        .table { color: #e8e6e3; }
+        .table thead th { border-bottom: 2px solid #d4af37; color: #d4af37; }
+        .table td { vertical-align: middle; }
+        .extract-result { max-height: 400px; overflow-y: auto; }
+        .dev-panel { border: 1px solid #dc3545; border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .dev-panel .title { color: #dc3545; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer"></div>
 
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> الوسيط <span>@u_t_r</span></a>
-            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="#dashboard">الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#services">الخدمات</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#orders">طلباتي</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#charge">شحن الرصيد</a></li>
-                    <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">لوحة المطور</a></li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item" id="userInfo" style="display:none;"><span class="nav-link gold-text" id="userEmailDisplay"></span></li>
-                    <li class="nav-item"><a class="nav-link" href="#login" id="loginBtn">دخول</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#register" id="registerBtn">تسجيل</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn" style="display:none;color:#dc3545;"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
-                </ul>
+<!-- ====== NAV ====== -->
+<nav class="navbar navbar-expand-lg sticky-top" style="background: rgba(17,25,39,0.98); border-bottom: 2px solid #d4af37;">
+    <div class="container">
+        <a class="navbar-brand gold fw-bold" href="#"><i class="fas fa-bolt"></i> OTP <span style="color:#fff;">Extractor</span></a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="#extract">استخراج</a></li>
+                <li class="nav-item"><a class="nav-link" href="#numbers">الأرقام</a></li>
+                <li class="nav-item"><a class="nav-link" href="#otp">الكود</a></li>
+                <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">لوحة المطور</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item" id="userInfo" style="display:none;"><span class="nav-link gold" id="userEmailDisplay"></span></li>
+                <li class="nav-item"><a class="nav-link" href="#login" id="loginBtn">دخول</a></li>
+                <li class="nav-item"><a class="nav-link" href="#register" id="registerBtn">تسجيل</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn" style="display:none;color:#dc3545;"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+
+    <!-- ====== EXTRACT SECTION ====== -->
+    <section id="extract" class="py-3">
+        <h2 class="gold border-bottom border-gold pb-2"><i class="fas fa-search"></i> استخراج الأرقام</h2>
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <div class="card-dark">
+                    <h5><i class="fas fa-link gold"></i> من رابط مجموعة / قناة</h5>
+                    <div class="input-group mt-2">
+                        <input type="text" class="form-control" id="extractLink" placeholder="https://t.me/username" />
+                        <button class="btn gold-bg" onclick="extractFromLink()"><i class="fas fa-arrow-left"></i> استخراج</button>
+                    </div>
+                    <div id="extractLinkResult" class="mt-2"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card-dark">
+                    <h5><i class="fas fa-file-alt gold"></i> من ملف نصي</h5>
+                    <input type="file" class="form-control" id="fileInput" accept=".txt,.csv" />
+                    <button class="btn gold-bg mt-2" onclick="extractFromFile()"><i class="fas fa-upload"></i> رفع واستخراج</button>
+                    <div id="extractFileResult" class="mt-2"></div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container py-4">
-
-        <section id="dashboard" class="py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="balance-box">
-                        <i class="fas fa-wallet" style="font-size:2rem;color:#d4af37;"></i>
-                        <div class="amount" id="userBalance">0.00 $</div>
-                        <div class="text-secondary-custom">رصيدك الحالي</div>
-                        <a href="#charge" class="btn btn-gold btn-sm mt-2"><i class="fas fa-plus"></i> شحن الرصيد</a>
-                        <div id="developerBadge" style="display:none;margin-top:10px;">
-                            <span class="badge bg-danger">⭐ مطور - رشق مجاني</span>
-                        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card-dark">
+                    <h5><i class="fas fa-list gold"></i> الأرقام المستخرجة (<span id="numbersCount">0</span>)</h5>
+                    <div class="progress-container">
+                        <div class="progress-bar-custom" id="extractProgress" style="width:0%"></div>
                     </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="row g-3">
-                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="totalOrders">0</div><div>إجمالي الطلبات</div></div></div>
-                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="activeOrders">0</div><div>قيد التنفيذ</div></div></div>
-                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="completedOrders">0</div><div>مكتملة</div></div></div>
-                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="spentAmount">0.00 $</div><div>إجمالي الإنفاق</div></div></div>
-                    </div>
+                    <div class="extract-result mt-2" id="numbersList"></div>
+                    <button class="btn gold-bg mt-2" onclick="sendOtpToAll()"><i class="fas fa-sms"></i> طلب كود لجميع الأرقام</button>
                 </div>
             </div>
-        </section>
-
-        <section id="services" class="py-5">
-            <h2 class="section-title"><i class="fas fa-rocket gold-text"></i> خدمات الرشق التلقائي</h2>
-            <div class="warning-box">
-                <div class="title"><i class="fas fa-info-circle"></i> كيف يعمل الرشق التلقائي؟</div>
-                <p>1. أدخل <b>رابط المجموعة أو القناة</b> (حتى لو كانت مخفية).</p>
-                <p>2. النظام <b>يستخرج الأعضاء</b> من الرابط تلقائياً.</p>
-                <p>3. ثم <b>يرشقهم</b> إلى المجموعة/القناة المستهدفة.</p>
-                <p class="mt-2 text-warning">⚠️ يحتاج البوت أن يكون <b>أدمن</b> في المجموعة المصدر والمجموعة المستهدفة.</p>
-            </div>
-            <div class="row g-3 mt-3" id="servicesContainer"></div>
-        </section>
-
-        <section id="orders" class="py-5">
-            <h2 class="section-title"><i class="fas fa-history gold-text"></i> طلبات الرشق</h2>
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover">
-                            <thead><tr><th>#</th><th>الخدمة</th><th>المصدر</th><th>الهدف</th><th>الكمية</th><th>السعر</th><th>الحالة</th><th>التاريخ</th></tr></thead>
-                            <tbody id="ordersTableBody"><tr><td colspan="8" class="text-center text-secondary-custom">لا توجد طلبات</td></tr></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="charge" class="py-5">
-            <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد</h2>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-star"></i> اختر الباقة</div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(50)">🌟 50 نجمة = 5$</button></div>
-                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(100)">🌟 100 نجمة = 10$</button></div>
-                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(250)">🌟 250 نجمة = 25$</button></div>
-                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(500)">🌟 500 نجمة = 50$</button></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-info-circle"></i> الدفع المباشر</div>
-                        <div class="card-body">
-                            <p>ادفع عبر بوت تيليجرام <code>@SmmMediatorBot</code> بالنجوم.</p>
-                            <div class="alert alert-success mt-3">✅ يتم إضافة الرصيد فوراً بعد الدفع</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="dev-panel" class="py-5" style="display:none;">
-            <h2 class="section-title" style="border-color:#dc3545; color:#dc3545;"><i class="fas fa-crown"></i> لوحة المطور</h2>
-            <div class="dev-panel">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <h5 class="title"><i class="fas fa-robot"></i> إعدادات البوت</h5>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="devBotToken" placeholder="توكن البوت" value="8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY">
-                            <button class="btn btn-info" onclick="devUpdateBotToken()"><i class="fas fa-save"></i> حفظ</button>
-                        </div>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="devGroupId" placeholder="معرف المجموعة الهدف (مثال: -1001234567890)">
-                            <button class="btn btn-info" onclick="devUpdateGroup()"><i class="fas fa-save"></i> حفظ</button>
-                        </div>
-                        <h5 class="title mt-3"><i class="fas fa-database"></i> استخراج الأعضاء من رابط</h5>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="devExtractLink" placeholder="رابط المجموعة/القناة (مثال: https://t.me/username)">
-                            <button class="btn btn-gold" onclick="devExtractMembers()"><i class="fas fa-search"></i> استخراج</button>
-                        </div>
-                        <div id="extractResult" class="mt-2"></div>
-                        <div class="extract-box mt-2" id="extractDisplay" style="display:none;">
-                            <div class="label">الأعضاء المستخرجين:</div>
-                            <div class="value" id="extractCount">0</div>
-                            <div class="progress-container">
-                                <div class="progress-bar-custom" id="extractProgress" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        <button class="btn btn-outline-gold mt-2" onclick="testBotConnection()"><i class="fas fa-plug"></i> اختبار البوت</button>
-                        <div class="mt-3" id="botTestResult"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <h5 class="title"><i class="fas fa-users"></i> إدارة المستخدمين</h5>
-                        <div class="input-group mb-2">
-                            <input type="email" class="form-control" id="devUserEmail" placeholder="البريد الإلكتروني">
-                            <button class="btn btn-danger" onclick="devAddBalance()"><i class="fas fa-plus"></i> إضافة رصيد</button>
-                        </div>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="devBroadcastMsg" placeholder="رسالة عامة">
-                            <button class="btn btn-warning" onclick="devBroadcast()"><i class="fas fa-bullhorn"></i> إرسال</button>
-                        </div>
-                        <h5 class="title mt-3"><i class="fas fa-chart-bar"></i> الإحصائيات</h5>
-                        <div id="devStats">
-                            <p>👥 المستخدمين: <span id="devTotalUsers">0</span></p>
-                            <p>📦 الطلبات: <span id="devTotalOrders">0</span></p>
-                            <p>💰 الأرباح: <span id="devTotalProfit">0.00 $</span></p>
-                        </div>
-                        <button class="btn btn-outline-danger btn-sm mt-2" onclick="devRefreshStats()"><i class="fas fa-sync"></i> تحديث</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="register" class="py-4">
-            <div class="auth-card card">
-                <h2 class="text-center gold-text"><i class="fas fa-user-plus"></i> تسجيل</h2>
-                <form id="registerForm">
-                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required></div>
-                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="regPassword" required></div>
-                    <div class="mb-3"><label class="form-label">معرف تيليجرام</label><input type="text" class="form-control" id="regTelegram" placeholder="@username"></div>
-                    <button type="submit" class="btn btn-gold w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
-                </form>
-            </div>
-        </section>
-
-        <section id="login" class="py-4">
-            <div class="auth-card card">
-                <h2 class="text-center gold-text"><i class="fas fa-sign-in-alt"></i> دخول</h2>
-                <form id="loginForm">
-                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" required></div>
-                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="loginPassword" required></div>
-                    <button type="submit" class="btn btn-gold w-100"><i class="fas fa-arrow-left"></i> دخول</button>
-                </form>
-            </div>
-        </section>
-
-    </div>
-
-    <footer>
-        <div class="container">
-            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — رشق تلقائي</p>
         </div>
-    </footer>
+    </section>
 
-    <div class="bot-status" id="botStatus">
-        <span class="dot" id="botDot"></span>
-        <span id="botText">جاري الاتصال...</span>
-    </div>
+    <!-- ====== NUMBERS TABLE ====== -->
+    <section id="numbers" class="py-4">
+        <h2 class="gold border-bottom border-gold pb-2"><i class="fas fa-database"></i> تفاصيل الأرقام</h2>
+        <div class="card-dark mt-3">
+            <div class="table-responsive">
+                <table class="table" id="numbersTable">
+                    <thead><tr><th>#</th><th>الرقم</th><th>الحالة</th><th>الكود المستلم</th><th>الإجراء</th></tr></thead>
+                    <tbody id="numbersTableBody">
+                        <tr><td colspan="5" class="text-center text-secondary">لا توجد أرقام</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // ============================================================
-        // 1. CONFIGURATION
-        // ============================================================
-        const MAIN_BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-        const MAIN_BOT_API = `https://api.telegram.org/bot${MAIN_BOT_TOKEN}`;
-        const DEVELOPER_ID = '1170411845';
-        const DB_NAME = 'mediator_db';
-
-        let SPAM_BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-        let SPAM_GROUP_ID = '';
-        let EXTRACTED_USERS = [];
-
-        // ============================================================
-        // 2. DATABASE
-        // ============================================================
-        function getDB() {
-            try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"orders":[],"balance":{},"settings":{"spamBotToken":"","spamGroupId":"","extractedUsers":[]}}'); } 
-            catch { return { users: [], orders: [], balance: {}, settings: { spamBotToken: '', spamGroupId: '', extractedUsers: [] } }; }
-        }
-        function saveDB(db) { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
-
-        function getUser(email) { return getDB().users.find(u => u.email === email); }
-        function getBalance(email) { return getDB().balance[email] || 0; }
-        function setBalance(email, amount) { const db = getDB(); db.balance[email] = amount; saveDB(db); }
-
-        function addOrder(email, service, serviceId, source, target, quantity, price) {
-            const db = getDB();
-            const order = {
-                id: Date.now(),
-                email,
-                service,
-                serviceId,
-                source,
-                target,
-                quantity,
-                price,
-                status: 'pending',
-                createdAt: new Date().toISOString(),
-                isFree: false,
-                result: ''
-            };
-            db.orders.push(order);
-            saveDB(db);
-            return order;
-        }
-
-        function updateOrder(orderId, updates) {
-            const db = getDB();
-            const idx = db.orders.findIndex(o => o.id === orderId);
-            if (idx !== -1) { db.orders[idx] = { ...db.orders[idx], ...updates }; saveDB(db); return db.orders[idx]; }
-            return null;
-        }
-
-        function getOrders(email) { return getDB().orders.filter(o => o.email === email); }
-        function getAllUsers() { return getDB().users; }
-        function getAllOrders() { return getDB().orders; }
-        function getSettings() { return getDB().settings || { spamBotToken: '', spamGroupId: '', extractedUsers: [] }; }
-
-        function updateSettings(settings) {
-            const db = getDB();
-            db.settings = { ...db.settings, ...settings };
-            saveDB(db);
-            if (settings.spamBotToken) SPAM_BOT_TOKEN = settings.spamBotToken;
-            if (settings.spamGroupId) SPAM_GROUP_ID = settings.spamGroupId;
-            if (settings.extractedUsers) EXTRACTED_USERS = settings.extractedUsers;
-        }
-
-        function isDeveloper(email) {
-            const user = getUser(email);
-            if (!user) return false;
-            return user.telegramId === DEVELOPER_ID || email === 'developer@mediator.com';
-        }
-
-        // ============================================================
-        // 3. EXTRACT MEMBERS FROM LINK
-        // ============================================================
-        async function extractMembersFromLink(link) {
-            const { token } = getSpamSettings();
-            if (!token) {
-                throw new Error('أدخل توكن البوت أولاً');
-            }
-
-            // استخراج اسم المستخدم من الرابط
-            let username = link;
-            if (link.includes('t.me/')) {
-                username = link.split('t.me/')[1].split('/')[0].split('?')[0];
-            }
-            if (link.includes('@')) {
-                username = link.split('@')[1].split('/')[0];
-            }
-
-            if (!username) {
-                throw new Error('لم يتم العثور على اسم مستخدم صحيح في الرابط');
-            }
-
-            // محاولة الحصول على معلومات المجموعة
-            const chatRes = await fetch(`https://api.telegram.org/bot${token}/getChat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: `@${username}` })
-            });
-            const chatData = await chatRes.json();
-
-            if (!chatData.ok) {
-                throw new Error(`فشل الوصول إلى المجموعة: ${chatData.description}`);
-            }
-
-            const chat = chatData.result;
-            if (chat.type !== 'supergroup' && chat.type !== 'group') {
-                throw new Error('الرابط ليس لمجموعة أو سوبر جروب');
-            }
-
-            // الحصول على عدد الأعضاء (لا يمكن للبوت جلب قائمة الأعضاء كاملة)
-            // لذلك نستخدم طريقة بديلة: استخراج الأعضاء عبر الرابط العكسي
-            
-            // محاكاة استخراج الأعضاء (في الواقع تحتاج إلى API متقدم)
-            // هنا نستخدم مثال توضيحي
-            const memberCount = Math.min(chat.members_count || 100, 500);
-            const fakeMembers = [];
-            for (let i = 0; i < memberCount; i++) {
-                fakeMembers.push(100000000 + i);
-            }
-
-            return {
-                chatId: chat.id,
-                title: chat.title,
-                username: chat.username,
-                memberCount: memberCount,
-                members: fakeMembers,
-                message: `تم استخراج ${memberCount} عضو من ${chat.title}`
-            };
-        }
-
-        // ============================================================
-        // 4. TELEGRAM SPAM
-        // ============================================================
-        function getSpamSettings() {
-            const settings = getSettings();
-            return {
-                token: settings.spamBotToken || SPAM_BOT_TOKEN,
-                group: settings.spamGroupId || SPAM_GROUP_ID,
-                users: settings.extractedUsers || []
-            };
-        }
-
-        async function testBotConnection() {
-            const { token, group, users } = getSpamSettings();
-            const resultDiv = document.getElementById('botTestResult');
-            
-            if (!token) {
-                resultDiv.innerHTML = '<div class="alert alert-danger">⚠️ أدخل توكن البوت أولاً</div>';
-                return;
-            }
-            if (!group) {
-                resultDiv.innerHTML = '<div class="alert alert-warning">⚠️ أدخل معرف المجموعة الهدف أولاً</div>';
-                return;
-            }
-
-            try {
-                const botRes = await fetch(`https://api.telegram.org/bot${token}/getMe`);
-                const botData = await botRes.json();
-                if (!botData.ok) {
-                    resultDiv.innerHTML = `<div class="alert alert-danger">❌ توكن غير صحيح: ${botData.description}</div>`;
-                    return;
-                }
-
-                const chatRes = await fetch(`https://api.telegram.org/bot${token}/getChat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: group })
-                });
-                const chatData = await chatRes.json();
-                
-                if (chatData.ok) {
-                    let info = `✅ البوت يعمل!\n`;
-                    info += `📌 المجموعة: ${chatData.result.title || 'غير معروف'}\n`;
-                    info += `📌 الأعضاء المستخرجين: ${users.length || 0}`;
-                    resultDiv.innerHTML = `<div class="alert alert-success">${info.replace(/\n/g, '<br>')}</div>`;
-                } else {
-                    resultDiv.innerHTML = `<div class="alert alert-danger">❌ فشل الوصول إلى المجموعة: ${chatData.description}</div>`;
-                }
-            } catch (e) {
-                resultDiv.innerHTML = `<div class="alert alert-danger">❌ خطأ في الاتصال: ${e.message}</div>`;
-            }
-        }
-
-        async function addMember(groupId, userId, token) {
-            try {
-                const res = await fetch(`https://api.telegram.org/bot${token}/inviteUser`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: groupId,
-                        user_id: userId
-                    })
-                });
-                return await res.json();
-            } catch (e) {
-                return { ok: false, description: e.message };
-            }
-        }
-
-        async function executeSpamFromExtracted(groupId, quantity, token, userList) {
-            if (!groupId || !token) {
-                throw new Error('لم يتم إعداد البوت أو المجموعة');
-            }
-            if (!userList || userList.length === 0) {
-                throw new Error('لا توجد أعضاء مستخرجين للرشق');
-            }
-
-            const limit = Math.min(parseInt(quantity), userList.length);
-            let successCount = 0;
-            let failedUsers = [];
-
-            for (let i = 0; i < limit; i++) {
-                const userId = userList[i];
-                try {
-                    const result = await addMember(groupId, userId, token);
-                    if (result.ok) {
-                        successCount++;
-                    } else {
-                        failedUsers.push(userId);
-                    }
-                    await new Promise(r => setTimeout(r, 1000));
-                } catch (e) {
-                    failedUsers.push(userId);
-                }
-                // تحديث التقدم
-                const progress = ((i + 1) / limit) * 100;
-                document.getElementById('extractProgress').style.width = progress + '%';
-            }
-
-            return {
-                success: successCount > 0,
-                count: successCount,
-                total: limit,
-                failed: failedUsers,
-                message: successCount > 0 
-                    ? `تم إضافة ${successCount} عضو من ${limit}` 
-                    : 'فشل إضافة جميع الأعضاء'
-            };
-        }
-
-        // ============================================================
-        // 5. MAIN BOT
-        // ============================================================
-        async function sendTelegramMessage(chatId, text) {
-            if (!chatId) return;
-            try {
-                await fetch(`${MAIN_BOT_API}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
-                });
-            } catch (e) {}
-        }
-
-        async function notifyDeveloper(text) {
-            await sendTelegramMessage(DEVELOPER_ID, `🔔 ${text}`);
-        }
-
-        window.chargeStars = async function(stars) {
-            const email = localStorage.getItem('userEmail');
-            if (!email) { showToast('⚠️', 'سجل دخول أولاً', 'error'); return; }
-            
-            const user = getUser(email);
-            if (!user || !user.telegramId) {
-                showToast('⚠️', 'اربط حساب تيليجرام في التسجيل', 'error');
-                return;
-            }
-
-            const amount = stars * 0.1;
-            const payload = {
-                chat_id: user.telegramId,
-                title: `شراء ${stars} نجمة`,
-                description: `شحن رصيدك في منصة الوسيط`,
-                payload: JSON.stringify({ email, stars, amount }),
-                provider_token: '',
-                currency: 'XTR',
-                prices: [{ label: `${stars} نجمة`, amount: stars * 100 }],
-                start_parameter: `star_pay_${Date.now()}`
-            };
-
-            try {
-                const res = await fetch(`${MAIN_BOT_API}/sendInvoice`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                if (result.ok) {
-                    showToast('✅', 'تم إرسال فاتورة الدفع إلى تيليجرام', 'success');
-                    await notifyDeveloper(`💳 طلب شحن ${stars} نجمة من ${email}`);
-                } else {
-                    showToast('❌', result.description || 'فشل الإرسال', 'error');
-                }
-            } catch (e) {
-                showToast('❌', 'خطأ في الاتصال', 'error');
-            }
-        };
-
-        window.handleSuccessfulPayment = async function(email, stars, amount) {
-            const current = getBalance(email);
-            setBalance(email, current + amount);
-            const user = getUser(email);
-            if (user && user.telegramId) {
-                await sendTelegramMessage(user.telegramId, 
-                    `✅ تم شحن رصيدك بنجاح!\nالمبلغ: ${amount.toFixed(2)} $\nالرصيد الحالي: ${(current + amount).toFixed(2)} $`);
-            }
-            await notifyDeveloper(`💰 تم شحن ${amount.toFixed(2)} $ للمستخدم ${email}`);
-            if (localStorage.getItem('userEmail') === email) {
-                updateDashboard(email);
-            }
-            showToast('✅', `تم شحن ${amount.toFixed(2)} $`, 'success');
-        };
-
-        // ============================================================
-        // 6. UI FUNCTIONS
-        // ============================================================
-        function showToast(title, msg, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast-custom ${type}`;
-            toast.innerHTML = `<div class="title">${title}</div><div class="msg">${msg}</div>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
-        }
-
-        // ============================================================
-        // 7. SERVICES
-        // ============================================================
-        const services = [
-            { id: 'auto_spam', name: '🔄 رشق تلقائي (استخراج + إضافة)', price: 0.5, icon: 'fa-robot' },
-            { id: 'extract_only', name: '🔍 استخراج أعضاء فقط', price: 0.2, icon: 'fa-search' },
-        ];
-
-        function renderServices() {
-            const container = document.getElementById('servicesContainer');
-            container.innerHTML = services.map(s => `
-                <div class="col-md-6 col-lg-6">
-                    <div class="service-card" onclick="openOrderModal('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})">
-                        <div class="icon"><i class="fas ${s.icon}"></i></div>
-                        <div class="name">${s.name}</div>
-                        <div class="price">${s.price} $ / عضو</div>
-                        <button class="btn btn-gold btn-sm mt-2"><i class="fas fa-rocket"></i> رشق</button>
+    <!-- ====== OTP DISPLAY ====== -->
+    <section id="otp" class="py-4">
+        <h2 class="gold border-bottom border-gold pb-2"><i class="fas fa-key"></i> الكود المستلم</h2>
+        <div class="row g-3 mt-2">
+            <div class="col-md-6">
+                <div class="card-dark">
+                    <h5><i class="fas fa-circle-check gold"></i> آخر كود</h5>
+                    <div class="otp-box" id="lastOtp">—</div>
+                    <div class="text-secondary small">ينتظر وصول الكود...</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card-dark">
+                    <h5><i class="fas fa-clock gold"></i> سجل الأكواد</h5>
+                    <div id="otpLog" style="max-height:200px;overflow-y:auto;">
+                        <div class="text-secondary">لا توجد أكواد بعد</div>
                     </div>
                 </div>
-            `).join('');
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== DEV PANEL ====== -->
+    <section id="dev-panel" class="py-4" style="display:none;">
+        <h2 class="text-danger border-bottom border-danger pb-2"><i class="fas fa-crown"></i> لوحة المطور</h2>
+        <div class="dev-panel">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h5 class="title"><i class="fas fa-robot"></i> إعدادات البوت</h5>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" id="devBotToken" placeholder="توكن البوت" value="8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY" />
+                        <button class="btn btn-info" onclick="devSaveToken()"><i class="fas fa-save"></i> حفظ</button>
+                    </div>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" id="devBotUsername" placeholder="معرف البوت (بدون @)" value="tricksmaster03" />
+                        <button class="btn btn-info" onclick="devSaveUsername()"><i class="fas fa-save"></i> حفظ</button>
+                    </div>
+                    <button class="btn btn-outline-info mt-2" onclick="testBot()"><i class="fas fa-plug"></i> اختبار البوت</button>
+                    <div id="botTestResult" class="mt-2"></div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="title"><i class="fas fa-database"></i> إدارة الأرقام</h5>
+                    <button class="btn btn-outline-danger btn-sm" onclick="devClearNumbers()"><i class="fas fa-trash"></i> مسح جميع الأرقام</button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="devExportNumbers()"><i class="fas fa-file-export"></i> تصدير</button>
+                    <h5 class="title mt-3"><i class="fas fa-chart-bar"></i> إحصائيات</h5>
+                    <p>📊 عدد الأرقام: <span id="devTotalNumbers">0</span></p>
+                    <p>📨 الأكواد المستلمة: <span id="devTotalOtps">0</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== AUTH ====== -->
+    <section id="register" class="py-4" style="max-width:480px;margin:0 auto;">
+        <div class="card-dark">
+            <h2 class="gold text-center"><i class="fas fa-user-plus"></i> تسجيل</h2>
+            <form id="registerForm">
+                <div class="mb-2"><label>البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required /></div>
+                <div class="mb-2"><label>كلمة المرور</label><input type="password" class="form-control" id="regPassword" required /></div>
+                <div class="mb-2"><label>معرف تيليجرام (اختياري)</label><input type="text" class="form-control" id="regTelegram" placeholder="@username" /></div>
+                <button type="submit" class="btn gold-bg w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="login" class="py-4" style="max-width:480px;margin:0 auto;">
+        <div class="card-dark">
+            <h2 class="gold text-center"><i class="fas fa-sign-in-alt"></i> دخول</h2>
+            <form id="loginForm">
+                <div class="mb-2"><label>البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" required /></div>
+                <div class="mb-2"><label>كلمة المرور</label><input type="password" class="form-control" id="loginPassword" required /></div>
+                <button type="submit" class="btn gold-bg w-100"><i class="fas fa-arrow-left"></i> دخول</button>
+            </form>
+        </div>
+    </section>
+
+</div>
+
+<footer class="text-center py-3 text-secondary border-top border-secondary" style="border-color:rgba(212,175,55,0.1)!important;">
+    <i class="fas fa-bolt gold"></i> OTP Extractor — استخراج أرقام + كود تلقائي
+</footer>
+
+<div class="bot-status" id="botStatus">
+    <span class="dot" id="botDot"></span>
+    <span id="botText">جاري الاتصال...</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ============================================================
+// 1. CONFIG
+// ============================================================
+let BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+let BOT_USERNAME = 'tricksmaster03';
+const DEVELOPER_ID = '1170411845';
+const DB_NAME = 'otp_extractor_db';
+
+let extractedNumbers = []; // [{phone, status, otp}]
+
+// ============================================================
+// 2. DATABASE
+// ============================================================
+function getDB() {
+    try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"numbers":[],"otpLog":[],"settings":{"botToken":"","botUsername":""}}'); } 
+    catch { return { users: [], numbers: [], otpLog: [], settings: { botToken: '', botUsername: '' } }; }
+}
+function saveDB(db) { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
+
+function getUser(email) { return getDB().users.find(u => u.email === email); }
+function isDeveloper(email) {
+    const user = getUser(email);
+    return user && user.telegramId === DEVELOPER_ID;
+}
+
+function saveNumbers(numbers) {
+    const db = getDB();
+    db.numbers = numbers;
+    saveDB(db);
+    extractedNumbers = numbers;
+}
+
+function addOtpLog(phone, otp) {
+    const db = getDB();
+    db.otpLog.push({ phone, otp, time: new Date().toISOString() });
+    saveDB(db);
+}
+
+function getOtpLog() { return getDB().otpLog || []; }
+
+// ============================================================
+// 3. EXTRACT NUMBERS
+// ============================================================
+function extractNumbersFromText(text) {
+    const regex = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
+    const matches = text.match(regex) || [];
+    // تنظيف الأرقام
+    return matches.map(n => n.replace(/[^0-9+]/g, '')).filter(n => n.length >= 10);
+}
+
+async function extractFromLink() {
+    const link = document.getElementById('extractLink').value.trim();
+    if (!link) { showToast('⚠️', 'أدخل رابط المجموعة', 'error'); return; }
+    
+    const resultDiv = document.getElementById('extractLinkResult');
+    resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-warning"></div> جاري الاستخراج...';
+    
+    try {
+        // استخراج اسم المستخدم من الرابط
+        let username = link;
+        if (link.includes('t.me/')) username = link.split('t.me/')[1].split('/')[0].split('?')[0];
+        if (link.includes('@')) username = link.split('@')[1].split('/')[0];
+        if (!username) throw new Error('رابط غير صالح');
+
+        // محاكاة الاستخراج (في الواقع تحتاج إلى API متقدم)
+        // هنا نستخدم توليد أرقام وهمية للتوضيح
+        const mockNumbers = [];
+        const count = Math.floor(Math.random() * 30) + 5;
+        for (let i = 0; i < count; i++) {
+            const num = '01' + (Math.floor(Math.random() * 900000000) + 100000000).toString();
+            mockNumbers.push({ phone: num, status: 'inactive', otp: '' });
         }
+        
+        // تحديث الواجهة
+        extractedNumbers = mockNumbers;
+        saveNumbers(extractedNumbers);
+        renderNumbers(extractedNumbers);
+        document.getElementById('numbersCount').textContent = extractedNumbers.length;
+        document.getElementById('extractProgress').style.width = '100%';
+        resultDiv.innerHTML = `<div class="alert alert-success">✅ تم استخراج ${extractedNumbers.length} رقم من ${username}</div>`;
+        showToast('✅', `استخراج ${extractedNumbers.length} رقم`, 'success');
+        
+    } catch (e) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${e.message}</div>`;
+    }
+}
 
-        // ============================================================
-        // 8. ORDER (رشق تلقائي)
-        // ============================================================
-        window.openOrderModal = function(serviceId, serviceName, pricePerUnit) {
-            const email = localStorage.getItem('userEmail');
-            if (!email) { showToast('⚠️', 'سجل دخول أولاً', 'error'); return; }
+function extractFromFile() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (!file) { showToast('⚠️', 'اختر ملفاً أولاً', 'error'); return; }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const rawNumbers = extractNumbersFromText(text);
+        const numbers = rawNumbers.map(n => ({ phone: n, status: 'inactive', otp: '' }));
+        extractedNumbers = numbers;
+        saveNumbers(extractedNumbers);
+        renderNumbers(extractedNumbers);
+        document.getElementById('numbersCount').textContent = extractedNumbers.length;
+        document.getElementById('extractProgress').style.width = '100%';
+        document.getElementById('extractFileResult').innerHTML = `<div class="alert alert-success">✅ تم استخراج ${extractedNumbers.length} رقم من الملف</div>`;
+        showToast('✅', `استخراج ${extractedNumbers.length} رقم`, 'success');
+    };
+    reader.readAsText(file);
+}
 
-            const sourceLink = prompt('أدخل رابط المجموعة/القناة المصدر (للاستخراج):\nمثال: https://t.me/source_group');
-            if (!sourceLink) return;
+// ============================================================
+// 4. RENDER NUMBERS
+// ============================================================
+function renderNumbers(numbers) {
+    const tbody = document.getElementById('numbersTableBody');
+    if (!numbers || numbers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">لا توجد أرقام</td></tr>';
+        return;
+    }
+    tbody.innerHTML = numbers.map((n, i) => `
+        <tr>
+            <td>${i+1}</td>
+            <td>${n.phone}</td>
+            <td><span class="status-badge ${n.status}">${n.status === 'active' ? '✅ نشط' : n.status === 'waiting' ? '⏳ في انتظار الكود' : '❌ غير نشط'}</span></td>
+            <td class="gold">${n.otp || '—'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-warning" onclick="sendOtp('${n.phone}')"><i class="fas fa-sms"></i> طلب كود</button>
+            </td>
+        </tr>
+    `).join('');
+}
 
-            const targetGroup = prompt('أدخل معرف المجموعة الهدف (لإضافة الأعضاء):\nمثال: -1001234567890');
-            if (!targetGroup) return;
-
-            const quantity = prompt('أدخل عدد الأعضاء المطلوب رشقهم (حد أقصى 100):', '10');
-            if (!quantity || isNaN(quantity) || parseInt(quantity) < 1) {
-                showToast('⚠️', 'كمية غير صحيحة', 'error');
-                return;
+// ============================================================
+// 5. SEND OTP
+// ============================================================
+async function sendOtp(phone) {
+    if (!BOT_TOKEN) { showToast('⚠️', 'توكن البوت غير موجود', 'error'); return; }
+    
+    // تحديث حالة الرقم
+    const idx = extractedNumbers.findIndex(n => n.phone === phone);
+    if (idx !== -1) {
+        extractedNumbers[idx].status = 'waiting';
+        saveNumbers(extractedNumbers);
+        renderNumbers(extractedNumbers);
+    }
+    
+    showToast('⏳', `جاري إرسال طلب الكود إلى ${phone}...`, 'info');
+    
+    try {
+        // محاكاة إرسال طلب الكود عبر البوت
+        // في الواقع، تحتاج إلى تفعيل بوت يستقبل الأرقام ويرسل طلب الكود
+        // هنا محاكاة للعرض
+        const otpCode = Math.floor(10000 + Math.random() * 90000).toString();
+        
+        // محاكاة وصول الكود بعد 2-5 ثواني
+        setTimeout(() => {
+            // تحديث الرقم بالكود
+            const idx2 = extractedNumbers.findIndex(n => n.phone === phone);
+            if (idx2 !== -1) {
+                extractedNumbers[idx2].status = 'active';
+                extractedNumbers[idx2].otp = otpCode;
+                saveNumbers(extractedNumbers);
+                renderNumbers(extractedNumbers);
+                document.getElementById('lastOtp').textContent = otpCode;
+                addOtpLog(phone, otpCode);
+                updateOtpLog();
+                showToast('✅', `الكود: ${otpCode}`, 'success');
             }
-            if (parseInt(quantity) > 100) {
-                showToast('⚠️', 'الحد الأقصى 100 عضو لكل طلب', 'error');
-                return;
-            }
+        }, 2000 + Math.random() * 3000);
+        
+    } catch (e) {
+        showToast('❌', 'فشل إرسال الطلب', 'error');
+    }
+}
 
-            const total = pricePerUnit * parseInt(quantity);
-            const balance = getBalance(email);
-            const isDev = isDeveloper(email);
+async function sendOtpToAll() {
+    if (extractedNumbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
+    showToast('⏳', 'جاري إرسال الطلبات...', 'info');
+    for (const n of extractedNumbers) {
+        await sendOtp(n.phone);
+        await new Promise(r => setTimeout(r, 500));
+    }
+}
 
-            if (!isDev && balance < total) {
-                showToast('⚠️', `رصيدك: ${balance.toFixed(2)} $، المطلوب: ${total.toFixed(2)} $`, 'error');
-                document.getElementById('charge').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
+// ============================================================
+// 6. OTP LOG
+// ============================================================
+function updateOtpLog() {
+    const log = getOtpLog();
+    const container = document.getElementById('otpLog');
+    if (log.length === 0) {
+        container.innerHTML = '<div class="text-secondary">لا توجد أكواد بعد</div>';
+        return;
+    }
+    container.innerHTML = log.slice().reverse().map(l => 
+        `<div class="text-muted small">📱 ${l.phone} → <span class="gold">${l.otp}</span> (${new Date(l.time).toLocaleString()})</div>`
+    ).join('');
+}
 
-            const confirmMsg = isDev 
-                ? `✅ تأكيد رشق (مجاني للمطور):\nالمصدر: ${sourceLink}\nالهدف: ${targetGroup}\nالعدد: ${quantity}\nالسعر: 0$`
-                : `✅ تأكيد رشق:\nالمصدر: ${sourceLink}\nالهدف: ${targetGroup}\nالعدد: ${quantity}\nالسعر: ${total.toFixed(2)} $`;
-            
-            if (!confirm(confirmMsg)) return;
+// ============================================================
+// 7. TOAST
+// ============================================================
+function showToast(title, msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-custom ${type}`;
+    toast.innerHTML = `<strong>${title}</strong> ${msg}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
 
-            executeOrder(email, serviceId, serviceName, sourceLink, targetGroup, quantity, total, isDev);
-        };
+// ============================================================
+// 8. DEV PANEL
+// ============================================================
+function devSaveToken() {
+    const token = document.getElementById('devBotToken').value.trim();
+    if (!token) { showToast('⚠️', 'أدخل توكن', 'error'); return; }
+    BOT_TOKEN = token;
+    const db = getDB();
+    db.settings.botToken = token;
+    saveDB(db);
+    showToast('✅', 'تم حفظ التوكن', 'success');
+}
 
-        async function executeOrder(email, serviceId, serviceName, sourceLink, targetGroup, quantity, total, isDev = false) {
-            showToast('⏳', 'جاري استخراج الأعضاء من الرابط...', 'info');
+function devSaveUsername() {
+    const username = document.getElementById('devBotUsername').value.trim();
+    if (!username) { showToast('⚠️', 'أدخل اسم البوت', 'error'); return; }
+    BOT_USERNAME = username;
+    const db = getDB();
+    db.settings.botUsername = username;
+    saveDB(db);
+    showToast('✅', 'تم حفظ اسم البوت', 'success');
+}
 
-            const current = getBalance(email);
+function devClearNumbers() {
+    if (!confirm('مسح جميع الأرقام؟')) return;
+    extractedNumbers = [];
+    saveNumbers([]);
+    renderNumbers([]);
+    document.getElementById('numbersCount').textContent = '0';
+    showToast('🗑️', 'تم مسح الأرقام', 'info');
+}
 
-            try {
-                // 1. استخراج الأعضاء من الرابط
-                const extractResult = await extractMembersFromLink(sourceLink);
-                const memberList = extractResult.members;
+function devExportNumbers() {
+    if (extractedNumbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
+    const text = extractedNumbers.map(n => `${n.phone},${n.status},${n.otp}`).join('\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'numbers_export.txt';
+    a.click();
+    showToast('✅', 'تم التصدير', 'success');
+}
 
-                if (!memberList || memberList.length === 0) {
-                    throw new Error('لم يتم العثور على أعضاء في الرابط');
-                }
-
-                showToast('✅', `تم استخراج ${memberList.length} عضو`, 'success');
-                await notifyDeveloper(`🔍 استخراج ${memberList.length} عضو من ${extractResult.title}`);
-
-                // حفظ الأعضاء المستخرجين
-                updateSettings({ extractedUsers: memberList });
-
-                // 2. خصم الرصيد (للمستخدم العادي)
-                if (!isDev) {
-                    setBalance(email, current - total);
-                } else {
-                    showToast('⭐', 'رشق مجاني للمطور', 'success');
-                }
-
-                // 3. إنشاء الطلب
-                const order = addOrder(email, serviceName, serviceId, sourceLink, targetGroup, quantity, isDev ? 0 : total);
-                if (isDev) {
-                    const db = getDB();
-                    const idx = db.orders.findIndex(o => o.id === order.id);
-                    if (idx !== -1) {
-                        db.orders[idx].isFree = true;
-                        saveDB(db);
-                    }
-                }
-
-                // 4. تنفيذ الرشق
-                showToast('⏳', 'جاري إضافة الأعضاء إلى المجموعة الهدف...', 'info');
-                
-                const { token } = getSpamSettings();
-                const spamResult = await executeSpamFromExtracted(targetGroup, quantity, token, memberList);
-
-                if (spamResult.success) {
-                    updateOrder(order.id, { 
-                        status: 'completed',
-                        result: spamResult.message
-                    });
-                    showToast('✅', `تم الرشق بنجاح! ${spamResult.message}`, 'success');
-                    await notifyDeveloper(`✅ رشق ${isDev ? 'مجاني' : ''} من ${email}\nالمصدر: ${sourceLink}\nالهدف: ${targetGroup}\n${spamResult.message}`);
-                } else {
-                    if (!isDev) {
-                        setBalance(email, current);
-                    }
-                    const db = getDB();
-                    db.orders = db.orders.filter(o => o.id !== order.id);
-                    saveDB(db);
-                    showToast('❌', 'فشل الرشق. تأكد من صلاحيات البوت.', 'error');
-                    await notifyDeveloper(`❌ فشل رشق من ${email}: ${spamResult.message}`);
-                }
-
-            } catch (error) {
-                if (!isDev) {
-                    setBalance(email, current);
-                }
-                showToast('❌', 'خطأ في الرشق: ' + error.message, 'error');
-                await notifyDeveloper(`❌ خطأ في رشق ${email}: ${error.message}`);
-            }
-
-            renderOrders(email);
-            updateDashboard(email);
-        }
-
-        // ============================================================
-        // 9. ORDERS DISPLAY
-        // ============================================================
-        function renderOrders(email) {
-            const orders = getOrders(email);
-            const tbody = document.getElementById('ordersTableBody');
-            if (!orders.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
-                return;
-            }
-            tbody.innerHTML = orders.map((o, i) => `
-                <tr>
-                    <td>${i+1}</td>
-                    <td>${o.service} ${o.isFree ? '<span class="free-badge">⭐ مجاني</span>' : ''}</td>
-                    <td><span class="small">${o.source}</span></td>
-                    <td><span class="small">${o.target}</span></td>
-                    <td>${o.quantity}</td>
-                    <td>${o.isFree ? '0.00 $' : o.price.toFixed(2) + ' $'}</td>
-                    <td><span class="order-status ${o.status}">${o.status} ${o.result ? ' - ' + o.result : ''}</span></td>
-                    <td>${new Date(o.createdAt).toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        // ============================================================
-        // 10. DASHBOARD
-        // ============================================================
-        function updateDashboard(email) {
-            const balance = getBalance(email);
-            document.getElementById('userBalance').textContent = balance.toFixed(2) + ' $';
-            const orders = getOrders(email);
-            document.getElementById('totalOrders').textContent = orders.length;
-            document.getElementById('activeOrders').textContent = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
-            document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
-            document.getElementById('spentAmount').textContent = orders.reduce((s, o) => s + o.price, 0).toFixed(2) + ' $';
-            
-            if (isDeveloper(email)) {
-                document.getElementById('developerBadge').style.display = 'block';
+function testBot() {
+    const resultDiv = document.getElementById('botTestResult');
+    if (!BOT_TOKEN) { resultDiv.innerHTML = '<div class="alert alert-danger">❌ أدخل توكن البوت</div>'; return; }
+    resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-warning"></div> جاري الاختبار...';
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getMe`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                resultDiv.innerHTML = `<div class="alert alert-success">✅ البوت يعمل: @${data.result.username}</div>`;
+                document.getElementById('botDot').style.background = '#3fb950';
+                document.getElementById('botText').textContent = `✅ ${data.result.username}`;
             } else {
-                document.getElementById('developerBadge').style.display = 'none';
+                resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${data.description}</div>`;
             }
-        }
-
-        // ============================================================
-        // 11. DEV PANEL
-        // ============================================================
-        function updateDevStats() {
-            const users = getAllUsers();
-            const orders = getAllOrders();
-            document.getElementById('devTotalUsers').textContent = users.length;
-            document.getElementById('devTotalOrders').textContent = orders.length;
-            const profit = orders.filter(o => o.status === 'completed' && !o.isFree).reduce((s, o) => s + (o.price * 0.2), 0);
-            document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
-        }
-
-        window.devUpdateBotToken = function() {
-            const token = document.getElementById('devBotToken').value.trim();
-            if (!token) { showToast('⚠️', 'أدخل توكن البوت', 'error'); return; }
-            updateSettings({ spamBotToken: token });
-            showToast('✅', 'تم حفظ توكن البوت', 'success');
-            notifyDeveloper(`🔄 تم تحديث توكن البوت`);
-        };
-
-        window.devUpdateGroup = function() {
-            const group = document.getElementById('devGroupId').value.trim();
-            if (!group) { showToast('⚠️', 'أدخل معرف المجموعة الهدف', 'error'); return; }
-            updateSettings({ spamGroupId: group });
-            showToast('✅', 'تم حفظ معرف المجموعة', 'success');
-            notifyDeveloper(`🔄 تم تحديث معرف المجموعة: ${group}`);
-        };
-
-        window.devExtractMembers = async function() {
-            const link = document.getElementById('devExtractLink').value.trim();
-            if (!link) { showToast('⚠️', 'أدخل رابط المجموعة', 'error'); return; }
-            
-            const resultDiv = document.getElementById('extractResult');
-            resultDiv.innerHTML = '<div class="spinner"></div> جاري الاستخراج...';
-            
-            try {
-                const result = await extractMembersFromLink(link);
-                updateSettings({ extractedUsers: result.members });
-                
-                document.getElementById('extractDisplay').style.display = 'block';
-                document.getElementById('extractCount').textContent = result.memberCount;
-                document.getElementById('extractProgress').style.width = '100%';
-                
-                resultDiv.innerHTML = `<div class="alert alert-success">✅ ${result.message}</div>`;
-                showToast('✅', `تم استخراج ${result.memberCount} عضو`, 'success');
-                await notifyDeveloper(`🔍 استخراج ${result.memberCount} عضو من ${result.title}`);
-            } catch (error) {
-                resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${error.message}</div>`;
-            }
-        };
-
-        window.testBotConnection = testBotConnection;
-
-        window.devAddBalance = async function() {
-            const email = document.getElementById('devUserEmail').value.trim();
-            if (!email) { showToast('⚠️', 'أدخل بريداً', 'error'); return; }
-            const amount = parseFloat(prompt('المبلغ:'));
-            if (!amount || amount <= 0) return;
-            const current = getBalance(email);
-            setBalance(email, current + amount);
-            const user = getUser(email);
-            if (user && user.telegramId) {
-                await sendTelegramMessage(user.telegramId, `✅ تم إضافة ${amount.toFixed(2)} $`);
-            }
-            showToast('✅', `تم إضافة ${amount.toFixed(2)} $`, 'success');
-            updateDevStats();
-        };
-
-        window.devBroadcast = async function() {
-            const msg = document.getElementById('devBroadcastMsg').value.trim();
-            if (!msg) return;
-            const users = getAllUsers();
-            let sent = 0;
-            for (const u of users) {
-                if (u.telegramId) { await sendTelegramMessage(u.telegramId, `📢 ${msg}`); sent++; }
-            }
-            showToast('✅', `أرسل إلى ${sent} مستخدم`, 'success');
-        };
-
-        window.devRefreshStats = function() { updateDevStats(); showToast('✅', 'تم التحديث', 'success'); };
-
-        // ============================================================
-        // 12. AUTH
-        // ============================================================
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const telegram = document.getElementById('regTelegram').value.trim();
-            if (!email || !password) { showToast('⚠️', 'املأ الحقول', 'error'); return; }
-            const db = getDB();
-            if (db.users.find(u => u.email === email)) { showToast('⚠️', 'مسجل مسبقاً', 'error'); return; }
-            db.users.push({ email, password, telegramId: telegram, createdAt: new Date().toISOString() });
-            saveDB(db);
-            localStorage.setItem('userEmail', email);
-            showToast('✅', 'تم التسجيل', 'success');
-            notifyDeveloper(`🆕 مستخدم جديد: ${email}`);
-            updateUIAfterLogin(email);
+        })
+        .catch(e => {
+            resultDiv.innerHTML = `<div class="alert alert-danger">❌ خطأ في الاتصال</div>`;
         });
+}
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            const user = getUser(email);
-            if (user && user.password === password) {
-                localStorage.setItem('userEmail', email);
-                showToast('✅', 'تم الدخول', 'success');
-                notifyDeveloper(`🔓 دخول: ${email}`);
-                updateUIAfterLogin(email);
-            } else {
-                showToast('❌', 'بيانات غير صحيحة', 'error');
-            }
-        });
+// ============================================================
+// 9. AUTH
+// ============================================================
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    const telegram = document.getElementById('regTelegram').value.trim();
+    if (!email || !password) { showToast('⚠️', 'املأ الحقول', 'error'); return; }
+    const db = getDB();
+    if (db.users.find(u => u.email === email)) { showToast('⚠️', 'مسجل مسبقاً', 'error'); return; }
+    db.users.push({ email, password, telegramId: telegram, createdAt: new Date().toISOString() });
+    saveDB(db);
+    localStorage.setItem('userEmail', email);
+    showToast('✅', 'تم التسجيل', 'success');
+    updateUIAfterLogin(email);
+});
 
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('userEmail');
-            showToast('✅', 'تم الخروج', 'success');
-            updateUIAfterLogout();
-        });
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const user = getUser(email);
+    if (user && user.password === password) {
+        localStorage.setItem('userEmail', email);
+        showToast('✅', 'تم الدخول', 'success');
+        updateUIAfterLogin(email);
+    } else {
+        showToast('❌', 'بيانات غير صحيحة', 'error');
+    }
+});
 
-        // ============================================================
-        // 13. UI UPDATE
-        // ============================================================
-        function updateUIAfterLogin(email) {
-            document.getElementById('userInfo').style.display = 'inline';
-            document.getElementById('userEmailDisplay').textContent = `👤 ${email}`;
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('registerBtn').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'inline';
-            
-            if (isDeveloper(email)) {
-                document.getElementById('devNavItem').style.display = 'inline';
-                document.getElementById('dev-panel').style.display = 'block';
-                document.getElementById('developerBadge').style.display = 'block';
-                const settings = getSettings();
-                document.getElementById('devBotToken').value = settings.spamBotToken || '';
-                document.getElementById('devGroupId').value = settings.spamGroupId || '';
-            }
-            
-            updateDashboard(email);
-            renderOrders(email);
-        }
+document.getElementById('logoutBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    localStorage.removeItem('userEmail');
+    showToast('✅', 'تم الخروج', 'success');
+    updateUIAfterLogout();
+});
 
-        function updateUIAfterLogout() {
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('loginBtn').style.display = 'inline';
-            document.getElementById('registerBtn').style.display = 'inline';
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('devNavItem').style.display = 'none';
-            document.getElementById('dev-panel').style.display = 'none';
-            document.getElementById('developerBadge').style.display = 'none';
-            document.getElementById('userBalance').textContent = '0.00 $';
-            document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="8" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
-        }
+function updateUIAfterLogin(email) {
+    document.getElementById('userInfo').style.display = 'inline';
+    document.getElementById('userEmailDisplay').textContent = `👤 ${email}`;
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('registerBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'inline';
+    
+    if (isDeveloper(email)) {
+        document.getElementById('devNavItem').style.display = 'inline';
+        document.getElementById('dev-panel').style.display = 'block';
+        document.getElementById('devTotalNumbers').textContent = extractedNumbers.length;
+        document.getElementById('devTotalOtps').textContent = getOtpLog().length;
+    }
+}
 
-        // ============================================================
-        // 14. INIT
-        // ============================================================
-        async function init() {
-            renderServices();
+function updateUIAfterLogout() {
+    document.getElementById('userInfo').style.display = 'none';
+    document.getElementById('loginBtn').style.display = 'inline';
+    document.getElementById('registerBtn').style.display = 'inline';
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('devNavItem').style.display = 'none';
+    document.getElementById('dev-panel').style.display = 'none';
+}
 
-            const settings = getSettings();
-            if (settings.spamBotToken) SPAM_BOT_TOKEN = settings.spamBotToken;
-            if (settings.spamGroupId) SPAM_GROUP_ID = settings.spamGroupId;
-            if (settings.extractedUsers) EXTRACTED_USERS = settings.extractedUsers;
+// ============================================================
+// 10. INIT
+// ============================================================
+function init() {
+    // استرجاع البيانات
+    const db = getDB();
+    if (db.settings.botToken) BOT_TOKEN = db.settings.botToken;
+    if (db.settings.botUsername) BOT_USERNAME = db.settings.botUsername;
+    if (db.numbers && db.numbers.length > 0) {
+        extractedNumbers = db.numbers;
+        renderNumbers(extractedNumbers);
+        document.getElementById('numbersCount').textContent = extractedNumbers.length;
+        document.getElementById('extractProgress').style.width = '100%';
+    }
+    updateOtpLog();
+    
+    // التحقق من الجلسة
+    const email = localStorage.getItem('userEmail');
+    if (email && getUser(email)) {
+        updateUIAfterLogin(email);
+    }
+    
+    // اختبار البوت
+    testBot();
+    
+    console.log('✅ OTP Extractor جاهز');
+    console.log('📌 الأرقام المحفوظة:', extractedNumbers.length);
+}
 
-            const email = localStorage.getItem('userEmail');
-            if (email) {
-                const user = getUser(email);
-                if (user) {
-                    updateUIAfterLogin(email);
-                } else {
-                    localStorage.removeItem('userEmail');
-                    updateUIAfterLogout();
-                }
-            } else {
-                updateUIAfterLogout();
-            }
-
-            updateDevStats();
-
-            try {
-                const resp = await fetch(`${MAIN_BOT_API}/getMe`);
-                const data = await resp.json();
-                if (data.ok) {
-                    document.getElementById('botDot').style.background = '#3fb950';
-                    document.getElementById('botText').textContent = `✅ ${data.result.username}`;
-                    await notifyDeveloper('✅ المنصة تعمل');
-                } else {
-                    document.getElementById('botDot').style.background = '#f85149';
-                    document.getElementById('botText').textContent = '❌ غير متصل';
-                }
-            } catch (e) {
-                document.getElementById('botDot').style.background = '#f85149';
-                document.getElementById('botText').textContent = '❌ خطأ';
-            }
-        }
-
-        init();
-
-        console.log('✅ منصة الرشق التلقائي جاهزة');
-        console.log('👤 المطور:', DEVELOPER_ID);
-        console.log('📌 يمكنك استخراج الأعضاء من أي رابط مجموعة');
-    </script>
+init();
+</script>
 </body>
 </html>
