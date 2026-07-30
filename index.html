@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عبود @u_t_r - أقوى منصة اختراقات</title>
+    <title>متجر عبود @u_t_r - منصة الاختراقات الشاملة</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== STYLES ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0e17; min-height: 100vh; font-family: 'Tahoma', sans-serif; color: #e8e6e3; }
         .navbar { background: rgba(17,25,39,0.98) !important; border-bottom: 3px solid #d4af37; backdrop-filter: blur(15px); padding: 15px 0; }
@@ -18,6 +19,10 @@
         .btn-gold:hover { background: #b8941a; color: #fff; transform: scale(1.05); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
         .btn-outline-gold { border: 2px solid #d4af37; color: #d4af37; background: transparent; transition: 0.3s; }
         .btn-outline-gold:hover { background: #d4af37; color: #0a0e17; }
+        .btn-danger-custom { background: #dc3545; color: #fff; border: none; transition: 0.3s; }
+        .btn-danger-custom:hover { background: #bb2d3b; transform: scale(1.05); }
+        .btn-success-custom { background: #198754; color: #fff; border: none; transition: 0.3s; }
+        .btn-success-custom:hover { background: #157347; transform: scale(1.05); }
         .section-title { color: #d4af37; border-right: 5px solid #d4af37; padding-right: 15px; margin-bottom: 30px; font-size: 2rem; }
         .gold-text { color: #d4af37; }
         .text-secondary-custom { color: #8892a0; }
@@ -52,6 +57,16 @@
         .support-box { background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 16px; padding: 30px; text-align: center; margin-top: 40px; }
         .support-box .big-icon { font-size: 4rem; color: #d4af37; }
         .support-box .username { color: #d4af37; font-size: 1.8rem; font-weight: 900; }
+        .bot-status { position: fixed; bottom: 20px; right: 20px; background: #111927; border: 1px solid #d4af37; border-radius: 30px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; z-index: 9999; font-size: 0.85rem; }
+        .bot-status .dot { width: 12px; height: 12px; border-radius: 50%; background: #3fb950; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .dashboard-table { background: #0d1117; border-radius: 10px; overflow: hidden; }
+        .dashboard-table th { background: #1a2332; color: #d4af37; border: none; padding: 12px; }
+        .dashboard-table td { border-color: #1a2332; padding: 10px; vertical-align: middle; }
+        .spam-control { background: #1a2332; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(212,175,55,0.1); }
+        .spam-control .input-group { max-width: 400px; margin: auto; }
+        .progress-bar-custom { height: 25px; border-radius: 12px; background: #0d1117; border: 1px solid #30363d; overflow: hidden; margin: 10px 0; }
+        .progress-bar-custom .progress-fill { height: 100%; background: linear-gradient(90deg, #d4af37, #b8941a); border-radius: 12px; transition: width 0.5s; }
         @media (max-width:768px){ .hack-btn { min-width:80px; font-size:.75rem; padding:8px 10px; } .navbar-brand { font-size:1.2rem; } .section-title { font-size:1.5rem; } }
     </style>
 </head>
@@ -60,14 +75,15 @@
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> عبود <span>@u_t_r</span></a>
+            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> متجر عبود <span>@u_t_r</span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="#home"><i class="fas fa-home"></i> الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#hack-library"><i class="fas fa-book-skull"></i> مكتبة الاختراقات</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboard"><i class="fas fa-chart-line"></i> لوحة التحكم</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#hack-library"><i class="fas fa-book-skull"></i> المكتبة</a></li>
                     <li class="nav-item"><a class="nav-link" href="#codes"><i class="fas fa-code"></i> الأكواد</a></li>
                     <li class="nav-item"><a class="nav-link" href="#spam"><i class="fas fa-bomb"></i> رشق</a></li>
                     <li class="nav-item"><a class="nav-link" href="#register"><i class="fas fa-user-shield"></i> تسجيل VIP</a></li>
@@ -86,8 +102,8 @@
         <!-- ===== HOME ===== -->
         <section id="home" class="py-4">
             <div class="text-center mb-5">
-                <h1 class="display-2 glow-text" style="color:#d4af37;"><i class="fas fa-skull"></i> أقوى منصة اختراقات</h1>
-                <p class="lead text-secondary-custom">@u_t_r — أكثر من 100,000 كود وأسلوب اختراق مع روابط حقيقية</p>
+                <h1 class="display-2 glow-text" style="color:#d4af37;"><i class="fas fa-skull"></i> منصة الاختراقات الشاملة</h1>
+                <p class="lead text-secondary-custom">متجر عبود @u_t_r — أكثر من 100,000 كود وأسلوب اختراق مع روابط حقيقية</p>
                 <div class="mt-4">
                     <a href="#register" class="btn btn-gold"><i class="fas fa-user-shield"></i> انضم للنخبة</a>
                     <a href="#hack-library" class="btn btn-outline-gold ms-2"><i class="fas fa-bolt"></i> استكشف الاختراقات</a>
@@ -98,6 +114,67 @@
                 <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-code"></i><div class="number">100K+</div><div class="label">كود جاهز</div></div></div>
                 <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-user-secret"></i><div class="number">1000+</div><div class="label">أداة سرية</div></div></div>
                 <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-database"></i><div class="number">500+</div><div class="label">ثغرة مكشوفة</div></div></div>
+            </div>
+        </section>
+
+        <!-- ===== DASHBOARD ===== -->
+        <section id="dashboard" class="py-5">
+            <h2 class="section-title"><i class="fas fa-chart-line gold-text"></i> لوحة التحكم</h2>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="number" id="totalMembers">0</div>
+                        <div class="label">إجمالي الأعضاء</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-user-plus"></i>
+                        <div class="number" id="todayMembers">0</div>
+                        <div class="label">اليوم</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-eye"></i>
+                        <div class="number" id="totalViews">0</div>
+                        <div class="label">إجمالي المشاهدات</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-bolt"></i>
+                        <div class="number" id="activeSpam">0</div>
+                        <div class="label">رشق نشط</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MEMBERS TABLE ===== -->
+            <div class="card mt-4">
+                <div class="card-header"><i class="fas fa-list"></i> قائمة الأعضاء المسجلين</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>رمز التحقق</th>
+                                    <th>تاريخ التسجيل</th>
+                                    <th>آخر نشاط</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary-custom">لا يوجد أعضاء مسجلين حتى الآن</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -116,7 +193,40 @@
         <!-- ===== SPAM SECTION ===== -->
         <section id="spam" class="py-5">
             <h2 class="section-title"><i class="fas fa-bomb gold-text"></i> رشق أعضاء تلغرام ومشاهدات</h2>
-            <p class="text-secondary-custom mb-4">أزرار رشق حقيقية مع مواقع متخصصة.</p>
+            
+            <!-- ===== SPAM CONTROL ===== -->
+            <div class="spam-control">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-gold border-gold"><i class="fas fa-users"></i></span>
+                            <input type="number" class="form-control" id="spamCount" placeholder="عدد الأعضاء" value="100" min="1">
+                            <button class="btn btn-gold" id="startSpamBtn"><i class="fas fa-play"></i> تشغيل الرشق</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark text-gold border-gold"><i class="fas fa-link"></i></span>
+                            <input type="text" class="form-control" id="spamTarget" placeholder="رابط القناة أو المجموعة" value="https://t.me/username">
+                            <button class="btn btn-outline-gold" id="setTargetBtn"><i class="fas fa-save"></i> تعيين</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <button class="btn btn-danger-custom" id="stopSpamBtn"><i class="fas fa-stop"></i> إيقاف الرشق</button>
+                        <span class="badge bg-secondary ms-2" id="spamStatus">متوقف</span>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress-bar-custom">
+                        <div class="progress-fill" id="spamProgress" style="width: 0%;">0%</div>
+                    </div>
+                    <div class="d-flex justify-content-between text-secondary-custom small">
+                        <span id="spamAdded">0</span>
+                        <span id="spamTotal">0</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header"><i class="fas fa-telegram" style="color:#0088cc;"></i> رشق أعضاء تلغرام</div>
                 <div class="card-body">
@@ -131,7 +241,7 @@
             </div>
         </section>
 
-        <!-- ===== CODES SECTION (100K+ Codes) ===== -->
+        <!-- ===== CODES SECTION ===== -->
         <section id="codes" class="py-5">
             <h2 class="section-title"><i class="fas fa-code gold-text"></i> أكثر من 100,000 كود اختراق جاهز</h2>
             <p class="text-secondary-custom mb-4">كل كود مع شرح وزر نسخ.</p>
@@ -176,7 +286,7 @@
         <div class="support-box">
             <div class="big-icon"><i class="fas fa-bolt"></i></div>
             <h3 style="color:#d4af37;">تم تطوير هذه المنصة بواسطة</h3>
-            <div class="username">عبود @u_t_r</div>
+            <div class="username">متجر عبود @u_t_r</div>
             <p class="text-secondary-custom mt-3">للتواصل والاستفسارات والدعم الفني</p>
             <a href="https://t.me/u_t_r" target="_blank" class="btn btn-gold"><i class="fab fa-telegram"></i> تواصل مع عبود</a>
         </div>
@@ -186,16 +296,85 @@
     <!-- ===== FOOTER ===== -->
     <footer>
         <div class="container">
-            <p><i class="fas fa-bolt gold"></i> <span class="gold">عبود @u_t_r</span> — أقوى منصة اختراقات وأكواد</p>
+            <p><i class="fas fa-bolt gold"></i> <span class="gold">متجر عبود @u_t_r</span> — منصة الاختراقات الشاملة</p>
             <p style="font-size:12px;color:#444;">⚠️ المحتوى للأغراض التعليمية والبحثية فقط. الاستخدام غير القانوني مسؤولية المستخدم.</p>
             <p style="font-size:12px;color:#444;">جميع الحقوق محفوظة © 2026 | بدعم من <span class="gold">@u_t_r</span></p>
         </div>
     </footer>
 
+    <!-- ===== BOT STATUS ===== -->
+    <div class="bot-status" id="botStatus">
+        <span class="dot" id="botDot"></span>
+        <span id="botText">جاري ربط البوت...</span>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         (function() {
-            // ===== HACK NAMES WITH REAL LINKS =====
+            // =============================================
+            // 1. BOT CONFIGURATION
+            // =============================================
+            const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+            const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+            const DB_NAME = 'abdul_bot_db';
+            
+            // =============================================
+            // 2. DATABASE (localStorage)
+            // =============================================
+            function getDB() {
+                try {
+                    return JSON.parse(localStorage.getItem(DB_NAME) || '{"members":[],"spamLogs":[],"settings":{}}');
+                } catch { return { members: [], spamLogs: [], settings: {} }; }
+            }
+
+            function saveDB(db) {
+                localStorage.setItem(DB_NAME, JSON.stringify(db));
+            }
+
+            function addMember(email, code) {
+                const db = getDB();
+                const newMember = {
+                    id: Date.now(),
+                    email,
+                    code,
+                    registeredAt: new Date().toISOString(),
+                    lastActive: new Date().toISOString(),
+                    status: 'active'
+                };
+                db.members.push(newMember);
+                saveDB(db);
+                return newMember;
+            }
+
+            function getMembers() {
+                return getDB().members;
+            }
+
+            function deleteMember(id) {
+                const db = getDB();
+                db.members = db.members.filter(m => m.id !== id);
+                saveDB(db);
+            }
+
+            function logSpam(action, target, count) {
+                const db = getDB();
+                db.spamLogs.push({
+                    id: Date.now(),
+                    action,
+                    target,
+                    count,
+                    timestamp: new Date().toISOString()
+                });
+                saveDB(db);
+            }
+
+            function getSpamLogs() {
+                return getDB().spamLogs;
+            }
+
+            // =============================================
+            // 3. HACK NAMES WITH REAL LINKS
+            // =============================================
             const hackNames = {
                 network: ["اختراق Wi-Fi WPA2", "ARP Spoofing", "Wireshark تحليل", "Deauth Attack", "اختراق WEP", "استغلال WPS", "MITM BetterCAP", "Evil Twin", "اختراق Bluetooth", "KRACK Attack", "اختراق 5G", "ZigBee استغلال", "RFID هجوم", "NFC استغلال", "اختراق الراوتر", "DNS Spoofing", "اختراق VPN", "UPnP استغلال", "LLMNR هجوم", "NBNS اختراق", "NetBIOS استغلال", "SMB Relay", "Active Directory", "Kerberos استغلال", "Golden Ticket", "Exchange اختراق", "SharePoint استغلال", "RDP هجوم", "SSH اختراق", "Telnet استغلال", "FTP هجوم", "SNMP استغلال", "ICMP Tunneling", "VLAN Hopping", "DHCP استغلال", "DNS Cache Poisoning"],
                 web: ["SQL Injection", "XSS", "CSRF", "SSRF", "XXE", "RCE", "LFI", "RFI", "Directory Traversal", "Command Injection", "LDAP Injection", "NoSQL Injection", "XPath Injection", "HTML Injection", "Code Injection", "Stored XSS", "Reflected XSS", "DOM XSS", "CSRF JSONP", "CSRF CORS", "SSRF Gopher", "XXE DOCTYPE", "RCE PHP", "RCE Python", "LFI PHP filters", "RFI SMB"],
@@ -204,7 +383,6 @@
                 tools: ["Metasploit", "Nmap", "Burp Suite", "Wireshark", "Aircrack-ng", "BetterCAP", "Ettercap", "Kismet", "sqlmap", "OWASP ZAP", "Nikto", "OpenVAS", "Nessus", "Cobalt Strike", "Empire", "Hashcat", "John the Ripper", "Hydra", "Medusa", "Ncrack", "Cewl", "Crunch", "Reaver", "Wifite", "Kali Linux", "Parrot OS", "BlackArch", "Tails", "Whonix"]
             };
 
-            // ===== SPAM NAMES WITH REAL LINKS =====
             const spamNames = [
                 "رشق أعضاء تلغرام (Telegram Member Spam)", "رشق مشاهدات تلغرام", "رشق تفاعل تلغرام",
                 "رشق أعضاء واتساب", "رشق مشاهدات واتساب", "رشق أعضاء إنستغرام",
@@ -222,7 +400,6 @@
                 "رشق مشاهدات ديسكورد", "رشق مشاهدات ريديت", "رشق مشاهدات شورتس"
             ];
 
-            // ===== REAL LINKS FOR HACKS =====
             const baseLinks = {
                 network: "https://www.hackthebox.com/",
                 web: "https://portswigger.net/web-security/",
@@ -231,7 +408,6 @@
                 tools: "https://www.kali.org/tools/"
             };
 
-            // ===== REAL LINKS FOR SPAM =====
             const spamLinks = [
                 "https://t.me/SpamBot", "https://t.me/TelegramSpam", "https://t.me/viewsbot",
                 "https://wa.me/", "https://www.instagram.com/", "https://twitter.com/",
@@ -240,7 +416,9 @@
                 "https://www.reddit.com/"
             ];
 
-            // ===== GENERATE HACK BUTTONS =====
+            // =============================================
+            // 4. GENERATE UI
+            // =============================================
             function generateButtons(category, names, containerId, baseUrl) {
                 const container = document.getElementById(containerId);
                 if (!container) return;
@@ -253,7 +431,6 @@
                 container.innerHTML = html;
             }
 
-            // ===== GENERATE SPAM BUTTONS =====
             function generateSpamButtons(names, containerId, links) {
                 const container = document.getElementById(containerId);
                 if (!container) return;
@@ -272,15 +449,17 @@
             generateButtons('social', hackNames.social, 'social-buttons', baseLinks.social);
             generateButtons('system', hackNames.system, 'system-buttons', baseLinks.system);
             generateButtons('tools', hackNames.tools, 'tools-buttons', baseLinks.tools);
-
             generateSpamButtons(spamNames, 'spam-buttons', spamLinks);
             generateSpamButtons(viewSpamNames, 'views-buttons', spamLinks);
 
-            // ===== ACCESS CHECK =====
+            // =============================================
+            // 5. ACCESS CHECK
+            // =============================================
             window.checkAccess = function(e, link) {
                 const email = localStorage.getItem('userEmail');
                 const code = localStorage.getItem('userCode');
                 if (email && code) {
+                    sendBotMessage(`✅ مستخدم ${email} فتح الرابط: ${link}`);
                     return true;
                 } else {
                     alert('⚠️ يرجى تسجيل الدخول أولاً.');
@@ -289,12 +468,155 @@
                 }
             };
 
-            // ===== REGISTER =====
+            // =============================================
+            // 6. BOT FUNCTIONS
+            // =============================================
+            function sendBotMessage(text) {
+                if (!text) return;
+                const chatId = localStorage.getItem('chatId');
+                if (!chatId) {
+                    console.log('ℹ️ انتظر أول رسالة من المستخدم.');
+                    return;
+                }
+                fetch(`${BOT_API}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: text,
+                        parse_mode: 'HTML'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('✅ تم إرسال الرسالة إلى البوت');
+                        updateBotStatus(true);
+                    } else {
+                        console.error('❌ فشل إرسال الرسالة:', data.description);
+                        updateBotStatus(false);
+                    }
+                })
+                .catch(err => {
+                    console.error('❌ خطأ في الاتصال بالبوت:', err);
+                    updateBotStatus(false);
+                });
+            }
+
+            function updateBotStatus(connected) {
+                const dot = document.getElementById('botDot');
+                const text = document.getElementById('botText');
+                if (connected) {
+                    dot.style.background = '#3fb950';
+                    text.textContent = 'البوت متصل ✅';
+                } else {
+                    dot.style.background = '#f85149';
+                    text.textContent = 'البوت غير متصل ❌';
+                }
+            }
+
+            // =============================================
+            // 7. DASHBOARD
+            // =============================================
+            function renderDashboard() {
+                const members = getMembers();
+                document.getElementById('totalMembers').textContent = members.length;
+                const today = new Date().toDateString();
+                const todayMembers = members.filter(m => new Date(m.registeredAt).toDateString() === today);
+                document.getElementById('todayMembers').textContent = todayMembers.length;
+                
+                // Render members table
+                const tbody = document.getElementById('membersTableBody');
+                if (members.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-secondary-custom">لا يوجد أعضاء مسجلين حتى الآن</td></tr>`;
+                } else {
+                    tbody.innerHTML = members.map((m, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><span class="gold-text">${m.email}</span></td>
+                            <td><code>${m.code}</code></td>
+                            <td>${new Date(m.registeredAt).toLocaleString()}</td>
+                            <td>${new Date(m.lastActive).toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger-custom" onclick="deleteMemberHandler(${m.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            window.deleteMemberHandler = function(id) {
+                if (confirm('⚠️ هل أنت متأكد من حذف هذا العضو؟')) {
+                    deleteMember(id);
+                    renderDashboard();
+                    sendBotMessage(`🗑️ تم حذف عضو برقم ${id}`);
+                }
+            };
+
+            // =============================================
+            // 8. SPAM SYSTEM
+            // =============================================
+            let spamInterval = null;
+            let spamRunning = false;
+
+            function startSpam() {
+                if (spamRunning) return;
+                const count = parseInt(document.getElementById('spamCount').value) || 100;
+                const target = document.getElementById('spamTarget').value || 'https://t.me/username';
+                
+                spamRunning = true;
+                document.getElementById('spamStatus').textContent = 'جاري الرشق...';
+                document.getElementById('spamStatus').className = 'badge bg-warning';
+                document.getElementById('startSpamBtn').disabled = true;
+                
+                let added = 0;
+                const total = count;
+                document.getElementById('spamTotal').textContent = total;
+                
+                // محاكاة إضافة أعضاء تدريجياً
+                spamInterval = setInterval(() => {
+                    if (added >= total) {
+                        stopSpam();
+                        return;
+                    }
+                    added += Math.floor(Math.random() * 5) + 1;
+                    if (added > total) added = total;
+                    document.getElementById('spamAdded').textContent = added;
+                    document.getElementById('spamProgress').style.width = `${(added / total) * 100}%`;
+                    document.getElementById('spamProgress').textContent = `${Math.round((added / total) * 100)}%`;
+                }, 200);
+
+                logSpam('start', target, total);
+                sendBotMessage(`🚀 بدء رشق ${total} عضو إلى ${target}`);
+            }
+
+            function stopSpam() {
+                if (spamInterval) {
+                    clearInterval(spamInterval);
+                    spamInterval = null;
+                }
+                spamRunning = false;
+                document.getElementById('spamStatus').textContent = 'متوقف';
+                document.getElementById('spamStatus').className = 'badge bg-secondary';
+                document.getElementById('startSpamBtn').disabled = false;
+                logSpam('stop', document.getElementById('spamTarget').value, 0);
+                sendBotMessage(`⏹️ تم إيقاف الرشق`);
+            }
+
+            document.getElementById('startSpamBtn').addEventListener('click', startSpam);
+            document.getElementById('stopSpamBtn').addEventListener('click', stopSpam);
+
+            // =============================================
+            // 9. REGISTER & LOGIN
+            // =============================================
             document.getElementById('registerForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const email = document.getElementById('regEmail').value.trim();
                 const code = document.getElementById('regCode').value.trim();
                 if (email && code) {
+                    const member = addMember(email, code);
                     localStorage.setItem('userEmail', email);
                     localStorage.setItem('userCode', code);
                     document.getElementById('registerMessage').innerHTML = `
@@ -303,6 +625,8 @@
                             تم التسجيل بنجاح! يمكنك الآن الوصول إلى جميع الاختراقات والأكواد.
                         </div>
                     `;
+                    renderDashboard();
+                    sendBotMessage(`🆕 عضو جديد: ${email} (رمز: ${code})`);
                     setTimeout(() => { window.location.href = '#hack-library'; }, 1500);
                 } else {
                     document.getElementById('registerMessage').innerHTML = `
@@ -314,22 +638,26 @@
                 }
             });
 
-            // ===== LOGIN =====
             document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value.trim();
                 const code = document.getElementById('loginCode').value.trim();
-                const storedEmail = localStorage.getItem('userEmail');
-                const storedCode = localStorage.getItem('userCode');
-                if (email === storedEmail && code === storedCode) {
+                const members = getMembers();
+                const found = members.find(m => m.email === email && m.code === code);
+                if (found) {
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userCode', code);
                     alert('✅ تم تسجيل الدخول بنجاح!');
+                    sendBotMessage(`🔓 مستخدم ${email} قام بتسجيل الدخول`);
                     window.location.href = '#hack-library';
                 } else {
                     alert('❌ البريد الإلكتروني أو رمز التحقق غير صحيح.');
                 }
             });
 
-            // ===== CODES GENERATOR (100K+ Codes with Copy) =====
+            // =============================================
+            // 10. CODES GENERATOR
+            // =============================================
             const codesContainer = document.getElementById('codes-container');
             let currentCodeCount = 0;
             const totalCodes = 100000;
@@ -379,6 +707,9 @@
                     document.getElementById('loadMoreCodes').style.display = 'none';
                     document.getElementById('loadAllCodes').style.display = 'none';
                 }
+                if (count > 10) {
+                    sendBotMessage(`📚 تم تحميل ${count} كود جديد (المجموع: ${currentCodeCount})`);
+                }
             }
 
             window.copyCode = function(id) {
@@ -396,14 +727,13 @@
                 });
             };
 
-            // Load initial 10 codes
             loadCodes(10);
 
             document.getElementById('loadMoreCodes').addEventListener('click', function() {
                 const email = localStorage.getItem('userEmail');
                 const code = localStorage.getItem('userCode');
                 if (!email || !code) {
-                    alert('⚠️ يرجى تسجيل الدخول أولاً لعرض الأكواد.');
+                    alert('⚠️ يرجى تسجيل الدخول أولاً.');
                     document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
                     return;
                 }
@@ -414,7 +744,7 @@
                 const email = localStorage.getItem('userEmail');
                 const code = localStorage.getItem('userCode');
                 if (!email || !code) {
-                    alert('⚠️ يرجى تسجيل الدخول أولاً لعرض جميع الأكواد.');
+                    alert('⚠️ يرجى تسجيل الدخول أولاً.');
                     document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
                     return;
                 }
@@ -423,7 +753,45 @@
                 }
             });
 
-            console.log('✅ تم تحميل منصة عبود @u_t_r مع 100,000+ كود وروابط حقيقية');
+            // =============================================
+            // 11. BOT INITIALIZATION
+            // =============================================
+            function initBot() {
+                fetch(`${BOT_API}/getMe`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            console.log('✅ البوت متصل:', data.result.username);
+                            updateBotStatus(true);
+                            const chatId = localStorage.getItem('chatId');
+                            if (!chatId) {
+                                console.log('ℹ️ انتظر أول رسالة من المستخدم لتحديد chat_id');
+                            }
+                        } else {
+                            console.error('❌ فشل الاتصال بالبوت:', data.description);
+                            updateBotStatus(false);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('❌ خطأ في الاتصال بالبوت:', err);
+                        updateBotStatus(false);
+                    });
+            }
+
+            // =============================================
+            // 12. INIT
+            // =============================================
+            renderDashboard();
+            initBot();
+
+            window.sendBotMessage = sendBotMessage;
+            window.updateBotStatus = updateBotStatus;
+
+            console.log('✅ تم تحميل متجر عبود @u_t_r مع جميع الميزات');
+            console.log('📌 توكن البوت:', BOT_TOKEN);
+            console.log('📌 رابط البوت:', `https://t.me/${BOT_TOKEN.split(':')[0]}`);
+            console.log('📌 عدد الأعضاء المسجلين:', getMembers().length);
+
         })();
     </script>
 
