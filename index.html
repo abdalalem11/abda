@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الوسيط - رشق مباشر</title>
+    <title>منصة الوسيط - رشق حقيقي</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -52,15 +52,15 @@
         .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .free-badge { background: #dc3545; color: #fff; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-right: 5px; }
-        .spam-btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .spam-btn-group .btn { min-width: 140px; }
+        .provider-settings { background: #0d1117; padding: 15px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 15px; }
+        .provider-settings .label { color: #8892a0; font-size: 0.9rem; }
+        .provider-settings .value { color: #d4af37; font-family: monospace; }
     </style>
 </head>
 <body>
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ===== NAVBAR ===== -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> الوسيط <span>@u_t_r</span></a>
@@ -87,7 +87,6 @@
 
     <div class="container py-4">
 
-        <!-- ===== DASHBOARD ===== -->
         <section id="dashboard" class="py-4">
             <div class="row g-4">
                 <div class="col-md-4">
@@ -112,14 +111,10 @@
             </div>
         </section>
 
-        <!-- ===== SERVICES (أزرار الرشق اليدوية) ===== -->
+        <!-- ===== SERVICES ===== -->
         <section id="services" class="py-5">
-            <h2 class="section-title"><i class="fas fa-rocket gold-text"></i> خدمات الرشق المتاحة</h2>
-            <p class="text-secondary-custom mb-4">اختر الخدمة التي تريدها، أدخل الرابط والكمية، وسيتم الرشق فوراً.</p>
-            
-            <div class="row g-3" id="servicesContainer">
-                <!-- سيتم عرض الأزرار يدوياً من الكود أدناه -->
-            </div>
+            <h2 class="section-title"><i class="fas fa-rocket gold-text"></i> خدمات الرشق</h2>
+            <div class="row g-3" id="servicesContainer"></div>
         </section>
 
         <!-- ===== ORDERS ===== -->
@@ -139,7 +134,7 @@
 
         <!-- ===== CHARGE ===== -->
         <section id="charge" class="py-5">
-            <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد (دفع مباشر بالنجوم)</h2>
+            <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد</h2>
             <div class="row g-4">
                 <div class="col-md-6">
                     <div class="card">
@@ -150,8 +145,6 @@
                                 <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(100)">🌟 100 نجمة = 10$</button></div>
                                 <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(250)">🌟 250 نجمة = 25$</button></div>
                                 <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(500)">🌟 500 نجمة = 50$</button></div>
-                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(1000)">🌟 1000 نجمة = 100$</button></div>
-                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(2500)">🌟 2500 نجمة = 250$</button></div>
                             </div>
                         </div>
                     </div>
@@ -160,12 +153,8 @@
                     <div class="card">
                         <div class="card-header"><i class="fas fa-info-circle"></i> الدفع المباشر</div>
                         <div class="card-body">
-                            <p>1. اختر الباقة.</p>
-                            <p>2. سيتم فتح بوت تيليجرام <code>@SmmMediatorBot</code>.</p>
-                            <p>3. ادفع عبر <b>نجوم تيليجرام</b> (Telegram Stars).</p>
-                            <p>4. <b class="gold-text">يتم إضافة الرصيد فوراً</b> بعد الدفع.</p>
-                            <div class="alert alert-success mt-3">✅ دفع مباشر وفوري بدون انتظار</div>
-                            <div class="alert alert-warning mt-2">⚡ البوت: <code>@SmmMediatorBot</code></div>
+                            <p>ادفع عبر بوت تيليجرام <code>@SmmMediatorBot</code> بالنجوم.</p>
+                            <div class="alert alert-success mt-3">✅ يتم إضافة الرصيد فوراً بعد الدفع</div>
                         </div>
                     </div>
                 </div>
@@ -178,6 +167,24 @@
             <div class="dev-panel">
                 <div class="row g-3">
                     <div class="col-md-6">
+                        <h5 class="title"><i class="fas fa-plug"></i> إعدادات المزود (API)</h5>
+                        <div class="provider-settings">
+                            <div class="label">رابط API:</div>
+                            <div class="value" id="displayProviderUrl">غير محدد</div>
+                            <div class="label mt-2">مفتاح API:</div>
+                            <div class="value" id="displayProviderKey">غير محدد</div>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API (مثال: https://api.panel.com/v2)">
+                            <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-save"></i> حفظ</button>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="devProviderKey" placeholder="مفتاح API">
+                            <button class="btn btn-info" onclick="devUpdateKey()"><i class="fas fa-key"></i> حفظ</button>
+                        </div>
+                        <button class="btn btn-outline-gold mt-2" onclick="testProviderConnection()"><i class="fas fa-plug"></i> اختبار الاتصال</button>
+                    </div>
+                    <div class="col-md-6">
                         <h5 class="title"><i class="fas fa-users"></i> إدارة المستخدمين</h5>
                         <div class="input-group mb-2">
                             <input type="email" class="form-control" id="devUserEmail" placeholder="البريد الإلكتروني">
@@ -187,22 +194,11 @@
                             <input type="text" class="form-control" id="devBroadcastMsg" placeholder="رسالة عامة">
                             <button class="btn btn-warning" onclick="devBroadcast()"><i class="fas fa-bullhorn"></i> إرسال</button>
                         </div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API المزود (اختياري)">
-                            <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-sync"></i> تحديث</button>
-                        </div>
-                        <div class="input-group mt-2">
-                            <input type="text" class="form-control" id="devProviderKey" placeholder="مفتاح API (اختياري)">
-                            <button class="btn btn-info" onclick="devUpdateKey()"><i class="fas fa-key"></i> تحديث المفتاح</button>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h5 class="title"><i class="fas fa-chart-bar"></i> الإحصائيات</h5>
+                        <h5 class="title mt-3"><i class="fas fa-chart-bar"></i> الإحصائيات</h5>
                         <div id="devStats">
                             <p>👥 المستخدمين: <span id="devTotalUsers">0</span></p>
                             <p>📦 الطلبات: <span id="devTotalOrders">0</span></p>
                             <p>💰 الأرباح: <span id="devTotalProfit">0.00 $</span></p>
-                            <p>📊 طلبات اليوم: <span id="devTodayOrders">0</span></p>
                         </div>
                         <button class="btn btn-outline-danger btn-sm mt-2" onclick="devRefreshStats()"><i class="fas fa-sync"></i> تحديث</button>
                         <button class="btn btn-outline-danger btn-sm mt-2 ms-2" onclick="devExportData()"><i class="fas fa-file-export"></i> تصدير</button>
@@ -218,7 +214,7 @@
                 <form id="registerForm">
                     <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required></div>
                     <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="regPassword" required></div>
-                    <div class="mb-3"><label class="form-label">معرف تيليجرام (للدفع المباشر)</label><input type="text" class="form-control" id="regTelegram" placeholder="@username"></div>
+                    <div class="mb-3"><label class="form-label">معرف تيليجرام</label><input type="text" class="form-control" id="regTelegram" placeholder="@username"></div>
                     <button type="submit" class="btn btn-gold w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
                 </form>
             </div>
@@ -239,8 +235,7 @@
 
     <footer>
         <div class="container">
-            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — رشق مباشر</p>
-            <p style="font-size:12px;color:#444;">جميع الحقوق محفوظة © 2026</p>
+            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — رشق حقيقي</p>
         </div>
     </footer>
 
@@ -258,19 +253,6 @@
         const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
         const DEVELOPER_ID = '1170411845';
         const DB_NAME = 'mediator_db';
-
-        // إعدادات المزود (اختياري - إذا كان متاحاً)
-        let PROVIDER_API_URL = '';
-        let PROVIDER_API_KEY = '';
-
-        // ============================================================
-        // 1.5. التحقق من صلاحيات المطور
-        // ============================================================
-        function isDeveloper(email) {
-            const user = getUser(email);
-            if (!user) return false;
-            return user.telegramId === DEVELOPER_ID || email === 'developer@mediator.com';
-        }
 
         // ============================================================
         // 2. DATABASE
@@ -321,17 +303,51 @@
             const db = getDB();
             db.settings = { ...db.settings, ...settings };
             saveDB(db);
-            if (settings.providerUrl) PROVIDER_API_URL = settings.providerUrl;
-            if (settings.providerKey) PROVIDER_API_KEY = settings.providerKey;
+            updateProviderDisplay();
+        }
+
+        function isDeveloper(email) {
+            const user = getUser(email);
+            if (!user) return false;
+            return user.telegramId === DEVELOPER_ID || email === 'developer@mediator.com';
         }
 
         // ============================================================
-        // 3. PROVIDER API (اختياري - إذا كان متاحاً)
+        // 3. PROVIDER API (اتصال حقيقي)
         // ============================================================
-        async function fetchServices() {
+        function getProviderSettings() {
             const settings = getSettings();
-            const url = settings.providerUrl || PROVIDER_API_URL;
-            const key = settings.providerKey || PROVIDER_API_KEY;
+            return {
+                url: settings.providerUrl || '',
+                key: settings.providerKey || ''
+            };
+        }
+
+        async function testProviderConnection() {
+            const { url, key } = getProviderSettings();
+            if (!url || !key) {
+                showToast('⚠️', 'يرجى إدخال رابط ومفتاح API في لوحة المطور', 'error');
+                return;
+            }
+            try {
+                const res = await fetch(`${url}/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, action: 'services' })
+                });
+                const data = await res.json();
+                if (data.services) {
+                    showToast('✅', 'الاتصال ناجح! تم جلب ' + data.services.length + ' خدمة', 'success');
+                } else {
+                    showToast('❌', 'فشل الاتصال: ' + (data.error || 'خطأ غير معروف'), 'error');
+                }
+            } catch (e) {
+                showToast('❌', 'فشل الاتصال: ' + e.message, 'error');
+            }
+        }
+
+        async function fetchServicesFromProvider() {
+            const { url, key } = getProviderSettings();
             if (!url || !key) return [];
             try {
                 const res = await fetch(`${url}/services`, {
@@ -341,43 +357,57 @@
                 });
                 const data = await res.json();
                 return data.services || [];
-            } catch (e) { return []; }
+            } catch (e) {
+                console.error('❌ فشل جلب الخدمات:', e);
+                return [];
+            }
         }
 
         async function placeProviderOrder(serviceId, link, quantity) {
-            const settings = getSettings();
-            const url = settings.providerUrl || PROVIDER_API_URL;
-            const key = settings.providerKey || PROVIDER_API_KEY;
+            const { url, key } = getProviderSettings();
             if (!url || !key) {
-                // إذا لم يكن هناك مزود، نعتبر الطلب ناجحاً (محاكاة)
-                return { order: Date.now(), status: 'Processing' };
+                throw new Error('لم يتم إعداد المزود');
             }
             try {
                 const res = await fetch(`${url}/order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key, action: 'add', service: serviceId, link, quantity })
+                    body: JSON.stringify({
+                        key: key,
+                        action: 'add',
+                        service: serviceId,
+                        link: link,
+                        quantity: quantity
+                    })
                 });
-                return await res.json();
-            } catch (e) { return { order: Date.now(), status: 'Processing' }; }
+                const data = await res.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                return data;
+            } catch (e) {
+                console.error('❌ فشل إرسال الطلب:', e);
+                throw e;
+            }
         }
 
         async function checkProviderStatus(orderId) {
-            const settings = getSettings();
-            const url = settings.providerUrl || PROVIDER_API_URL;
-            const key = settings.providerKey || PROVIDER_API_KEY;
-            if (!url || !key) {
-                // محاكاة اكتمال الطلب بعد 30 ثانية
-                return { status: Math.random() > 0.3 ? 'Completed' : 'Processing' };
-            }
+            const { url, key } = getProviderSettings();
+            if (!url || !key) return { status: 'Processing' };
             try {
                 const res = await fetch(`${url}/status`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key, action: 'status', order: orderId })
+                    body: JSON.stringify({
+                        key: key,
+                        action: 'status',
+                        order: orderId
+                    })
                 });
                 return await res.json();
-            } catch (e) { return { status: 'Processing' }; }
+            } catch (e) {
+                return { status: 'Processing' };
+            }
         }
 
         // ============================================================
@@ -465,36 +495,35 @@
             setTimeout(() => toast.remove(), 5000);
         }
 
+        function updateProviderDisplay() {
+            const settings = getSettings();
+            document.getElementById('displayProviderUrl').textContent = settings.providerUrl || 'غير محدد';
+            document.getElementById('displayProviderKey').textContent = settings.providerKey ? '••••••••' : 'غير محدد';
+        }
+
         // ============================================================
-        // 6. SERVICES (أزرار الرشق اليدوية)
+        // 6. SERVICES
         // ============================================================
-        const manualServices = [
-            { id: 'insta_followers', name: 'متابعين إنستغرام', price: 0.5, icon: 'fa-instagram' },
-            { id: 'insta_likes', name: 'إعجابات إنستغرام', price: 0.3, icon: 'fa-heart' },
-            { id: 'insta_views', name: 'مشاهدات إنستغرام', price: 0.2, icon: 'fa-eye' },
+        const fallbackServices = [
+            { id: 'instagram_followers', name: 'متابعين إنستغرام', price: 0.5, icon: 'fa-instagram' },
+            { id: 'instagram_likes', name: 'إعجابات إنستغرام', price: 0.3, icon: 'fa-heart' },
             { id: 'tiktok_followers', name: 'متابعين تيك توك', price: 0.7, icon: 'fa-music' },
             { id: 'tiktok_likes', name: 'إعجابات تيك توك', price: 0.4, icon: 'fa-heart' },
-            { id: 'tiktok_views', name: 'مشاهدات تيك توك', price: 0.3, icon: 'fa-eye' },
             { id: 'youtube_views', name: 'مشاهدات يوتيوب', price: 0.5, icon: 'fa-youtube' },
-            { id: 'youtube_likes', name: 'إعجابات يوتيوب', price: 0.4, icon: 'fa-thumbs-up' },
             { id: 'youtube_subs', name: 'مشتركين يوتيوب', price: 0.8, icon: 'fa-users' },
             { id: 'twitter_followers', name: 'متابعين تويتر', price: 0.6, icon: 'fa-twitter' },
-            { id: 'twitter_likes', name: 'إعجابات تويتر', price: 0.3, icon: 'fa-heart' },
-            { id: 'twitter_retweets', name: 'إعادة تغريد', price: 0.5, icon: 'fa-retweet' },
             { id: 'telegram_members', name: 'أعضاء تلغرام', price: 0.4, icon: 'fa-telegram' },
-            { id: 'telegram_views', name: 'مشاهدات تلغرام', price: 0.2, icon: 'fa-eye' },
             { id: 'facebook_followers', name: 'متابعين فيسبوك', price: 0.5, icon: 'fa-facebook' },
-            { id: 'facebook_likes', name: 'إعجابات فيسبوك', price: 0.3, icon: 'fa-thumbs-up' },
             { id: 'snapchat_followers', name: 'متابعين سناب شات', price: 0.7, icon: 'fa-snapchat' },
-            { id: 'snapchat_views', name: 'مشاهدات سناب شات', price: 0.4, icon: 'fa-eye' },
         ];
 
-        function renderManualServices() {
+        function renderServices(services) {
             const container = document.getElementById('servicesContainer');
-            container.innerHTML = manualServices.map(s => `
+            const list = services && services.length > 0 ? services : fallbackServices;
+            container.innerHTML = list.map(s => `
                 <div class="col-md-4 col-lg-3">
                     <div class="service-card" onclick="openOrderModal('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})">
-                        <div class="icon"><i class="fab ${s.icon}"></i></div>
+                        <div class="icon"><i class="fab ${s.icon || 'fa-bolt'}"></i></div>
                         <div class="name">${s.name}</div>
                         <div class="price">${s.price} $ / وحدة</div>
                         <button class="btn btn-gold btn-sm mt-2"><i class="fas fa-rocket"></i> رشق</button>
@@ -504,7 +533,7 @@
         }
 
         // ============================================================
-        // 7. ORDER (الرشق الفعلي)
+        // 7. ORDER (رشق حقيقي)
         // ============================================================
         window.openOrderModal = function(serviceId, serviceName, pricePerUnit) {
             const email = localStorage.getItem('userEmail');
@@ -539,7 +568,7 @@
         };
 
         async function executeOrder(email, serviceId, serviceName, link, quantity, total, isDev = false) {
-            showToast('⏳', 'جاري الرشق...', 'info');
+            showToast('⏳', 'جاري إرسال الطلب إلى المزود...', 'info');
 
             const current = getBalance(email);
 
@@ -561,72 +590,94 @@
             }
 
             try {
-                // محاولة إرسال الطلب إلى المزود إذا كان متاحاً
+                // إرسال الطلب الحقيقي إلى API المزود
                 const response = await placeProviderOrder(serviceId, link, quantity);
                 
                 if (response && response.order) {
-                    updateOrder(order.id, { status: 'processing', providerOrderId: response.order });
-                    const msg = isDev ? `✅ تم الرشق المجاني! رقم الطلب: ${response.order}` : `✅ تم الرشق بنجاح! رقم الطلب: ${response.order}`;
-                    showToast('✅', msg, 'success');
-                    await notifyDeveloper(`📦 رشق ${isDev ? 'مجاني' : ''} من ${email}\n${serviceName} x${quantity}\n${isDev ? '(0$)' : total.toFixed(2) + '$'}`);
+                    updateOrder(order.id, { 
+                        status: 'processing', 
+                        providerOrderId: response.order 
+                    });
+                    showToast('✅', `تم إرسال الطلب بنجاح! رقم الطلب: ${response.order}`, 'success');
+                    await notifyDeveloper(`📦 رشق ${isDev ? 'مجاني' : ''} من ${email}\n${serviceName} x${quantity}\nرقم الطلب: ${response.order}`);
                     startOrderTracking(order.id, response.order);
                 } else {
+                    // فشل الإرسال
                     if (!isDev) {
                         setBalance(email, current);
                     }
                     const db = getDB();
                     db.orders = db.orders.filter(o => o.id !== order.id);
                     saveDB(db);
-                    showToast('❌', 'فشل الرشق. تم إعادة الرصيد.', 'error');
-                    await notifyDeveloper(`❌ فشل رشق من ${email}`);
+                    showToast('❌', 'فشل إرسال الطلب للمزود. تم إعادة الرصيد.', 'error');
+                    await notifyDeveloper(`❌ فشل رشق من ${email}: ${response?.error || 'خطأ غير معروف'}`);
                 }
-            } catch (e) {
+            } catch (error) {
                 if (!isDev) {
                     setBalance(email, current);
                 }
                 const db = getDB();
                 db.orders = db.orders.filter(o => o.id !== order.id);
                 saveDB(db);
-                showToast('❌', 'خطأ في الرشق.', 'error');
+                showToast('❌', 'خطأ في الرشق: ' + error.message, 'error');
+                await notifyDeveloper(`❌ خطأ في رشق ${email}: ${error.message}`);
             }
 
             renderOrders(email);
             updateDashboard(email);
         }
 
-        // متابعة الطلب
+        // ============================================================
+        // 8. ORDER TRACKING (متابعة حقيقية)
+        // ============================================================
         let trackingIntervals = {};
+
         function startOrderTracking(orderId, providerOrderId) {
             if (trackingIntervals[orderId]) clearInterval(trackingIntervals[orderId]);
+            
             trackingIntervals[orderId] = setInterval(async () => {
                 try {
                     const status = await checkProviderStatus(providerOrderId);
-                    if (status && status.status) {
-                        const db = getDB();
-                        const order = db.orders.find(o => o.id === orderId);
-                        if (!order) { clearInterval(trackingIntervals[orderId]); return; }
+                    if (!status) return;
+                    
+                    const db = getDB();
+                    const order = db.orders.find(o => o.id === orderId);
+                    if (!order) {
+                        clearInterval(trackingIntervals[orderId]);
+                        return;
+                    }
 
-                        let newStatus = order.status;
-                        if (status.status === 'Completed' || status.status === 'completed') newStatus = 'completed';
-                        else if (status.status === 'Processing' || status.status === 'processing') newStatus = 'processing';
-                        else if (status.status === 'Error' || status.status === 'error') newStatus = 'failed';
+                    let newStatus = order.status;
+                    if (status.status === 'Completed' || status.status === 'completed') {
+                        newStatus = 'completed';
+                        clearInterval(trackingIntervals[orderId]);
+                        showToast('✅', `الطلب #${orderId} اكتمل بنجاح!`, 'success');
+                        await notifyDeveloper(`✅ اكتمل الطلب #${orderId}`);
+                    } else if (status.status === 'Processing' || status.status === 'processing') {
+                        newStatus = 'processing';
+                    } else if (status.status === 'Error' || status.status === 'error') {
+                        newStatus = 'failed';
+                        clearInterval(trackingIntervals[orderId]);
+                        showToast('❌', `الطلب #${orderId} فشل`, 'error');
+                        await notifyDeveloper(`❌ فشل الطلب #${orderId}`);
+                    }
 
-                        if (newStatus !== order.status) {
-                            updateOrder(orderId, { status: newStatus });
-                            const email = localStorage.getItem('userEmail');
-                            if (email) { renderOrders(email); updateDashboard(email); }
-                            if (newStatus === 'completed' || newStatus === 'failed') {
-                                clearInterval(trackingIntervals[orderId]);
-                                showToast('✅', `الطلب #${orderId} ${newStatus === 'completed' ? 'اكتمل' : 'فشل'}`, newStatus === 'completed' ? 'success' : 'error');
-                            }
+                    if (newStatus !== order.status) {
+                        updateOrder(orderId, { status: newStatus });
+                        const email = localStorage.getItem('userEmail');
+                        if (email) {
+                            renderOrders(email);
+                            updateDashboard(email);
                         }
                     }
-                } catch (e) {}
-            }, 15000);
+                } catch (e) {
+                    console.error('❌ خطأ في المتابعة:', e);
+                }
+            }, 15000); // كل 15 ثانية
         }
 
         // ============================================================
-        // 8. ORDERS DISPLAY
+        // 9. ORDERS DISPLAY
         // ============================================================
         function renderOrders(email) {
             const orders = getOrders(email);
@@ -642,14 +693,14 @@
                     <td><span class="small">${o.link}</span></td>
                     <td>${o.quantity}</td>
                     <td>${o.isFree ? '0.00 $' : o.price.toFixed(2) + ' $'}</td>
-                    <td><span class="order-status ${o.status}">${o.status}</span></td>
+                    <td><span class="order-status ${o.status}">${o.status}${o.providerOrderId ? ' #' + o.providerOrderId : ''}</span></td>
                     <td>${new Date(o.createdAt).toLocaleString()}</td>
                 </tr>
             `).join('');
         }
 
         // ============================================================
-        // 9. DASHBOARD
+        // 10. DASHBOARD
         // ============================================================
         function updateDashboard(email) {
             const balance = getBalance(email);
@@ -668,7 +719,7 @@
         }
 
         // ============================================================
-        // 10. DEV PANEL
+        // 11. DEV PANEL
         // ============================================================
         function updateDevStats() {
             const users = getAllUsers();
@@ -677,9 +728,25 @@
             document.getElementById('devTotalOrders').textContent = orders.length;
             const profit = orders.filter(o => o.status === 'completed' && !o.isFree).reduce((s, o) => s + (o.price * 0.2), 0);
             document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
-            const today = new Date().toDateString();
-            document.getElementById('devTodayOrders').textContent = orders.filter(o => new Date(o.createdAt).toDateString() === today).length;
         }
+
+        window.devUpdateProvider = function() {
+            const url = document.getElementById('devProviderSettings').value.trim();
+            if (!url) { showToast('⚠️', 'أدخل رابط API', 'error'); return; }
+            updateSettings({ providerUrl: url });
+            showToast('✅', 'تم حفظ رابط المزود', 'success');
+            notifyDeveloper(`🔄 تم تحديث رابط المزود إلى: ${url}`);
+        };
+
+        window.devUpdateKey = function() {
+            const key = document.getElementById('devProviderKey').value.trim();
+            if (!key) { showToast('⚠️', 'أدخل مفتاح API', 'error'); return; }
+            updateSettings({ providerKey: key });
+            showToast('✅', 'تم حفظ مفتاح API', 'success');
+            notifyDeveloper(`🔄 تم تحديث مفتاح API`);
+        };
+
+        window.testProviderConnection = testProviderConnection;
 
         window.devAddBalance = async function() {
             const email = document.getElementById('devUserEmail').value.trim();
@@ -707,17 +774,8 @@
             showToast('✅', `أرسل إلى ${sent} مستخدم`, 'success');
         };
 
-        window.devUpdateProvider = function() {
-            const url = document.getElementById('devProviderSettings').value.trim();
-            if (url) { updateSettings({ providerUrl: url }); showToast('✅', 'تم تحديث رابط المزود', 'success'); }
-        };
-
-        window.devUpdateKey = function() {
-            const key = document.getElementById('devProviderKey').value.trim();
-            if (key) { updateSettings({ providerKey: key }); showToast('✅', 'تم تحديث المفتاح', 'success'); }
-        };
-
         window.devRefreshStats = function() { updateDevStats(); showToast('✅', 'تم التحديث', 'success'); };
+        
         window.devExportData = function() {
             const db = getDB();
             const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
@@ -730,7 +788,7 @@
         };
 
         // ============================================================
-        // 11. AUTH
+        // 12. AUTH
         // ============================================================
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -771,7 +829,7 @@
         });
 
         // ============================================================
-        // 12. UI UPDATE
+        // 13. UI UPDATE
         // ============================================================
         function updateUIAfterLogin(email) {
             document.getElementById('userInfo').style.display = 'inline';
@@ -803,11 +861,14 @@
         }
 
         // ============================================================
-        // 13. INIT
+        // 14. INIT
         // ============================================================
         async function init() {
-            // عرض الخدمات اليدوية
-            renderManualServices();
+            // عرض الخدمات (من المزود أو الاحتياطية)
+            const providerServices = await fetchServicesFromProvider();
+            renderServices(providerServices);
+
+            updateProviderDisplay();
 
             const email = localStorage.getItem('userEmail');
             if (email) {
@@ -843,9 +904,9 @@
 
         init();
 
-        console.log('✅ منصة الرشق المباشر جاهزة (مع أزرار يدوية)');
+        console.log('✅ منصة الرشق الحقيقي جاهزة');
         console.log('👤 المطور:', DEVELOPER_ID);
-        console.log('📌 يمكنك إضافة خدمات جديدة في قائمة manualServices');
+        console.log('📌 قم بإعداد رابط ومفتاح API في لوحة المطور');
     </script>
 </body>
 </html>
