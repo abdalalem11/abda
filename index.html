@@ -3,94 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر عبود @u_t_r - منصة الاختراقات الشاملة</title>
+    <title>منصة الوسيط - SMM Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== STYLES ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0e17; min-height: 100vh; font-family: 'Tahoma', sans-serif; color: #e8e6e3; }
-        .navbar { background: rgba(17,25,39,0.98) !important; border-bottom: 3px solid #d4af37; backdrop-filter: blur(15px); padding: 15px 0; }
-        .navbar-brand { color: #d4af37 !important; font-weight: 900; font-size: 1.8rem; letter-spacing: 2px; }
+        .navbar { background: rgba(17,25,39,0.98) !important; border-bottom: 3px solid #d4af37; padding: 15px 0; }
+        .navbar-brand { color: #d4af37 !important; font-weight: 900; font-size: 1.8rem; }
         .navbar-brand span { color: #fff; }
-        .nav-link { color: #b0b0b0 !important; transition: 0.3s; }
-        .nav-link:hover { color: #d4af37 !important; }
         .btn-gold { background: #d4af37; color: #0a0e17; font-weight: 700; border: none; padding: 10px 30px; border-radius: 8px; transition: 0.3s; }
-        .btn-gold:hover { background: #b8941a; color: #fff; transform: scale(1.05); box-shadow: 0 0 30px rgba(212,175,55,0.3); }
+        .btn-gold:hover { background: #b8941a; color: #fff; transform: scale(1.05); }
         .btn-outline-gold { border: 2px solid #d4af37; color: #d4af37; background: transparent; transition: 0.3s; }
         .btn-outline-gold:hover { background: #d4af37; color: #0a0e17; }
-        .btn-danger-custom { background: #dc3545; color: #fff; border: none; transition: 0.3s; }
-        .btn-danger-custom:hover { background: #bb2d3b; transform: scale(1.05); }
-        .btn-success-custom { background: #198754; color: #fff; border: none; transition: 0.3s; }
-        .btn-success-custom:hover { background: #157347; transform: scale(1.05); }
-        .section-title { color: #d4af37; border-right: 5px solid #d4af37; padding-right: 15px; margin-bottom: 30px; font-size: 2rem; }
-        .gold-text { color: #d4af37; }
-        .text-secondary-custom { color: #8892a0; }
-        .card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 16px; transition: 0.3s; overflow: hidden; color: #e8e6e3; }
-        .card:hover { border-color: #d4af37; box-shadow: 0 0 50px rgba(212,175,55,0.08); transform: translateY(-5px); }
-        .card-header { background: rgba(212,175,55,0.05); border-bottom: 1px solid rgba(212,175,55,0.1); padding: 18px 22px; font-weight: 700; font-size: 1.2rem; }
+        .card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 16px; transition: 0.3s; }
+        .card:hover { border-color: #d4af37; transform: translateY(-5px); }
+        .card-header { background: rgba(212,175,55,0.05); border-bottom: 1px solid rgba(212,175,55,0.1); padding: 18px 22px; font-weight: 700; }
         .card-header i { color: #d4af37; margin-left: 10px; }
-        .hack-btn { background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.15); color: #e8e6e3; border-radius: 10px; padding: 12px 15px; margin: 6px 4px; transition: 0.25s; font-size: 0.85rem; white-space: nowrap; display: inline-block; text-decoration: none; cursor: pointer; min-width: 120px; text-align: center; }
-        .hack-btn:hover { background: rgba(212,175,55,0.15); border-color: #d4af37; color: #d4af37; transform: scale(1.05); box-shadow: 0 0 20px rgba(212,175,55,0.1); }
-        .hack-btn i { margin-left: 6px; color: #d4af37; }
-        .code-block { background: #0d1117; padding: 20px; border-radius: 10px; border-right: 4px solid #d4af37; font-family: 'Courier New', monospace; font-size: 14px; overflow-x: auto; color: #e6e6e6; direction: ltr; text-align: left; position: relative; }
-        .code-block .comment { color: #6a9955; }
-        .code-block .keyword { color: #569cd6; }
-        .code-block .string { color: #ce9178; }
-        .code-block .function { color: #dcdcaa; }
-        .copy-btn { position: absolute; top: 10px; left: 10px; background: #d4af37; color: #0a0e17; border: none; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: 0.3s; }
-        .copy-btn:hover { background: #b8941a; color: #fff; }
+        .gold-text { color: #d4af37; }
+        .section-title { color: #d4af37; border-right: 5px solid #d4af37; padding-right: 15px; margin-bottom: 30px; }
+        .stat-card { background: #111927; border: 1px solid rgba(212,175,55,0.1); border-radius: 16px; padding: 25px; text-align: center; }
+        .stat-card .number { font-size: 2.5rem; font-weight: 900; color: #d4af37; }
+        .service-card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; cursor: pointer; height: 100%; }
+        .service-card:hover { border-color: #d4af37; transform: scale(1.02); box-shadow: 0 0 30px rgba(212,175,55,0.1); }
+        .service-card .icon { font-size: 2.5rem; color: #d4af37; margin-bottom: 10px; }
+        .service-card .name { font-weight: 700; font-size: 1rem; }
+        .service-card .price { color: #8892a0; font-size: 0.9rem; }
+        .service-card .btn-order { margin-top: 10px; }
         .form-control { background: #0d1117; border: 1px solid #30363d; color: #e8e6e3; border-radius: 10px; padding: 14px 18px; }
-        .form-control:focus { background: #0d1117; border-color: #d4af37; color: #e8e6e3; box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.15); }
-        .form-label { color: #d4af37; font-weight: 600; }
+        .form-control:focus { border-color: #d4af37; box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.15); }
         .auth-card { max-width: 480px; margin: 40px auto; padding: 35px; background: #111927; border-radius: 20px; border: 1px solid rgba(212,175,55,0.2); }
-        .stat-card { background: #111927; border: 1px solid rgba(212,175,55,0.1); border-radius: 16px; padding: 25px; text-align: center; transition: 0.3s; }
-        .stat-card:hover { border-color: #d4af37; transform: translateY(-4px); }
-        .stat-card .number { font-size: 3rem; font-weight: 900; color: #d4af37; }
-        .stat-card .label { color: #8892a0; font-size: 1rem; }
-        .stat-card i { font-size: 2.5rem; color: #d4af37; opacity: 0.3; margin-bottom: 12px; }
-        .hack-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        footer { border-top: 1px solid rgba(212,175,55,0.1); padding: 35px 0; margin-top: 60px; text-align: center; color: #666; font-size: 14px; }
-        footer .gold { color: #d4af37; }
-        .alert-danger-custom { background: rgba(248,81,73,0.12); border-right: 4px solid #f85149; padding: 15px; border-radius: 10px; }
-        .alert-success-custom { background: rgba(46,160,67,0.12); border-right: 4px solid #3fb950; padding: 15px; border-radius: 10px; }
-        .support-box { background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 16px; padding: 30px; text-align: center; margin-top: 40px; }
-        .support-box .big-icon { font-size: 4rem; color: #d4af37; }
-        .support-box .username { color: #d4af37; font-size: 1.8rem; font-weight: 900; }
-        .bot-status { position: fixed; bottom: 20px; right: 20px; background: #111927; border: 1px solid #d4af37; border-radius: 30px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; z-index: 9999; font-size: 0.85rem; }
+        .balance-box { background: rgba(212,175,55,0.08); border: 1px solid #d4af37; border-radius: 16px; padding: 20px; text-align: center; }
+        .balance-box .amount { font-size: 2.8rem; font-weight: 900; color: #d4af37; }
+        .bot-status { position: fixed; bottom: 20px; right: 20px; background: #111927; border: 1px solid #d4af37; border-radius: 30px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; z-index: 9999; }
         .bot-status .dot { width: 12px; height: 12px; border-radius: 50%; background: #3fb950; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .dashboard-table { background: #0d1117; border-radius: 10px; overflow: hidden; }
-        .dashboard-table th { background: #1a2332; color: #d4af37; border: none; padding: 12px; }
-        .dashboard-table td { border-color: #1a2332; padding: 10px; vertical-align: middle; }
-        .spam-control { background: #1a2332; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(212,175,55,0.1); }
-        .spam-control .input-group { max-width: 400px; margin: auto; }
-        .progress-bar-custom { height: 25px; border-radius: 12px; background: #0d1117; border: 1px solid #30363d; overflow: hidden; margin: 10px 0; }
-        .progress-bar-custom .progress-fill { height: 100%; background: linear-gradient(90deg, #d4af37, #b8941a); border-radius: 12px; transition: width 0.5s; }
-        @media (max-width:768px){ .hack-btn { min-width:80px; font-size:.75rem; padding:8px 10px; } .navbar-brand { font-size:1.2rem; } .section-title { font-size:1.5rem; } }
+        footer { border-top: 1px solid rgba(212,175,55,0.1); padding: 35px 0; margin-top: 60px; text-align: center; color: #666; }
+        .admin-badge { background: #dc3545; color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; margin-right: 8px; }
+        .dev-panel { background: #1a1a2e; border: 1px solid #dc3545; border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .dev-panel .title { color: #dc3545; font-weight: 900; }
+        .toast-container { position: fixed; top: 20px; left: 20px; z-index: 99999; max-width: 350px; }
+        .toast-custom { background: #111927; border: 1px solid #d4af37; border-radius: 12px; padding: 15px 20px; margin-bottom: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .toast-custom.success { border-color: #3fb950; }
+        .toast-custom.error { border-color: #f85149; }
+        .toast-custom .title { font-weight: 700; }
+        .toast-custom .msg { color: #8892a0; font-size: 0.9rem; }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .order-status { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .order-status.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .order-status.processing { background: rgba(13,202,240,0.2); color: #0dcaf0; }
+        .order-status.completed { background: rgba(25,135,84,0.2); color: #198754; }
+        .order-status.failed { background: rgba(220,53,69,0.2); color: #dc3545; }
+        @media (max-width:768px){ .service-card { padding: 10px; } .navbar-brand { font-size:1.2rem; } }
     </style>
 </head>
 <body>
 
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> متجر عبود <span>@u_t_r</span></a>
+            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> الوسيط <span>@u_t_r</span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="#home"><i class="fas fa-home"></i> الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#dashboard"><i class="fas fa-chart-line"></i> لوحة التحكم</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#hack-library"><i class="fas fa-book-skull"></i> المكتبة</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#codes"><i class="fas fa-code"></i> الأكواد</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#spam"><i class="fas fa-bomb"></i> رشق</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#register"><i class="fas fa-user-shield"></i> تسجيل VIP</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboard">الرئيسية</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">الخدمات</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#orders">طلباتي</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#charge">شحن الرصيد</a></li>
+                    <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">لوحة المطور</a></li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="#login"><i class="fas fa-sign-in-alt"></i> دخول</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#register"><i class="fas fa-user-plus"></i> تسجيل</a></li>
+                    <li class="nav-item" id="userInfo" style="display:none;">
+                        <span class="nav-link gold-text" id="userEmailDisplay"></span>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#login" id="loginBtn">دخول</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#register" id="registerBtn">تسجيل</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn" style="display:none;color:#dc3545;"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
                 </ul>
             </div>
         </div>
@@ -99,78 +93,58 @@
     <!-- ===== MAIN ===== -->
     <div class="container py-4">
 
-        <!-- ===== HOME ===== -->
-        <section id="home" class="py-4">
-            <div class="text-center mb-5">
-                <h1 class="display-2 glow-text" style="color:#d4af37;"><i class="fas fa-skull"></i> منصة الاختراقات الشاملة</h1>
-                <p class="lead text-secondary-custom">متجر عبود @u_t_r — أكثر من 100,000 كود وأسلوب اختراق مع روابط حقيقية</p>
-                <div class="mt-4">
-                    <a href="#register" class="btn btn-gold"><i class="fas fa-user-shield"></i> انضم للنخبة</a>
-                    <a href="#hack-library" class="btn btn-outline-gold ms-2"><i class="fas fa-bolt"></i> استكشف الاختراقات</a>
+        <!-- ===== DASHBOARD ===== -->
+        <section id="dashboard" class="py-4">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="balance-box">
+                        <i class="fas fa-wallet" style="font-size:2rem;color:#d4af37;"></i>
+                        <div class="amount" id="userBalance">0.00 $</div>
+                        <div class="text-secondary-custom">رصيدك الحالي</div>
+                        <a href="#charge" class="btn btn-gold btn-sm mt-2"><i class="fas fa-plus"></i> شحن الرصيد</a>
+                    </div>
                 </div>
-            </div>
-            <div class="row g-4 mb-5">
-                <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-bug"></i><div class="number">100K+</div><div class="label">أسلوب اختراق</div></div></div>
-                <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-code"></i><div class="number">100K+</div><div class="label">كود جاهز</div></div></div>
-                <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-user-secret"></i><div class="number">1000+</div><div class="label">أداة سرية</div></div></div>
-                <div class="col-md-3 col-6"><div class="stat-card"><i class="fas fa-database"></i><div class="number">500+</div><div class="label">ثغرة مكشوفة</div></div></div>
+                <div class="col-md-8">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="totalOrders">0</div><div>إجمالي الطلبات</div></div></div>
+                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="activeOrders">0</div><div>قيد التنفيذ</div></div></div>
+                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="completedOrders">0</div><div>مكتملة</div></div></div>
+                        <div class="col-6 col-md-3"><div class="stat-card"><div class="number" id="spentAmount">0.00 $</div><div>إجمالي الإنفاق</div></div></div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- ===== DASHBOARD ===== -->
-        <section id="dashboard" class="py-5">
-            <h2 class="section-title"><i class="fas fa-chart-line gold-text"></i> لوحة التحكم</h2>
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <div class="number" id="totalMembers">0</div>
-                        <div class="label">إجمالي الأعضاء</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <i class="fas fa-user-plus"></i>
-                        <div class="number" id="todayMembers">0</div>
-                        <div class="label">اليوم</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <i class="fas fa-eye"></i>
-                        <div class="number" id="totalViews">0</div>
-                        <div class="label">إجمالي المشاهدات</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <i class="fas fa-bolt"></i>
-                        <div class="number" id="activeSpam">0</div>
-                        <div class="label">رشق نشط</div>
-                    </div>
+        <!-- ===== SERVICES ===== -->
+        <section id="services" class="py-5">
+            <h2 class="section-title"><i class="fas fa-th-list gold-text"></i> الخدمات المتاحة</h2>
+            <div class="row g-3" id="servicesContainer">
+                <div class="col-12 text-center text-secondary-custom">
+                    <div class="spinner"></div> جاري تحميل الخدمات...
                 </div>
             </div>
+        </section>
 
-            <!-- ===== MEMBERS TABLE ===== -->
-            <div class="card mt-4">
-                <div class="card-header"><i class="fas fa-list"></i> قائمة الأعضاء المسجلين</div>
+        <!-- ===== ORDERS ===== -->
+        <section id="orders" class="py-5">
+            <h2 class="section-title"><i class="fas fa-history gold-text"></i> طلباتي</h2>
+            <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table dashboard-table">
+                        <table class="table table-dark table-hover">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>البريد الإلكتروني</th>
-                                    <th>رمز التحقق</th>
-                                    <th>تاريخ التسجيل</th>
-                                    <th>آخر نشاط</th>
-                                    <th>الإجراءات</th>
+                                    <th>الخدمة</th>
+                                    <th>الرابط</th>
+                                    <th>الكمية</th>
+                                    <th>السعر</th>
+                                    <th>الحالة</th>
+                                    <th>التاريخ</th>
                                 </tr>
                             </thead>
-                            <tbody id="membersTableBody">
-                                <tr>
-                                    <td colspan="6" class="text-center text-secondary-custom">لا يوجد أعضاء مسجلين حتى الآن</td>
-                                </tr>
+                            <tbody id="ordersTableBody">
+                                <tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -178,622 +152,950 @@
             </div>
         </section>
 
-        <!-- ===== HACK LIBRARY ===== -->
-        <section id="hack-library" class="py-5">
-            <h2 class="section-title"><i class="fas fa-book-skull gold-text"></i> مكتبة الاختراقات (روابط حقيقية)</h2>
-            <p class="text-secondary-custom mb-4">جميع الأزرار تؤدي إلى مواقع تعليمية حقيقية مع شرح مفصل.</p>
-
-            <div class="card"><div class="card-header"><i class="fas fa-network-wired"></i> اختراقات الشبكات</div><div class="card-body"><div class="hack-grid" id="network-buttons"></div></div></div>
-            <div class="card mt-4"><div class="card-header"><i class="fas fa-globe"></i> اختراقات الويب</div><div class="card-body"><div class="hack-grid" id="web-buttons"></div></div></div>
-            <div class="card mt-4"><div class="card-header"><i class="fas fa-user-secret"></i> الهندسة الاجتماعية</div><div class="card-body"><div class="hack-grid" id="social-buttons"></div></div></div>
-            <div class="card mt-4"><div class="card-header"><i class="fas fa-desktop"></i> اختراق الأنظمة</div><div class="card-body"><div class="hack-grid" id="system-buttons"></div></div></div>
-            <div class="card mt-4"><div class="card-header"><i class="fas fa-tools"></i> أدوات متقدمة</div><div class="card-body"><div class="hack-grid" id="tools-buttons"></div></div></div>
-        </section>
-
-        <!-- ===== SPAM SECTION ===== -->
-        <section id="spam" class="py-5">
-            <h2 class="section-title"><i class="fas fa-bomb gold-text"></i> رشق أعضاء تلغرام ومشاهدات</h2>
-            
-            <!-- ===== SPAM CONTROL ===== -->
-            <div class="spam-control">
-                <div class="row g-3 align-items-center">
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-dark text-gold border-gold"><i class="fas fa-users"></i></span>
-                            <input type="number" class="form-control" id="spamCount" placeholder="عدد الأعضاء" value="100" min="1">
-                            <button class="btn btn-gold" id="startSpamBtn"><i class="fas fa-play"></i> تشغيل الرشق</button>
+        <!-- ===== CHARGE ===== -->
+        <section id="charge" class="py-5">
+            <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد بنجوم تيليجرام</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-star"></i> اختر الباقة</div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(50)">🌟 50 نجمة = 5$</button></div>
+                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(100)">🌟 100 نجمة = 10$</button></div>
+                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(250)">🌟 250 نجمة = 25$</button></div>
+                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(500)">🌟 500 نجمة = 50$</button></div>
+                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(1000)">🌟 1000 نجمة = 100$</button></div>
+                                <div class="col-6"><button class="btn btn-gold w-100" onclick="chargeStars(2500)">🌟 2500 نجمة = 250$</button></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-dark text-gold border-gold"><i class="fas fa-link"></i></span>
-                            <input type="text" class="form-control" id="spamTarget" placeholder="رابط القناة أو المجموعة" value="https://t.me/username">
-                            <button class="btn btn-outline-gold" id="setTargetBtn"><i class="fas fa-save"></i> تعيين</button>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-info-circle"></i> كيفية الدفع</div>
+                        <div class="card-body">
+                            <p>1. اختر الباقة المناسبة.</p>
+                            <p>2. سيتم فتح بوت تيليجرام <code>@SmmMediatorBot</code>.</p>
+                            <p>3. ادفع عبر نجوم تيليجرام (Telegram Stars).</p>
+                            <p>4. سيتم إضافة الرصيد فوراً إلى حسابك.</p>
+                            <div class="alert alert-info mt-3">💡 تأكد من ربط حساب تيليجرام الخاص بك أولاً.</div>
+                            <div class="alert alert-warning mt-2">⚡ البوت الرسمي: <code>@SmmMediatorBot</code></div>
                         </div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <button class="btn btn-danger-custom" id="stopSpamBtn"><i class="fas fa-stop"></i> إيقاف الرشق</button>
-                        <span class="badge bg-secondary ms-2" id="spamStatus">متوقف</span>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <div class="progress-bar-custom">
-                        <div class="progress-fill" id="spamProgress" style="width: 0%;">0%</div>
-                    </div>
-                    <div class="d-flex justify-content-between text-secondary-custom small">
-                        <span id="spamAdded">0</span>
-                        <span id="spamTotal">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header"><i class="fas fa-telegram" style="color:#0088cc;"></i> رشق أعضاء تلغرام</div>
-                <div class="card-body">
-                    <div class="hack-grid" id="spam-buttons"></div>
-                </div>
-            </div>
-            <div class="card mt-4">
-                <div class="card-header"><i class="fas fa-eye" style="color:#ff6b6b;"></i> رشق مشاهدات ومتابعين</div>
-                <div class="card-body">
-                    <div class="hack-grid" id="views-buttons"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== CODES SECTION ===== -->
-        <section id="codes" class="py-5">
-            <h2 class="section-title"><i class="fas fa-code gold-text"></i> أكثر من 100,000 كود اختراق جاهز</h2>
-            <p class="text-secondary-custom mb-4">كل كود مع شرح وزر نسخ.</p>
-
-            <div id="codes-container"></div>
-
-            <div class="text-center mt-4">
-                <button class="btn btn-gold" id="loadMoreCodes"><i class="fas fa-plus"></i> تحميل 100 كود إضافي</button>
-                <button class="btn btn-outline-gold ms-2" id="loadAllCodes"><i class="fas fa-database"></i> تحميل 100,000 كود</button>
+        <!-- ===== DEV PANEL ===== -->
+        <section id="dev-panel" class="py-5" style="display:none;">
+            <h2 class="section-title" style="border-color:#dc3545; color:#dc3545;"><i class="fas fa-crown"></i> لوحة المطور</h2>
+            <div class="dev-panel">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h5 class="title"><i class="fas fa-users"></i> إدارة المستخدمين</h5>
+                        <div class="input-group mb-2">
+                            <input type="email" class="form-control" id="devUserEmail" placeholder="البريد الإلكتروني">
+                            <button class="btn btn-danger" onclick="devAddBalance()"><i class="fas fa-plus"></i> إضافة رصيد</button>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="devBroadcastMsg" placeholder="رسالة عامة للمستخدمين">
+                            <button class="btn btn-warning" onclick="devBroadcast()"><i class="fas fa-bullhorn"></i> إرسال</button>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API الجديد">
+                            <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-sync"></i> تحديث المزود</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="title"><i class="fas fa-chart-bar"></i> إحصائيات المنصة</h5>
+                        <div id="devStats">
+                            <p>👥 إجمالي المستخدمين: <span id="devTotalUsers">0</span></p>
+                            <p>📦 إجمالي الطلبات: <span id="devTotalOrders">0</span></p>
+                            <p>💰 إجمالي الأرباح: <span id="devTotalProfit">0.00 $</span></p>
+                            <p>📊 الطلبات اليوم: <span id="devTodayOrders">0</span></p>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm mt-2" onclick="devRefreshStats()"><i class="fas fa-sync"></i> تحديث</button>
+                        <button class="btn btn-outline-danger btn-sm mt-2 ms-2" onclick="devExportData()"><i class="fas fa-file-export"></i> تصدير البيانات</button>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- ===== REGISTER ===== -->
+        <!-- ===== REGISTER / LOGIN ===== -->
         <section id="register" class="py-4">
             <div class="auth-card card">
-                <h2 class="text-center gold-text"><i class="fas fa-user-shield"></i> تسجيل الدخول إلى المحتوى الحصري</h2>
-                <p class="text-center text-secondary-custom">أدخل بريدك الإلكتروني ورمز التحقق لدخول كامل المكتبة والأكواد</p>
+                <h2 class="text-center gold-text"><i class="fas fa-user-plus"></i> تسجيل جديد</h2>
                 <form id="registerForm">
-                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" placeholder="example@mail.com" required></div>
-                    <div class="mb-3"><label class="form-label">رمز التحقق (الرقم السري)</label><input type="text" class="form-control" id="regCode" placeholder="أدخل الرمز السري" required></div>
-                    <button type="submit" class="btn btn-gold w-100"><i class="fas fa-unlock"></i> دخول إلى المحتوى الكامل</button>
+                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required placeholder="example@mail.com"></div>
+                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="regPassword" required placeholder="********"></div>
+                    <div class="mb-3"><label class="form-label">معرف تيليجرام (لربط الدفع)</label><input type="text" class="form-control" id="regTelegram" placeholder="@username أو ID"></div>
+                    <button type="submit" class="btn btn-gold w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
                 </form>
-                <div id="registerMessage" class="mt-3"></div>
+                <p class="text-center mt-3">لديك حساب؟ <a href="#login" class="gold-text" style="text-decoration:none;">سجل دخول</a></p>
             </div>
         </section>
 
-        <!-- ===== LOGIN ===== -->
         <section id="login" class="py-4">
             <div class="auth-card card">
                 <h2 class="text-center gold-text"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
-                <p class="text-center text-secondary-custom">للاعضاء المسجلين مسبقاً</p>
                 <form id="loginForm">
-                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" placeholder="example@mail.com" required></div>
-                    <div class="mb-3"><label class="form-label">رمز التحقق</label><input type="password" class="form-control" id="loginCode" placeholder="أدخل رمزك" required></div>
+                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" required placeholder="example@mail.com"></div>
+                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="loginPassword" required placeholder="********"></div>
                     <button type="submit" class="btn btn-gold w-100"><i class="fas fa-arrow-left"></i> دخول</button>
                 </form>
-                <p class="text-center mt-3"><a href="#register" class="text-secondary-custom" style="text-decoration:none;">ليس لديك حساب؟ سجل الآن</a></p>
+                <p class="text-center mt-3">ليس لديك حساب؟ <a href="#register" class="gold-text" style="text-decoration:none;">سجل الآن</a></p>
             </div>
         </section>
-
-        <!-- ===== SUPPORT ===== -->
-        <div class="support-box">
-            <div class="big-icon"><i class="fas fa-bolt"></i></div>
-            <h3 style="color:#d4af37;">تم تطوير هذه المنصة بواسطة</h3>
-            <div class="username">متجر عبود @u_t_r</div>
-            <p class="text-secondary-custom mt-3">للتواصل والاستفسارات والدعم الفني</p>
-            <a href="https://t.me/u_t_r" target="_blank" class="btn btn-gold"><i class="fab fa-telegram"></i> تواصل مع عبود</a>
-        </div>
 
     </div>
 
     <!-- ===== FOOTER ===== -->
     <footer>
         <div class="container">
-            <p><i class="fas fa-bolt gold"></i> <span class="gold">متجر عبود @u_t_r</span> — منصة الاختراقات الشاملة</p>
-            <p style="font-size:12px;color:#444;">⚠️ المحتوى للأغراض التعليمية والبحثية فقط. الاستخدام غير القانوني مسؤولية المستخدم.</p>
-            <p style="font-size:12px;color:#444;">جميع الحقوق محفوظة © 2026 | بدعم من <span class="gold">@u_t_r</span></p>
+            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — منصة وسيطة لخدمات التواصل الاجتماعي</p>
+            <p style="font-size:12px;color:#444;">جميع الحقوق محفوظة © 2026 | المطور: <span class="gold-text">@u_t_r</span></p>
         </div>
     </footer>
 
     <!-- ===== BOT STATUS ===== -->
     <div class="bot-status" id="botStatus">
         <span class="dot" id="botDot"></span>
-        <span id="botText">جاري ربط البوت...</span>
+        <span id="botText">جاري الاتصال...</span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        (function() {
-            // =============================================
-            // 1. BOT CONFIGURATION
-            // =============================================
-            const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-            const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
-            const DB_NAME = 'abdul_bot_db';
+        // ============================================================
+        // 1. CONFIGURATION
+        // ============================================================
+        const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+        const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+        const DEVELOPER_ID = '1170411845';
+        const DB_NAME = 'mediator_db';
+
+        // إعدادات المزود (سيتم تحديثها من لوحة المطور)
+        let PROVIDER_API_URL = 'https://api.newpanel.com/v2'; // استبدل برابط API الحقيقي
+        let PROVIDER_API_KEY = 'your_api_key_here'; // استبدل بمفتاحك الحقيقي
+
+        // ============================================================
+        // 2. DATABASE (localStorage)
+        // ============================================================
+        function getDB() {
+            try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"orders":[],"balance":{},"settings":{"providerUrl":"","providerKey":""}}'); } 
+            catch { return { users: [], orders: [], balance: {}, settings: { providerUrl: '', providerKey: '' } }; }
+        }
+        function saveDB(db) { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
+
+        function getUser(email) {
+            return getDB().users.find(u => u.email === email);
+        }
+
+        function getBalance(email) {
+            const db = getDB();
+            return db.balance[email] || 0;
+        }
+
+        function setBalance(email, amount) {
+            const db = getDB();
+            db.balance[email] = amount;
+            saveDB(db);
+        }
+
+        function addOrder(email, service, serviceId, link, quantity, price) {
+            const db = getDB();
+            const order = {
+                id: Date.now(),
+                email,
+                service,
+                serviceId,
+                link,
+                quantity,
+                price,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                providerOrderId: null,
+                startCounter: 0,
+                remains: 0
+            };
+            db.orders.push(order);
+            saveDB(db);
+            return order;
+        }
+
+        function updateOrder(orderId, updates) {
+            const db = getDB();
+            const idx = db.orders.findIndex(o => o.id === orderId);
+            if (idx !== -1) {
+                db.orders[idx] = { ...db.orders[idx], ...updates };
+                saveDB(db);
+                return db.orders[idx];
+            }
+            return null;
+        }
+
+        function getOrders(email) {
+            return getDB().orders.filter(o => o.email === email);
+        }
+
+        function getAllUsers() {
+            return getDB().users;
+        }
+
+        function getAllOrders() {
+            return getDB().orders;
+        }
+
+        function getSettings() {
+            const db = getDB();
+            return db.settings || { providerUrl: '', providerKey: '' };
+        }
+
+        function updateSettings(settings) {
+            const db = getDB();
+            db.settings = { ...db.settings, ...settings };
+            saveDB(db);
+        }
+
+        // ============================================================
+        // 3. PROVIDER API
+        // ============================================================
+        async function fetchServices() {
+            const settings = getSettings();
+            const url = settings.providerUrl || PROVIDER_API_URL;
+            const key = settings.providerKey || PROVIDER_API_KEY;
             
-            // =============================================
-            // 2. DATABASE (localStorage)
-            // =============================================
-            function getDB() {
-                try {
-                    return JSON.parse(localStorage.getItem(DB_NAME) || '{"members":[],"spamLogs":[],"settings":{}}');
-                } catch { return { members: [], spamLogs: [], settings: {} }; }
+            if (!url || !key) {
+                console.warn('⚠️ لم يتم تعيين إعدادات المزود');
+                return [];
             }
 
-            function saveDB(db) {
-                localStorage.setItem(DB_NAME, JSON.stringify(db));
-            }
-
-            function addMember(email, code) {
-                const db = getDB();
-                const newMember = {
-                    id: Date.now(),
-                    email,
-                    code,
-                    registeredAt: new Date().toISOString(),
-                    lastActive: new Date().toISOString(),
-                    status: 'active'
-                };
-                db.members.push(newMember);
-                saveDB(db);
-                return newMember;
-            }
-
-            function getMembers() {
-                return getDB().members;
-            }
-
-            function deleteMember(id) {
-                const db = getDB();
-                db.members = db.members.filter(m => m.id !== id);
-                saveDB(db);
-            }
-
-            function logSpam(action, target, count) {
-                const db = getDB();
-                db.spamLogs.push({
-                    id: Date.now(),
-                    action,
-                    target,
-                    count,
-                    timestamp: new Date().toISOString()
+            try {
+                const response = await fetch(`${url}/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: key, action: 'services' })
                 });
-                saveDB(db);
+                const data = await response.json();
+                return data.services || [];
+            } catch (error) {
+                console.error('❌ فشل جلب الخدمات:', error);
+                return [];
             }
+        }
 
-            function getSpamLogs() {
-                return getDB().spamLogs;
-            }
-
-            // =============================================
-            // 3. HACK NAMES WITH REAL LINKS
-            // =============================================
-            const hackNames = {
-                network: ["اختراق Wi-Fi WPA2", "ARP Spoofing", "Wireshark تحليل", "Deauth Attack", "اختراق WEP", "استغلال WPS", "MITM BetterCAP", "Evil Twin", "اختراق Bluetooth", "KRACK Attack", "اختراق 5G", "ZigBee استغلال", "RFID هجوم", "NFC استغلال", "اختراق الراوتر", "DNS Spoofing", "اختراق VPN", "UPnP استغلال", "LLMNR هجوم", "NBNS اختراق", "NetBIOS استغلال", "SMB Relay", "Active Directory", "Kerberos استغلال", "Golden Ticket", "Exchange اختراق", "SharePoint استغلال", "RDP هجوم", "SSH اختراق", "Telnet استغلال", "FTP هجوم", "SNMP استغلال", "ICMP Tunneling", "VLAN Hopping", "DHCP استغلال", "DNS Cache Poisoning"],
-                web: ["SQL Injection", "XSS", "CSRF", "SSRF", "XXE", "RCE", "LFI", "RFI", "Directory Traversal", "Command Injection", "LDAP Injection", "NoSQL Injection", "XPath Injection", "HTML Injection", "Code Injection", "Stored XSS", "Reflected XSS", "DOM XSS", "CSRF JSONP", "CSRF CORS", "SSRF Gopher", "XXE DOCTYPE", "RCE PHP", "RCE Python", "LFI PHP filters", "RFI SMB"],
-                social: ["Phishing", "Spear Phishing", "Whaling", "Vishing", "SMiShing", "كلونينغ", "التزوير", "الانتحال", "البريد المزيف", "روابط خبيثة", "مرفقات ضارة", "استغلال الثقة", "Social-Engineer Toolkit", "مواقع وهمية", "زرع برمجيات", "استغلال الكوكيز", "سرقة الجلسات", "Open Redirect", "OAuth استغلال", "JWT استغلال", "SSO استغلال", "Clickjacking", "WebSockets استغلال"],
-                system: ["EternalBlue", "MS17-010", "Mimikatz", "Pass-the-Hash", "Pass-the-Ticket", "Overpass-the-Hash", "Kerberoasting", "AS-REP Roasting", "SMBGhost", "BlueKeep", "DejaBlue", "SMBleed", "Kernel Exploit", "Dirty COW", "PwnKit", "Polkit", "Sudo استغلال", "SUID استغلال", "MacOS Gatekeeper", "TCC استغلال", "SIP استغلال", "Keychain استغلال", "Android استغلال", "iOS استغلال", "UEFI استغلال", "Hypervisor استغلال", "Docker استغلال", "Kubernetes استغلال"],
-                tools: ["Metasploit", "Nmap", "Burp Suite", "Wireshark", "Aircrack-ng", "BetterCAP", "Ettercap", "Kismet", "sqlmap", "OWASP ZAP", "Nikto", "OpenVAS", "Nessus", "Cobalt Strike", "Empire", "Hashcat", "John the Ripper", "Hydra", "Medusa", "Ncrack", "Cewl", "Crunch", "Reaver", "Wifite", "Kali Linux", "Parrot OS", "BlackArch", "Tails", "Whonix"]
-            };
-
-            const spamNames = [
-                "رشق أعضاء تلغرام (Telegram Member Spam)", "رشق مشاهدات تلغرام", "رشق تفاعل تلغرام",
-                "رشق أعضاء واتساب", "رشق مشاهدات واتساب", "رشق أعضاء إنستغرام",
-                "رشق مشاهدات إنستغرام", "رشق متابعين تويتر", "رشق مشاهدات تويتر",
-                "رشق أعضاء يوتيوب", "رشق مشاهدات يوتيوب", "رشق أعضاء فيسبوك",
-                "رشق مشاهدات فيسبوك", "رشق أعضاء سناب شات", "رشق مشاهدات سناب شات",
-                "رشق أعضاء تيك توك", "رشق مشاهدات تيك توك", "رشق أعضاء لينكد إن",
-                "رشق مشاهدات لينكد إن", "رشق أعضاء ديسكورد", "رشق أعضاء ريديت"
-            ];
-
-            const viewSpamNames = [
-                "رشق مشاهدات يوتيوب", "رشق مشاهدات تيك توك", "رشق مشاهدات إنستغرام",
-                "رشق مشاهدات فيسبوك", "رشق مشاهدات تويتر", "رشق مشاهدات سناب شات",
-                "رشق مشاهدات لينكد إن", "رشق مشاهدات واتساب", "رشق مشاهدات تلغرام",
-                "رشق مشاهدات ديسكورد", "رشق مشاهدات ريديت", "رشق مشاهدات شورتس"
-            ];
-
-            const baseLinks = {
-                network: "https://www.hackthebox.com/",
-                web: "https://portswigger.net/web-security/",
-                social: "https://www.social-engineer.org/",
-                system: "https://www.exploit-db.com/",
-                tools: "https://www.kali.org/tools/"
-            };
-
-            const spamLinks = [
-                "https://t.me/SpamBot", "https://t.me/TelegramSpam", "https://t.me/viewsbot",
-                "https://wa.me/", "https://www.instagram.com/", "https://twitter.com/",
-                "https://www.youtube.com/", "https://www.facebook.com/", "https://www.snapchat.com/",
-                "https://www.tiktok.com/", "https://www.linkedin.com/", "https://discord.com/",
-                "https://www.reddit.com/"
-            ];
-
-            // =============================================
-            // 4. GENERATE UI
-            // =============================================
-            function generateButtons(category, names, containerId, baseUrl) {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                let html = '';
-                names.forEach(name => {
-                    html += `<a href="${baseUrl}" target="_blank" class="hack-btn" onclick="return checkAccess(event, '${baseUrl}')">
-                        <i class="fas fa-bolt"></i> ${name}
-                    </a>`;
-                });
-                container.innerHTML = html;
-            }
-
-            function generateSpamButtons(names, containerId, links) {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-                let html = '';
-                names.forEach((name, index) => {
-                    const link = links[index % links.length];
-                    html += `<a href="${link}" target="_blank" class="hack-btn" onclick="return checkAccess(event, '${link}')">
-                        <i class="fas fa-bomb"></i> ${name}
-                    </a>`;
-                });
-                container.innerHTML = html;
-            }
-
-            generateButtons('network', hackNames.network, 'network-buttons', baseLinks.network);
-            generateButtons('web', hackNames.web, 'web-buttons', baseLinks.web);
-            generateButtons('social', hackNames.social, 'social-buttons', baseLinks.social);
-            generateButtons('system', hackNames.system, 'system-buttons', baseLinks.system);
-            generateButtons('tools', hackNames.tools, 'tools-buttons', baseLinks.tools);
-            generateSpamButtons(spamNames, 'spam-buttons', spamLinks);
-            generateSpamButtons(viewSpamNames, 'views-buttons', spamLinks);
-
-            // =============================================
-            // 5. ACCESS CHECK
-            // =============================================
-            window.checkAccess = function(e, link) {
-                const email = localStorage.getItem('userEmail');
-                const code = localStorage.getItem('userCode');
-                if (email && code) {
-                    sendBotMessage(`✅ مستخدم ${email} فتح الرابط: ${link}`);
-                    return true;
-                } else {
-                    alert('⚠️ يرجى تسجيل الدخول أولاً.');
-                    document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
-                    return false;
-                }
-            };
-
-            // =============================================
-            // 6. BOT FUNCTIONS
-            // =============================================
-            function sendBotMessage(text) {
-                if (!text) return;
-                const chatId = localStorage.getItem('chatId');
-                if (!chatId) {
-                    console.log('ℹ️ انتظر أول رسالة من المستخدم.');
-                    return;
-                }
-                fetch(`${BOT_API}/sendMessage`, {
+        async function placeProviderOrder(serviceId, link, quantity) {
+            const settings = getSettings();
+            const url = settings.providerUrl || PROVIDER_API_URL;
+            const key = settings.providerKey || PROVIDER_API_KEY;
+            
+            try {
+                const response = await fetch(`${url}/order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        chat_id: chatId,
-                        text: text,
-                        parse_mode: 'HTML'
+                        key: key,
+                        action: 'add',
+                        service: serviceId,
+                        link: link,
+                        quantity: quantity
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log('✅ تم إرسال الرسالة إلى البوت');
-                        updateBotStatus(true);
-                    } else {
-                        console.error('❌ فشل إرسال الرسالة:', data.description);
-                        updateBotStatus(false);
-                    }
-                })
-                .catch(err => {
-                    console.error('❌ خطأ في الاتصال بالبوت:', err);
-                    updateBotStatus(false);
                 });
+                return await response.json();
+            } catch (error) {
+                console.error('❌ فشل إرسال الطلب للمزود:', error);
+                return null;
             }
+        }
 
-            function updateBotStatus(connected) {
-                const dot = document.getElementById('botDot');
-                const text = document.getElementById('botText');
-                if (connected) {
-                    dot.style.background = '#3fb950';
-                    text.textContent = 'البوت متصل ✅';
-                } else {
-                    dot.style.background = '#f85149';
-                    text.textContent = 'البوت غير متصل ❌';
-                }
+        async function checkProviderStatus(orderId) {
+            const settings = getSettings();
+            const url = settings.providerUrl || PROVIDER_API_URL;
+            const key = settings.providerKey || PROVIDER_API_KEY;
+            
+            try {
+                const response = await fetch(`${url}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        key: key,
+                        action: 'status',
+                        order: orderId
+                    })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('❌ فشل التحقق من حالة الطلب:', error);
+                return null;
             }
+        }
 
-            // =============================================
-            // 7. DASHBOARD
-            // =============================================
-            function renderDashboard() {
-                const members = getMembers();
-                document.getElementById('totalMembers').textContent = members.length;
-                const today = new Date().toDateString();
-                const todayMembers = members.filter(m => new Date(m.registeredAt).toDateString() === today);
-                document.getElementById('todayMembers').textContent = todayMembers.length;
-                
-                // Render members table
-                const tbody = document.getElementById('membersTableBody');
-                if (members.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-secondary-custom">لا يوجد أعضاء مسجلين حتى الآن</td></tr>`;
-                } else {
-                    tbody.innerHTML = members.map((m, i) => `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td><span class="gold-text">${m.email}</span></td>
-                            <td><code>${m.code}</code></td>
-                            <td>${new Date(m.registeredAt).toLocaleString()}</td>
-                            <td>${new Date(m.lastActive).toLocaleString()}</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger-custom" onclick="deleteMemberHandler(${m.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-            }
+        // ============================================================
+        // 4. TELEGRAM BOT
+        // ============================================================
+        async function sendTelegramMessage(chatId, text, parseMode = 'HTML') {
+            if (!chatId) return;
+            try {
+                await fetch(`${BOT_API}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text, parse_mode: parseMode })
+                });
+            } catch (e) { console.error('❌ فشل إرسال رسالة:', e); }
+        }
 
-            window.deleteMemberHandler = function(id) {
-                if (confirm('⚠️ هل أنت متأكد من حذف هذا العضو؟')) {
-                    deleteMember(id);
-                    renderDashboard();
-                    sendBotMessage(`🗑️ تم حذف عضو برقم ${id}`);
-                }
+        async function notifyDeveloper(text) {
+            await sendTelegramMessage(DEVELOPER_ID, `🔔 <b>إشعار المطور</b>\n${text}`);
+        }
+
+        async function sendInvoice(chatId, stars, email) {
+            const amount = stars * 0.1;
+            const payload = {
+                chat_id: chatId,
+                title: `شراء ${stars} نجمة`,
+                description: `شحن رصيدك في منصة الوسيط`,
+                payload: JSON.stringify({ email, stars, amount }),
+                provider_token: '',
+                currency: 'XTR',
+                prices: [{ label: `${stars} نجمة`, amount: stars * 100 }],
+                start_parameter: `star_pay_${Date.now()}`
             };
 
-            // =============================================
-            // 8. SPAM SYSTEM
-            // =============================================
-            let spamInterval = null;
-            let spamRunning = false;
-
-            function startSpam() {
-                if (spamRunning) return;
-                const count = parseInt(document.getElementById('spamCount').value) || 100;
-                const target = document.getElementById('spamTarget').value || 'https://t.me/username';
-                
-                spamRunning = true;
-                document.getElementById('spamStatus').textContent = 'جاري الرشق...';
-                document.getElementById('spamStatus').className = 'badge bg-warning';
-                document.getElementById('startSpamBtn').disabled = true;
-                
-                let added = 0;
-                const total = count;
-                document.getElementById('spamTotal').textContent = total;
-                
-                // محاكاة إضافة أعضاء تدريجياً
-                spamInterval = setInterval(() => {
-                    if (added >= total) {
-                        stopSpam();
-                        return;
-                    }
-                    added += Math.floor(Math.random() * 5) + 1;
-                    if (added > total) added = total;
-                    document.getElementById('spamAdded').textContent = added;
-                    document.getElementById('spamProgress').style.width = `${(added / total) * 100}%`;
-                    document.getElementById('spamProgress').textContent = `${Math.round((added / total) * 100)}%`;
-                }, 200);
-
-                logSpam('start', target, total);
-                sendBotMessage(`🚀 بدء رشق ${total} عضو إلى ${target}`);
-            }
-
-            function stopSpam() {
-                if (spamInterval) {
-                    clearInterval(spamInterval);
-                    spamInterval = null;
-                }
-                spamRunning = false;
-                document.getElementById('spamStatus').textContent = 'متوقف';
-                document.getElementById('spamStatus').className = 'badge bg-secondary';
-                document.getElementById('startSpamBtn').disabled = false;
-                logSpam('stop', document.getElementById('spamTarget').value, 0);
-                sendBotMessage(`⏹️ تم إيقاف الرشق`);
-            }
-
-            document.getElementById('startSpamBtn').addEventListener('click', startSpam);
-            document.getElementById('stopSpamBtn').addEventListener('click', stopSpam);
-
-            // =============================================
-            // 9. REGISTER & LOGIN
-            // =============================================
-            document.getElementById('registerForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = document.getElementById('regEmail').value.trim();
-                const code = document.getElementById('regCode').value.trim();
-                if (email && code) {
-                    const member = addMember(email, code);
-                    localStorage.setItem('userEmail', email);
-                    localStorage.setItem('userCode', code);
-                    document.getElementById('registerMessage').innerHTML = `
-                        <div class="alert alert-success-custom">
-                            <i class="fas fa-check-circle" style="color:#3fb950;"></i>
-                            تم التسجيل بنجاح! يمكنك الآن الوصول إلى جميع الاختراقات والأكواد.
-                        </div>
-                    `;
-                    renderDashboard();
-                    sendBotMessage(`🆕 عضو جديد: ${email} (رمز: ${code})`);
-                    setTimeout(() => { window.location.href = '#hack-library'; }, 1500);
-                } else {
-                    document.getElementById('registerMessage').innerHTML = `
-                        <div class="alert alert-danger-custom">
-                            <i class="fas fa-exclamation-circle" style="color:#f85149;"></i>
-                            يرجى إدخال البريد الإلكتروني ورمز التحقق.
-                        </div>
-                    `;
-                }
-            });
-
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value.trim();
-                const code = document.getElementById('loginCode').value.trim();
-                const members = getMembers();
-                const found = members.find(m => m.email === email && m.code === code);
-                if (found) {
-                    localStorage.setItem('userEmail', email);
-                    localStorage.setItem('userCode', code);
-                    alert('✅ تم تسجيل الدخول بنجاح!');
-                    sendBotMessage(`🔓 مستخدم ${email} قام بتسجيل الدخول`);
-                    window.location.href = '#hack-library';
-                } else {
-                    alert('❌ البريد الإلكتروني أو رمز التحقق غير صحيح.');
-                }
-            });
-
-            // =============================================
-            // 10. CODES GENERATOR
-            // =============================================
-            const codesContainer = document.getElementById('codes-container');
-            let currentCodeCount = 0;
-            const totalCodes = 100000;
-
-            function generateCodeHTML(index) {
-                const exploits = [
-                    "SQL Injection", "XSS", "CSRF", "RCE", "LFI", "RFI",
-                    "Command Injection", "LDAP Injection", "NoSQL Injection",
-                    "Buffer Overflow", "Format String", "Heap Overflow",
-                    "Use After Free", "Double Free", "Race Condition",
-                    "Privilege Escalation", "DLL Hijacking", "Process Injection",
-                    "Token Impersonation", "Pass the Hash", "Pass the Ticket",
-                    "Kerberoasting", "AS-REP Roasting", "SMB Relay",
-                    "LLMNR Poisoning", "NBNS Poisoning", "DNS Cache Poisoning",
-                    "ARP Spoofing", "DHCP Starvation", "VLAN Hopping",
-                    "STP Attack", "CDP Attack", "LLDP Attack",
-                    "BGP Hijacking", "OSPF Attack", "EIGRP Attack",
-                    "RIP Attack", "IS-IS Attack", "MPLS Attack",
-                    "VXLAN Attack", "GRE Tunneling", "ICMP Tunneling",
-                    "DNS Tunneling", "HTTP Tunneling", "SSH Tunneling",
-                    "Port Forwarding", "SOCKS Proxy", "Reverse Shell",
-                    "Bind Shell", "Meterpreter", "Cobalt Strike Beacon"
-                ];
-                const exploit = exploits[index % exploits.length];
-                const code = `# Exploit: ${exploit} - Code #${index}\n# =====================================================\n# Author: @u_t_r\n# Description: Advanced ${exploit} exploitation technique\n# Usage: python exploit_${index}.py [target] [port]\n# =====================================================\n\nimport socket\nimport sys\nimport os\nimport time\n\ndef exploit(target, port):\n    try:\n        print(f"[+] Targeting {target}:{port} with ${exploit}")\n        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n        s.settimeout(5)\n        s.connect((target, port))\n        payload = b"${exploit}_payload_${index}"\n        s.send(payload)\n        response = s.recv(1024)\n        print(f"[+] Response: {response.decode('utf-8', errors='ignore')}")\n        s.close()\n        return True\n    except Exception as e:\n        print(f"[-] Error: {e}")\n        return False\n\nif __name__ == "__main__":\n    if len(sys.argv) < 3:\n        print("Usage: python exploit_${index}.py <target> <port>")\n        sys.exit(1)\n    target = sys.argv[1]\n    port = int(sys.argv[2])\n    exploit(target, port)\n`;
-                return { exploit, code };
-            }
-
-            function loadCodes(count) {
-                for (let i = currentCodeCount + 1; i <= currentCodeCount + count && i <= totalCodes; i++) {
-                    const { exploit, code } = generateCodeHTML(i);
-                    const card = document.createElement('div');
-                    card.className = 'card mt-3';
-                    card.innerHTML = `
-                        <div class="card-header"><i class="fas fa-terminal"></i> كود #${i} - ${exploit}</div>
-                        <div class="card-body">
-                            <div class="code-block" id="code-${i}">
-                                <button class="copy-btn" onclick="copyCode('code-${i}')"><i class="fas fa-copy"></i> نسخ</button>
-                                <pre style="margin:0;color:#e6e6e6;font-family:'Courier New',monospace;font-size:13px;white-space:pre-wrap;word-break:break-all;">${code}</pre>
-                            </div>
-                        </div>
-                    `;
-                    codesContainer.appendChild(card);
-                }
-                currentCodeCount += count;
-                if (currentCodeCount >= totalCodes) {
-                    document.getElementById('loadMoreCodes').style.display = 'none';
-                    document.getElementById('loadAllCodes').style.display = 'none';
-                }
-                if (count > 10) {
-                    sendBotMessage(`📚 تم تحميل ${count} كود جديد (المجموع: ${currentCodeCount})`);
-                }
-            }
-
-            window.copyCode = function(id) {
-                const container = document.getElementById(id);
-                if (!container) return;
-                const pre = container.querySelector('pre');
-                if (!pre) return;
-                const text = pre.textContent;
-                navigator.clipboard.writeText(text).then(() => {
-                    const btn = container.querySelector('.copy-btn');
-                    btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ';
-                    setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> نسخ'; }, 2000);
-                }).catch(() => {
-                    alert('❌ فشل النسخ، يرجى نسخ النص يدوياً.');
+            try {
+                const response = await fetch(`${BOT_API}/sendInvoice`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
-            };
+                return await response.json();
+            } catch (error) {
+                console.error('❌ خطأ في إرسال الفاتورة:', error);
+                return null;
+            }
+        }
 
-            loadCodes(10);
+        // ============================================================
+        // 5. TOAST NOTIFICATIONS
+        // ============================================================
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-custom ${type}`;
+            toast.innerHTML = `
+                <div class="title">${title}</div>
+                <div class="msg">${message}</div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 5000);
+        }
 
-            document.getElementById('loadMoreCodes').addEventListener('click', function() {
-                const email = localStorage.getItem('userEmail');
-                const code = localStorage.getItem('userCode');
-                if (!email || !code) {
-                    alert('⚠️ يرجى تسجيل الدخول أولاً.');
-                    document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
-                    return;
-                }
-                loadCodes(100);
-            });
+        // ============================================================
+        // 6. UI RENDERERS
+        // ============================================================
+        function renderServices(services) {
+            const container = document.getElementById('servicesContainer');
+            if (!services || services.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-secondary-custom">لا توجد خدمات متاحة حالياً</div>';
+                return;
+            }
+            container.innerHTML = services.map(s => `
+                <div class="col-md-4 col-lg-3">
+                    <div class="service-card" onclick="openOrderModal('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})">
+                        <div class="icon"><i class="fas fa-${s.icon || 'bolt'}"></i></div>
+                        <div class="name">${s.name}</div>
+                        <div class="price">${s.price} $</div>
+                        <button class="btn btn-gold btn-sm btn-order"><i class="fas fa-shopping-cart"></i> طلب</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            document.getElementById('loadAllCodes').addEventListener('click', function() {
-                const email = localStorage.getItem('userEmail');
-                const code = localStorage.getItem('userCode');
-                if (!email || !code) {
-                    alert('⚠️ يرجى تسجيل الدخول أولاً.');
-                    document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
-                    return;
-                }
-                if (confirm('⚠️ سيتم تحميل 100,000 كود. قد يستغرق ذلك بعض الوقت. هل تريد المتابعة؟')) {
-                    loadCodes(100000 - currentCodeCount);
-                }
-            });
+        function renderOrders(email) {
+            const orders = getOrders(email);
+            const tbody = document.getElementById('ordersTableBody');
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
+                return;
+            }
+            tbody.innerHTML = orders.map((o, i) => `
+                <tr>
+                    <td>${i+1}</td>
+                    <td>${o.service}</td>
+                    <td><span class="small">${o.link}</span></td>
+                    <td>${o.quantity}</td>
+                    <td>${o.price.toFixed(2)} $</td>
+                    <td><span class="order-status ${o.status}">${o.status}</span></td>
+                    <td>${new Date(o.createdAt).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
 
-            // =============================================
-            // 11. BOT INITIALIZATION
-            // =============================================
-            function initBot() {
-                fetch(`${BOT_API}/getMe`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.ok) {
-                            console.log('✅ البوت متصل:', data.result.username);
-                            updateBotStatus(true);
-                            const chatId = localStorage.getItem('chatId');
-                            if (!chatId) {
-                                console.log('ℹ️ انتظر أول رسالة من المستخدم لتحديد chat_id');
-                            }
-                        } else {
-                            console.error('❌ فشل الاتصال بالبوت:', data.description);
-                            updateBotStatus(false);
-                        }
-                    })
-                    .catch(err => {
-                        console.error('❌ خطأ في الاتصال بالبوت:', err);
-                        updateBotStatus(false);
+        function updateDashboard(email) {
+            const balance = getBalance(email);
+            document.getElementById('userBalance').textContent = balance.toFixed(2) + ' $';
+            
+            const orders = getOrders(email);
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('activeOrders').textContent = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+            document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
+            const spent = orders.reduce((sum, o) => sum + o.price, 0);
+            document.getElementById('spentAmount').textContent = spent.toFixed(2) + ' $';
+        }
+
+        function updateDevStats() {
+            const users = getAllUsers();
+            const orders = getAllOrders();
+            document.getElementById('devTotalUsers').textContent = users.length;
+            document.getElementById('devTotalOrders').textContent = orders.length;
+            const profit = orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price * 0.2), 0);
+            document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
+            
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(o => new Date(o.createdAt).toDateString() === today);
+            document.getElementById('devTodayOrders').textContent = todayOrders.length;
+        }
+
+        // ============================================================
+        // 7. ORDER MODAL (نافذة الطلب)
+        // ============================================================
+        function openOrderModal(serviceId, serviceName, price) {
+            const email = localStorage.getItem('userEmail');
+            if (!email) {
+                showToast('⚠️ تنبيه', 'يرجى تسجيل الدخول أولاً.', 'error');
+                document.getElementById('login').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // نافذة مخصصة للطلب
+            const link = prompt('أدخل رابط الحساب أو المنشور:');
+            if (!link) return;
+
+            const quantity = prompt('أدخل الكمية المطلوبة:', '100');
+            if (!quantity || isNaN(quantity) || parseInt(quantity) < 1) {
+                showToast('⚠️ تنبيه', 'الكمية غير صحيحة.', 'error');
+                return;
+            }
+
+            const totalPrice = price * parseInt(quantity);
+            const balance = getBalance(email);
+
+            if (balance < totalPrice) {
+                showToast('⚠️ رصيد غير كافٍ', `رصيدك: ${balance.toFixed(2)} $، المطلوب: ${totalPrice.toFixed(2)} $`, 'error');
+                document.getElementById('charge').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // تأكيد الطلب
+            if (!confirm(`✅ تأكيد الطلب:\nالخدمة: ${serviceName}\nالكمية: ${quantity}\nالسعر: ${totalPrice.toFixed(2)} $\nهل تريد المتابعة؟`)) {
+                return;
+            }
+
+            // تنفيذ الطلب
+            executeOrder(email, serviceId, serviceName, link, quantity, totalPrice);
+        }
+
+        async function executeOrder(email, serviceId, serviceName, link, quantity, totalPrice) {
+            showToast('⏳ جاري التنفيذ', 'يتم معالجة طلبك...', 'info');
+
+            // خصم الرصيد
+            const currentBalance = getBalance(email);
+            setBalance(email, currentBalance - totalPrice);
+
+            // إنشاء الطلب
+            const order = addOrder(email, serviceName, serviceId, link, quantity, totalPrice);
+
+            try {
+                // إرسال الطلب إلى المزود
+                const providerResponse = await placeProviderOrder(serviceId, link, quantity);
+                
+                if (providerResponse && providerResponse.order) {
+                    // تحديث الطلب بمعرف المزود
+                    updateOrder(order.id, {
+                        status: 'processing',
+                        providerOrderId: providerResponse.order
                     });
+                    
+                    showToast('✅ تم الإرسال', `تم إرسال الطلب بنجاح! رقم الطلب: ${providerResponse.order}`, 'success');
+                    await notifyDeveloper(`📦 طلب جديد من ${email}\nالخدمة: ${serviceName}\nالكمية: ${quantity}\nالسعر: ${totalPrice.toFixed(2)} $\nرقم الطلب: ${providerResponse.order}`);
+                    
+                    // بدء متابعة حالة الطلب
+                    startOrderTracking(order.id, providerResponse.order);
+                } else {
+                    // فشل الإرسال - إعادة الرصيد
+                    setBalance(email, currentBalance);
+                    const db = getDB();
+                    db.orders = db.orders.filter(o => o.id !== order.id);
+                    saveDB(db);
+                    
+                    showToast('❌ فشل الإرسال', 'فشل إرسال الطلب إلى المزود. تم إعادة الرصيد.', 'error');
+                    await notifyDeveloper(`❌ فشل طلب من ${email}\nالخدمة: ${serviceName}\nالسبب: فشل الاتصال بالمزود`);
+                }
+            } catch (error) {
+                // خطأ - إعادة الرصيد
+                setBalance(email, currentBalance);
+                const db = getDB();
+                db.orders = db.orders.filter(o => o.id !== order.id);
+                saveDB(db);
+                
+                showToast('❌ خطأ', 'حدث خطأ غير متوقع. تم إعادة الرصيد.', 'error');
+                await notifyDeveloper(`❌ خطأ في طلب ${email}: ${error.message}`);
             }
 
-            // =============================================
-            // 12. INIT
-            // =============================================
-            renderDashboard();
-            initBot();
+            // تحديث الواجهة
+            renderOrders(email);
+            updateDashboard(email);
+        }
 
-            window.sendBotMessage = sendBotMessage;
-            window.updateBotStatus = updateBotStatus;
+        // ============================================================
+        // 8. ORDER TRACKING (متابعة الطلبات)
+        // ============================================================
+        let trackingIntervals = {};
 
-            console.log('✅ تم تحميل متجر عبود @u_t_r مع جميع الميزات');
-            console.log('📌 توكن البوت:', BOT_TOKEN);
-            console.log('📌 رابط البوت:', `https://t.me/${BOT_TOKEN.split(':')[0]}`);
-            console.log('📌 عدد الأعضاء المسجلين:', getMembers().length);
+        function startOrderTracking(orderId, providerOrderId) {
+            if (trackingIntervals[orderId]) {
+                clearInterval(trackingIntervals[orderId]);
+            }
 
-        })();
+            trackingIntervals[orderId] = setInterval(async () => {
+                try {
+                    const status = await checkProviderStatus(providerOrderId);
+                    if (status && status.status) {
+                        const db = getDB();
+                        const order = db.orders.find(o => o.id === orderId);
+                        if (!order) {
+                            clearInterval(trackingIntervals[orderId]);
+                            delete trackingIntervals[orderId];
+                            return;
+                        }
+
+                        let newStatus = order.status;
+                        if (status.status === 'Completed' || status.status === 'completed') {
+                            newStatus = 'completed';
+                            clearInterval(trackingIntervals[orderId]);
+                            delete trackingIntervals[orderId];
+                            showToast('✅ اكتمل الطلب', `الطلب #${orderId} اكتمل بنجاح!`, 'success');
+                            await notifyDeveloper(`✅ اكتمل الطلب #${orderId} للمستخدم ${order.email}`);
+                        } else if (status.status === 'Processing' || status.status === 'processing') {
+                            newStatus = 'processing';
+                        } else if (status.status === 'Error' || status.status === 'error') {
+                            newStatus = 'failed';
+                            clearInterval(trackingIntervals[orderId]);
+                            delete trackingIntervals[orderId];
+                            showToast('❌ فشل الطلب', `الطلب #${orderId} فشل.`, 'error');
+                            await notifyDeveloper(`❌ فشل الطلب #${orderId} للمستخدم ${order.email}`);
+                        }
+
+                        if (newStatus !== order.status) {
+                            updateOrder(orderId, { 
+                                status: newStatus,
+                                startCounter: status.start_counter || 0,
+                                remains: status.remains || 0
+                            });
+                            renderOrders(localStorage.getItem('userEmail'));
+                            updateDashboard(localStorage.getItem('userEmail'));
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ خطأ في متابعة الطلب:', error);
+                }
+            }, 30000); // كل 30 ثانية
+        }
+
+        // ============================================================
+        // 9. CHARGE STARS
+        // ============================================================
+        window.chargeStars = async function(stars) {
+            const email = localStorage.getItem('userEmail');
+            if (!email) {
+                showToast('⚠️ تنبيه', 'يرجى تسجيل الدخول أولاً.', 'error');
+                document.getElementById('login').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            const user = getUser(email);
+            if (!user || !user.telegramId) {
+                showToast('⚠️ تنبيه', 'يرجى ربط حساب تيليجرام الخاص بك أولاً.', 'error');
+                document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            const result = await sendInvoice(user.telegramId, stars, email);
+            if (result && result.ok) {
+                showToast('✅ تم الإرسال', 'تم إرسال فاتورة الدفع إلى بوت تيليجرام.', 'success');
+                await notifyDeveloper(`💳 طلب شحن من ${email}\nالنجوم: ${stars}\nالمبلغ: ${(stars * 0.1).toFixed(2)} $`);
+            } else {
+                showToast('❌ فشل', result?.description || 'فشل إنشاء الفاتورة.', 'error');
+            }
+        };
+
+        // ============================================================
+        // 10. DEV PANEL FUNCTIONS
+        // ============================================================
+        window.devAddBalance = async function() {
+            const email = document.getElementById('devUserEmail').value.trim();
+            if (!email) { showToast('⚠️ تنبيه', 'أدخل البريد الإلكتروني', 'error'); return; }
+            const amount = parseFloat(prompt('أدخل المبلغ المراد إضافته:'));
+            if (!amount || amount <= 0) { showToast('⚠️ تنبيه', 'مبلغ غير صحيح', 'error'); return; }
+            
+            const user = getUser(email);
+            if (!user) { showToast('❌ خطأ', 'المستخدم غير موجود', 'error'); return; }
+            
+            const current = getBalance(email);
+            setBalance(email, current + amount);
+            if (user.telegramId) {
+                await sendTelegramMessage(user.telegramId, `✅ تم إضافة ${amount.toFixed(2)} $ إلى رصيدك. الرصيد الحالي: ${(current + amount).toFixed(2)} $`);
+            }
+            await notifyDeveloper(`➕ تم إضافة ${amount.toFixed(2)} $ للمستخدم ${email} بواسطة المطور`);
+            showToast('✅ تم الإضافة', `تم إضافة ${amount.toFixed(2)} $ إلى ${email}`, 'success');
+            updateDevStats();
+            if (localStorage.getItem('userEmail') === email) {
+                updateDashboard(email);
+            }
+        };
+
+        window.devBroadcast = async function() {
+            const msg = document.getElementById('devBroadcastMsg').value.trim();
+            if (!msg) { showToast('⚠️ تنبيه', 'أدخل رسالة', 'error'); return; }
+            
+            const users = getAllUsers();
+            let sent = 0;
+            for (const user of users) {
+                if (user.telegramId) {
+                    await sendTelegramMessage(user.telegramId, `📢 <b>إعلان هام</b>\n${msg}`);
+                    sent++;
+                }
+            }
+            await notifyDeveloper(`📢 تم إرسال إعلان إلى ${sent} مستخدم`);
+            showToast('✅ تم الإرسال', `تم إرسال الإعلان إلى ${sent} مستخدم`, 'success');
+            document.getElementById('devBroadcastMsg').value = '';
+        };
+
+        window.devUpdateProvider = function() {
+            const url = document.getElementById('devProviderSettings').value.trim();
+            if (!url) { showToast('⚠️ تنبيه', 'أدخل رابط API', 'error'); return; }
+            updateSettings({ providerUrl: url });
+            PROVIDER_API_URL = url;
+            showToast('✅ تم التحديث', 'تم تحديث رابط المزود بنجاح', 'success');
+            notifyDeveloper(`🔄 تم تحديث رابط المزود إلى: ${url}`);
+            // إعادة تحميل الخدمات
+            loadServices();
+        };
+
+        window.devRefreshStats = function() {
+            updateDevStats();
+            showToast('✅ تم التحديث', 'تم تحديث الإحصائيات', 'success');
+        };
+
+        window.devExportData = function() {
+            const db = getDB();
+            const data = {
+                exportedAt: new Date().toISOString(),
+                version: '1.0',
+                ...db
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mediator_backup_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('✅ تم التصدير', 'تم تصدير البيانات بنجاح', 'success');
+            notifyDeveloper(`📤 تم تصدير بيانات المنصة`);
+        };
+
+        // ============================================================
+        // 11. LOAD SERVICES
+        // ============================================================
+        async function loadServices() {
+            const container = document.getElementById('servicesContainer');
+            container.innerHTML = '<div class="col-12 text-center text-secondary-custom"><div class="spinner"></div> جاري تحميل الخدمات...</div>';
+            
+            const services = await fetchServices();
+            renderServices(services);
+            
+            if (services.length === 0) {
+                showToast('⚠️ تنبيه', 'لم يتم العثور على خدمات. تأكد من إعدادات المزود.', 'error');
+            }
+        }
+
+        // ============================================================
+        // 12. AUTH
+        // ============================================================
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const telegram = document.getElementById('regTelegram').value.trim();
+            if (!email || !password) {
+                showToast('⚠️ تنبيه', 'يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+
+            const db = getDB();
+            if (db.users.find(u => u.email === email)) {
+                showToast('⚠️ تنبيه', 'هذا البريد مسجل مسبقاً.', 'error');
+                return;
+            }
+
+            db.users.push({ email, password, telegramId: telegram, createdAt: new Date().toISOString() });
+            saveDB(db);
+            localStorage.setItem('userEmail', email);
+            showToast('✅ تم التسجيل', 'تم التسجيل بنجاح!', 'success');
+            notifyDeveloper(`🆕 مستخدم جديد: ${email} (تيليجرام: ${telegram || 'غير مرتبط'})`);
+            updateUIAfterLogin(email);
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const user = getUser(email);
+            if (user && user.password === password) {
+                localStorage.setItem('userEmail', email);
+                showToast('✅ تم الدخول', 'تم تسجيل الدخول بنجاح!', 'success');
+                notifyDeveloper(`🔓 المستخدم ${email} قام بتسجيل الدخول`);
+                updateUIAfterLogin(email);
+            } else {
+                showToast('❌ خطأ', 'البريد أو كلمة المرور غير صحيحة.', 'error');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('userEmail');
+            showToast('✅ تم الخروج', 'تم تسجيل الخروج بنجاح.', 'success');
+            updateUIAfterLogout();
+        });
+
+        // ============================================================
+        // 13. UI UPDATE FUNCTIONS
+        // ============================================================
+        function updateUIAfterLogin(email) {
+            document.getElementById('userInfo').style.display = 'inline';
+            document.getElementById('userEmailDisplay').textContent = `👤 ${email}`;
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'inline';
+            
+            // التحقق من صلاحيات المطور
+            const user = getUser(email);
+            if (user && email === 'developer@mediator.com') { // يمكن تعديل هذا الشرط
+                document.getElementById('devNavItem').style.display = 'inline';
+                document.getElementById('dev-panel').style.display = 'block';
+            }
+
+            updateDashboard(email);
+            renderOrders(email);
+            loadServices();
+        }
+
+        function updateUIAfterLogout() {
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('loginBtn').style.display = 'inline';
+            document.getElementById('registerBtn').style.display = 'inline';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('devNavItem').style.display = 'none';
+            document.getElementById('dev-panel').style.display = 'none';
+            
+            document.getElementById('userBalance').textContent = '0.00 $';
+            document.getElementById('totalOrders').textContent = '0';
+            document.getElementById('activeOrders').textContent = '0';
+            document.getElementById('completedOrders').textContent = '0';
+            document.getElementById('spentAmount').textContent = '0.00 $';
+            document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
+            document.getElementById('servicesContainer').innerHTML = '<div class="col-12 text-center text-secondary-custom">يرجى تسجيل الدخول لعرض الخدمات.</div>';
+        }
+
+        // ============================================================
+        // 14. BOT WEBHOOK HANDLER (محاكاة)
+        // ============================================================
+        // في الواقع، هذا الجزء يجب أن يكون في ملف منفصل (bot.php أو bot.js)
+        // لكننا نضيفه هنا لمحاكاة استقبال الرسائل من البوت
+
+        // معالج أوامر المطور عبر البوت
+        async function handleBotCommand(text, chatId) {
+            if (String(chatId) !== DEVELOPER_ID) {
+                await sendTelegramMessage(chatId, '⛔ أنت غير مخول لاستخدام هذا البوت.');
+                return;
+            }
+
+            if (text.startsWith('/stats')) {
+                const users = getAllUsers();
+                const orders = getAllOrders();
+                const profit = orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price * 0.2), 0);
+                await sendTelegramMessage(chatId, 
+                    `📊 <b>إحصائيات المنصة</b>\n` +
+                    `👥 المستخدمين: ${users.length}\n` +
+                    `📦 الطلبات: ${orders.length}\n` +
+                    `💰 الأرباح: ${profit.toFixed(2)} $`
+                );
+            }
+            else if (text.startsWith('/addbalance ')) {
+                const parts = text.split(' ');
+                if (parts.length < 3) {
+                    await sendTelegramMessage(chatId, '⚠️ استخدم: /addbalance email@example.com 10');
+                    return;
+                }
+                const email = parts[1];
+                const amount = parseFloat(parts[2]);
+                if (!amount || amount <= 0) {
+                    await sendTelegramMessage(chatId, '⚠️ مبلغ غير صحيح');
+                    return;
+                }
+                const user = getUser(email);
+                if (!user) {
+                    await sendTelegramMessage(chatId, '❌ المستخدم غير موجود');
+                    return;
+                }
+                const current = getBalance(email);
+                setBalance(email, current + amount);
+                if (user.telegramId) {
+                    await sendTelegramMessage(user.telegramId, `✅ تم إضافة ${amount.toFixed(2)} $ إلى رصيدك. الرصيد الحالي: ${(current + amount).toFixed(2)} $`);
+                }
+                await sendTelegramMessage(chatId, `✅ تم إضافة ${amount.toFixed(2)} $ إلى ${email}`);
+                await notifyDeveloper(`➕ تم إضافة ${amount.toFixed(2)} $ للمستخدم ${email} عبر البوت`);
+            }
+            else if (text === '/users') {
+                const users = getAllUsers();
+                let list = users.map(u => `${u.email} (${u.telegramId || 'غير مرتبط'})`).join('\n') || 'لا يوجد مستخدمين';
+                await sendTelegramMessage(chatId, `👥 <b>قائمة المستخدمين</b>\n${list}`);
+            }
+            else if (text === '/help') {
+                await sendTelegramMessage(chatId, 
+                    `🛠 <b>أوامر المطور</b>\n` +
+                    `/stats - إحصائيات المنصة\n` +
+                    `/users - قائمة المستخدمين\n` +
+                    `/addbalance email@example.com 10 - إضافة رصيد\n` +
+                    `/help - هذه الرسالة`
+                );
+            }
+        }
+
+        // محاكاة استقبال الرسائل (في الواقع تستخدم Webhook)
+        // هنا نضيف مستمعاً للرسائل القادمة من البوت (عند تعيين Webhook)
+        // لكن في هذا الملف، سنستخدم آلية بسيطة للاختبار
+
+        // ============================================================
+        // 15. INIT
+        // ============================================================
+        async function init() {
+            const email = localStorage.getItem('userEmail');
+            if (email) {
+                const user = getUser(email);
+                if (user) {
+                    updateUIAfterLogin(email);
+                    // التحقق من صلاحيات المطور
+                    if (email === 'developer@mediator.com') {
+                        document.getElementById('devNavItem').style.display = 'inline';
+                        document.getElementById('dev-panel').style.display = 'block';
+                    }
+                } else {
+                    localStorage.removeItem('userEmail');
+                    updateUIAfterLogout();
+                }
+            } else {
+                updateUIAfterLogout();
+            }
+
+            // تحميل الخدمات إذا كان المستخدم مسجلاً
+            if (email) {
+                await loadServices();
+            }
+
+            // تحديث لوحة المطور
+            updateDevStats();
+
+            // حالة البوت
+            try {
+                const resp = await fetch(`${BOT_API}/getMe`);
+                const data = await resp.json();
+                if (data.ok) {
+                    document.getElementById('botDot').style.background = '#3fb950';
+                    document.getElementById('botText').textContent = `البوت ${data.result.username} متصل ✅`;
+                    await notifyDeveloper('✅ تم تشغيل منصة الوسيط بنجاح');
+                } else {
+                    document.getElementById('botDot').style.background = '#f85149';
+                    document.getElementById('botText').textContent = 'البوت غير متصل ❌';
+                }
+            } catch (e) {
+                document.getElementById('botDot').style.background = '#f85149';
+                document.getElementById('botText').textContent = 'فشل الاتصال بالبوت ❌';
+            }
+        }
+
+        // بدء التطبيق
+        init();
+
+        // ربط الدوال العامة
+        window.devAddBalance = devAddBalance;
+        window.devBroadcast = devBroadcast;
+        window.devUpdateProvider = devUpdateProvider;
+        window.devRefreshStats = devRefreshStats;
+        window.devExportData = devExportData;
+        window.chargeStars = chargeStars;
+        window.openOrderModal = openOrderModal;
+
+        console.log('✅ تم تحميل منصة الوسيط بالكامل');
+        console.log(`👤 المطور ID: ${DEVELOPER_ID}`);
+        console.log(`🤖 توكن البوت: ${BOT_TOKEN}`);
+        console.log('📌 للتحكم بالمزود، استخدم لوحة المطور');
+
+        // ============================================================
+        // 16. معالج Webhook للبوت (يُستدعى من خارج الملف)
+        // ============================================================
+        // هذا الكود يجب أن يُوضع في ملف منفصل (bot.php) ويتم تعيينه كـ Webhook
+        // لكن نضيفه هنا للتوضيح
+
+        window.handleTelegramWebhook = async function(update) {
+            try {
+                if (update.message && update.message.text) {
+                    const chatId = update.message.chat.id;
+                    const text = update.message.text;
+                    
+                    // تخزين chatId للمستخدم
+                    const email = localStorage.getItem('userEmail');
+                    if (email) {
+                        const user = getUser(email);
+                        if (user && !user.telegramId) {
+                            const db = getDB();
+                            const userIdx = db.users.findIndex(u => u.email === email);
+                            if (userIdx !== -1) {
+                                db.users[userIdx].telegramId = String(chatId);
+                                saveDB(db);
+                            }
+                        }
+                    }
+
+                    // معالجة أوامر المطور
+                    if (text.startsWith('/')) {
+                        await handleBotCommand(text, String(chatId));
+                    }
+                }
+
+                // معالجة الدفع الناجح
+                if (update.message && update.message.successful_payment) {
+                    const payment = update.message.successful_payment;
+                    const chatId = String(update.message.chat.id);
+                    const payload = JSON.parse(payment.payload || '{}');
+                    const { email, stars, amount } = payload;
+                    
+                    if (email && stars) {
+                        const current = getBalance(email);
+                        setBalance(email, current + amount);
+                        await sendTelegramMessage(chatId, `✅ تم شحن رصيدك بنجاح!\nالمبلغ: ${amount.toFixed(2)} $\nالرصيد الحالي: ${(current + amount).toFixed(2)} $`);
+                        await notifyDeveloper(`💰 تم شحن ${amount.toFixed(2)} $ للمستخدم ${email} عبر نجوم تيليجرام`);
+                        if (localStorage.getItem('userEmail') === email) {
+                            updateDashboard(email);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ خطأ في معالج Webhook:', error);
+            }
+        };
+
+        console.log('✅ جاهز لاستقبال Webhook من تيليجرام');
     </script>
-
 </body>
 </html>
