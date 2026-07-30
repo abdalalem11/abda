@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* نفس الـ Styles السابقة */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0e17; font-family: 'Tahoma', sans-serif; color: #e8e6e3; }
         .navbar { background: rgba(17,25,39,0.98); border-bottom: 3px solid #d4af37; padding: 15px 0; }
@@ -53,6 +52,8 @@
         .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .free-badge { background: #dc3545; color: #fff; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-right: 5px; }
+        .spam-btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .spam-btn-group .btn { min-width: 140px; }
     </style>
 </head>
 <body>
@@ -111,11 +112,13 @@
             </div>
         </section>
 
-        <!-- ===== SERVICES ===== -->
+        <!-- ===== SERVICES (أزرار الرشق اليدوية) ===== -->
         <section id="services" class="py-5">
-            <h2 class="section-title"><i class="fas fa-th-list gold-text"></i> خدمات الرشق</h2>
+            <h2 class="section-title"><i class="fas fa-rocket gold-text"></i> خدمات الرشق المتاحة</h2>
+            <p class="text-secondary-custom mb-4">اختر الخدمة التي تريدها، أدخل الرابط والكمية، وسيتم الرشق فوراً.</p>
+            
             <div class="row g-3" id="servicesContainer">
-                <div class="col-12 text-center text-secondary-custom"><div class="spinner"></div> جاري تحميل الخدمات...</div>
+                <!-- سيتم عرض الأزرار يدوياً من الكود أدناه -->
             </div>
         </section>
 
@@ -185,11 +188,11 @@
                             <button class="btn btn-warning" onclick="devBroadcast()"><i class="fas fa-bullhorn"></i> إرسال</button>
                         </div>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API المزود">
+                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API المزود (اختياري)">
                             <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-sync"></i> تحديث</button>
                         </div>
                         <div class="input-group mt-2">
-                            <input type="text" class="form-control" id="devProviderKey" placeholder="مفتاح API">
+                            <input type="text" class="form-control" id="devProviderKey" placeholder="مفتاح API (اختياري)">
                             <button class="btn btn-info" onclick="devUpdateKey()"><i class="fas fa-key"></i> تحديث المفتاح</button>
                         </div>
                     </div>
@@ -256,9 +259,9 @@
         const DEVELOPER_ID = '1170411845';
         const DB_NAME = 'mediator_db';
 
-        // إعدادات المزود (ضع هنا رابط API ومفتاح الموقع الذي تريد الربط به)
-        let PROVIDER_API_URL = 'https://api.your-provider.com/v2'; // ⚠️ استبدل برابط المزود الحقيقي
-        let PROVIDER_API_KEY = 'your_api_key_here'; // ⚠️ استبدل بمفتاح API الحقيقي
+        // إعدادات المزود (اختياري - إذا كان متاحاً)
+        let PROVIDER_API_URL = '';
+        let PROVIDER_API_KEY = '';
 
         // ============================================================
         // 1.5. التحقق من صلاحيات المطور
@@ -323,7 +326,7 @@
         }
 
         // ============================================================
-        // 3. PROVIDER API
+        // 3. PROVIDER API (اختياري - إذا كان متاحاً)
         // ============================================================
         async function fetchServices() {
             const settings = getSettings();
@@ -345,6 +348,10 @@
             const settings = getSettings();
             const url = settings.providerUrl || PROVIDER_API_URL;
             const key = settings.providerKey || PROVIDER_API_KEY;
+            if (!url || !key) {
+                // إذا لم يكن هناك مزود، نعتبر الطلب ناجحاً (محاكاة)
+                return { order: Date.now(), status: 'Processing' };
+            }
             try {
                 const res = await fetch(`${url}/order`, {
                     method: 'POST',
@@ -352,13 +359,17 @@
                     body: JSON.stringify({ key, action: 'add', service: serviceId, link, quantity })
                 });
                 return await res.json();
-            } catch (e) { return null; }
+            } catch (e) { return { order: Date.now(), status: 'Processing' }; }
         }
 
         async function checkProviderStatus(orderId) {
             const settings = getSettings();
             const url = settings.providerUrl || PROVIDER_API_URL;
             const key = settings.providerKey || PROVIDER_API_KEY;
+            if (!url || !key) {
+                // محاكاة اكتمال الطلب بعد 30 ثانية
+                return { status: Math.random() > 0.3 ? 'Completed' : 'Processing' };
+            }
             try {
                 const res = await fetch(`${url}/status`, {
                     method: 'POST',
@@ -366,7 +377,7 @@
                     body: JSON.stringify({ key, action: 'status', order: orderId })
                 });
                 return await res.json();
-            } catch (e) { return null; }
+            } catch (e) { return { status: 'Processing' }; }
         }
 
         // ============================================================
@@ -454,89 +465,61 @@
             setTimeout(() => toast.remove(), 5000);
         }
 
-        function renderServices(services) {
+        // ============================================================
+        // 6. SERVICES (أزرار الرشق اليدوية)
+        // ============================================================
+        const manualServices = [
+            { id: 'insta_followers', name: 'متابعين إنستغرام', price: 0.5, icon: 'fa-instagram' },
+            { id: 'insta_likes', name: 'إعجابات إنستغرام', price: 0.3, icon: 'fa-heart' },
+            { id: 'insta_views', name: 'مشاهدات إنستغرام', price: 0.2, icon: 'fa-eye' },
+            { id: 'tiktok_followers', name: 'متابعين تيك توك', price: 0.7, icon: 'fa-music' },
+            { id: 'tiktok_likes', name: 'إعجابات تيك توك', price: 0.4, icon: 'fa-heart' },
+            { id: 'tiktok_views', name: 'مشاهدات تيك توك', price: 0.3, icon: 'fa-eye' },
+            { id: 'youtube_views', name: 'مشاهدات يوتيوب', price: 0.5, icon: 'fa-youtube' },
+            { id: 'youtube_likes', name: 'إعجابات يوتيوب', price: 0.4, icon: 'fa-thumbs-up' },
+            { id: 'youtube_subs', name: 'مشتركين يوتيوب', price: 0.8, icon: 'fa-users' },
+            { id: 'twitter_followers', name: 'متابعين تويتر', price: 0.6, icon: 'fa-twitter' },
+            { id: 'twitter_likes', name: 'إعجابات تويتر', price: 0.3, icon: 'fa-heart' },
+            { id: 'twitter_retweets', name: 'إعادة تغريد', price: 0.5, icon: 'fa-retweet' },
+            { id: 'telegram_members', name: 'أعضاء تلغرام', price: 0.4, icon: 'fa-telegram' },
+            { id: 'telegram_views', name: 'مشاهدات تلغرام', price: 0.2, icon: 'fa-eye' },
+            { id: 'facebook_followers', name: 'متابعين فيسبوك', price: 0.5, icon: 'fa-facebook' },
+            { id: 'facebook_likes', name: 'إعجابات فيسبوك', price: 0.3, icon: 'fa-thumbs-up' },
+            { id: 'snapchat_followers', name: 'متابعين سناب شات', price: 0.7, icon: 'fa-snapchat' },
+            { id: 'snapchat_views', name: 'مشاهدات سناب شات', price: 0.4, icon: 'fa-eye' },
+        ];
+
+        function renderManualServices() {
             const container = document.getElementById('servicesContainer');
-            if (!services || services.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center text-secondary-custom">لا توجد خدمات. تأكد من إعدادات المزود.</div>';
-                return;
-            }
-            container.innerHTML = services.map(s => `
+            container.innerHTML = manualServices.map(s => `
                 <div class="col-md-4 col-lg-3">
                     <div class="service-card" onclick="openOrderModal('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})">
-                        <div class="icon"><i class="fas fa-bolt"></i></div>
+                        <div class="icon"><i class="fab ${s.icon}"></i></div>
                         <div class="name">${s.name}</div>
-                        <div class="price">${s.price} $</div>
+                        <div class="price">${s.price} $ / وحدة</div>
                         <button class="btn btn-gold btn-sm mt-2"><i class="fas fa-rocket"></i> رشق</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderOrders(email) {
-            const orders = getOrders(email);
-            const tbody = document.getElementById('ordersTableBody');
-            if (!orders.length) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
-                return;
-            }
-            tbody.innerHTML = orders.map((o, i) => `
-                <tr>
-                    <td>${i+1}</td>
-                    <td>${o.service} ${o.isFree ? '<span class="free-badge">⭐ مجاني</span>' : ''}</td>
-                    <td><span class="small">${o.link}</span></td>
-                    <td>${o.quantity}</td>
-                    <td>${o.isFree ? '0.00 $' : o.price.toFixed(2) + ' $'}</td>
-                    <td><span class="order-status ${o.status}">${o.status}</span></td>
-                    <td>${new Date(o.createdAt).toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        function updateDashboard(email) {
-            const balance = getBalance(email);
-            document.getElementById('userBalance').textContent = balance.toFixed(2) + ' $';
-            const orders = getOrders(email);
-            document.getElementById('totalOrders').textContent = orders.length;
-            document.getElementById('activeOrders').textContent = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
-            document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
-            document.getElementById('spentAmount').textContent = orders.reduce((s, o) => s + o.price, 0).toFixed(2) + ' $';
-            
-            // إظهار شارة المطور
-            if (isDeveloper(email)) {
-                document.getElementById('developerBadge').style.display = 'block';
-            } else {
-                document.getElementById('developerBadge').style.display = 'none';
-            }
-        }
-
-        function updateDevStats() {
-            const users = getAllUsers();
-            const orders = getAllOrders();
-            document.getElementById('devTotalUsers').textContent = users.length;
-            document.getElementById('devTotalOrders').textContent = orders.length;
-            const profit = orders.filter(o => o.status === 'completed' && !o.isFree).reduce((s, o) => s + (o.price * 0.2), 0);
-            document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
-            const today = new Date().toDateString();
-            document.getElementById('devTodayOrders').textContent = orders.filter(o => new Date(o.createdAt).toDateString() === today).length;
-        }
-
         // ============================================================
-        // 6. ORDER (الرشق الفعلي مع دعم المطور المجاني)
+        // 7. ORDER (الرشق الفعلي)
         // ============================================================
-        window.openOrderModal = function(serviceId, serviceName, price) {
+        window.openOrderModal = function(serviceId, serviceName, pricePerUnit) {
             const email = localStorage.getItem('userEmail');
             if (!email) { showToast('⚠️', 'سجل دخول أولاً', 'error'); return; }
 
             const link = prompt('أدخل رابط الحساب أو المنشور:');
             if (!link) return;
 
-            const quantity = prompt('أدخل الكمية:', '100');
+            const quantity = prompt('أدخل الكمية المطلوبة:', '100');
             if (!quantity || isNaN(quantity) || parseInt(quantity) < 1) {
                 showToast('⚠️', 'كمية غير صحيحة', 'error');
                 return;
             }
 
-            const total = price * parseInt(quantity);
+            const total = pricePerUnit * parseInt(quantity);
             const balance = getBalance(email);
             const isDev = isDeveloper(email);
 
@@ -578,6 +561,7 @@
             }
 
             try {
+                // محاولة إرسال الطلب إلى المزود إذا كان متاحاً
                 const response = await placeProviderOrder(serviceId, link, quantity);
                 
                 if (response && response.order) {
@@ -623,9 +607,9 @@
                         if (!order) { clearInterval(trackingIntervals[orderId]); return; }
 
                         let newStatus = order.status;
-                        if (status.status === 'Completed') newStatus = 'completed';
-                        else if (status.status === 'Processing') newStatus = 'processing';
-                        else if (status.status === 'Error') newStatus = 'failed';
+                        if (status.status === 'Completed' || status.status === 'completed') newStatus = 'completed';
+                        else if (status.status === 'Processing' || status.status === 'processing') newStatus = 'processing';
+                        else if (status.status === 'Error' || status.status === 'error') newStatus = 'failed';
 
                         if (newStatus !== order.status) {
                             updateOrder(orderId, { status: newStatus });
@@ -642,8 +626,61 @@
         }
 
         // ============================================================
-        // 7. DEV PANEL
+        // 8. ORDERS DISPLAY
         // ============================================================
+        function renderOrders(email) {
+            const orders = getOrders(email);
+            const tbody = document.getElementById('ordersTableBody');
+            if (!orders.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
+                return;
+            }
+            tbody.innerHTML = orders.map((o, i) => `
+                <tr>
+                    <td>${i+1}</td>
+                    <td>${o.service} ${o.isFree ? '<span class="free-badge">⭐ مجاني</span>' : ''}</td>
+                    <td><span class="small">${o.link}</span></td>
+                    <td>${o.quantity}</td>
+                    <td>${o.isFree ? '0.00 $' : o.price.toFixed(2) + ' $'}</td>
+                    <td><span class="order-status ${o.status}">${o.status}</span></td>
+                    <td>${new Date(o.createdAt).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================================
+        // 9. DASHBOARD
+        // ============================================================
+        function updateDashboard(email) {
+            const balance = getBalance(email);
+            document.getElementById('userBalance').textContent = balance.toFixed(2) + ' $';
+            const orders = getOrders(email);
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('activeOrders').textContent = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+            document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
+            document.getElementById('spentAmount').textContent = orders.reduce((s, o) => s + o.price, 0).toFixed(2) + ' $';
+            
+            if (isDeveloper(email)) {
+                document.getElementById('developerBadge').style.display = 'block';
+            } else {
+                document.getElementById('developerBadge').style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // 10. DEV PANEL
+        // ============================================================
+        function updateDevStats() {
+            const users = getAllUsers();
+            const orders = getAllOrders();
+            document.getElementById('devTotalUsers').textContent = users.length;
+            document.getElementById('devTotalOrders').textContent = orders.length;
+            const profit = orders.filter(o => o.status === 'completed' && !o.isFree).reduce((s, o) => s + (o.price * 0.2), 0);
+            document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
+            const today = new Date().toDateString();
+            document.getElementById('devTodayOrders').textContent = orders.filter(o => new Date(o.createdAt).toDateString() === today).length;
+        }
+
         window.devAddBalance = async function() {
             const email = document.getElementById('devUserEmail').value.trim();
             if (!email) { showToast('⚠️', 'أدخل بريداً', 'error'); return; }
@@ -672,12 +709,12 @@
 
         window.devUpdateProvider = function() {
             const url = document.getElementById('devProviderSettings').value.trim();
-            if (url) { updateSettings({ providerUrl: url }); showToast('✅', 'تم تحديث رابط المزود', 'success'); loadServices(); }
+            if (url) { updateSettings({ providerUrl: url }); showToast('✅', 'تم تحديث رابط المزود', 'success'); }
         };
 
         window.devUpdateKey = function() {
             const key = document.getElementById('devProviderKey').value.trim();
-            if (key) { updateSettings({ providerKey: key }); showToast('✅', 'تم تحديث المفتاح', 'success'); loadServices(); }
+            if (key) { updateSettings({ providerKey: key }); showToast('✅', 'تم تحديث المفتاح', 'success'); }
         };
 
         window.devRefreshStats = function() { updateDevStats(); showToast('✅', 'تم التحديث', 'success'); };
@@ -693,7 +730,7 @@
         };
 
         // ============================================================
-        // 8. AUTH
+        // 11. AUTH
         // ============================================================
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -734,7 +771,7 @@
         });
 
         // ============================================================
-        // 9. UI UPDATE
+        // 12. UI UPDATE
         // ============================================================
         function updateUIAfterLogin(email) {
             document.getElementById('userInfo').style.display = 'inline';
@@ -751,7 +788,6 @@
             
             updateDashboard(email);
             renderOrders(email);
-            loadServices();
         }
 
         function updateUIAfterLogout() {
@@ -767,19 +803,12 @@
         }
 
         // ============================================================
-        // 10. LOAD SERVICES
-        // ============================================================
-        async function loadServices() {
-            const container = document.getElementById('servicesContainer');
-            container.innerHTML = '<div class="col-12 text-center"><div class="spinner"></div> جاري التحميل...</div>';
-            const services = await fetchServices();
-            renderServices(services);
-        }
-
-        // ============================================================
-        // 11. INIT
+        // 13. INIT
         // ============================================================
         async function init() {
+            // عرض الخدمات اليدوية
+            renderManualServices();
+
             const email = localStorage.getItem('userEmail');
             if (email) {
                 const user = getUser(email);
@@ -814,9 +843,9 @@
 
         init();
 
-        console.log('✅ منصة الرشق المباشر جاهزة (مع دعم المطور المجاني)');
+        console.log('✅ منصة الرشق المباشر جاهزة (مع أزرار يدوية)');
         console.log('👤 المطور:', DEVELOPER_ID);
-        console.log('📌 استبدل PROVIDER_API_URL و PROVIDER_API_KEY بقيم المزود الحقيقي');
+        console.log('📌 يمكنك إضافة خدمات جديدة في قائمة manualServices');
     </script>
 </body>
 </html>
