@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بطاقة رخصة السلاح</title>
+    <title>عبود @u_t_r - المنصة التعليمية</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,558 +14,536 @@
         }
 
         body {
-            background: #1a1a2e;
+            background: #0a0e17;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Simplified Arabic', 'Traditional Arabic', 'Arial', sans-serif;
-            padding: 20px;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            color: #e8e6e3;
         }
 
-        /* البطاقة - مقاس 8.5 × 5.4 سم */
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: rgba(17, 25, 39, 0.95) !important;
+            border-bottom: 2px solid #d4af37;
+            backdrop-filter: blur(10px);
+            padding: 12px 0;
+        }
+        .navbar-brand {
+            color: #d4af37 !important;
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+        .navbar-brand span { color: #fff; }
+        .nav-link {
+            color: #b0b0b0 !important;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+        .nav-link:hover { color: #d4af37 !important; }
+        .nav-link i { margin-left: 6px; }
+
+        /* ===== CARDS ===== */
         .card {
-            width: 8.5cm;
-            height: 5.4cm;
-            background: linear-gradient(165deg, #0c2a4a 0%, #1a4a7a 35%, #0d2a5e 65%, #071e3a 100%);
-            border: 2.5px solid #d4af37;
-            border-radius: 8px;
-            padding: 4px 6px;
-            position: relative;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.8),
-                0 2px 8px rgba(212, 175, 55, 0.2),
-                inset 0 1px 0 rgba(212, 175, 55, 0.15),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+            background: #111927;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            transition: 0.3s;
             overflow: hidden;
-            direction: rtl;
-            color: #ffffff;
-            flex-shrink: 0;
+            color: #e8e6e3;
         }
-
-        /* خلفية أمنية دقيقة */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                repeating-linear-gradient(45deg,
-                    transparent,
-                    transparent 12px,
-                    rgba(212, 175, 55, 0.015) 12px,
-                    rgba(212, 175, 55, 0.015) 13px),
-                repeating-linear-gradient(-45deg,
-                    transparent,
-                    transparent 12px,
-                    rgba(212, 175, 55, 0.015) 12px,
-                    rgba(212, 175, 55, 0.015) 13px),
-                radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
+        .card:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.06);
+            transform: translateY(-4px);
         }
-
-        /* إطار داخلي ذهبي متألق */
-        .card::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            right: 3px;
-            bottom: 3px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 5px;
-            pointer-events: none;
-            z-index: 0;
-            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.03);
-        }
-
-        /* تأثير التموج الضوئي */
-        .card .shimmer {
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(ellipse at 30% 40%, rgba(212, 175, 55, 0.04) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-            animation: shimmer 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translate(-10%, -10%) rotate(0deg); opacity: 0.5; }
-            100% { transform: translate(10%, 10%) rotate(5deg); opacity: 1; }
-        }
-
-        .card-content {
-            position: relative;
-            z-index: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 2px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
-            flex-shrink: 0;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-
-        .logo {
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle at 30% 30%, #f0d060, #b8941a);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 900;
-            color: #0a1e3f;
-            border: 1.5px solid #d4af37;
-            flex-shrink: 0;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
-        }
-
-        .header-text {
-            text-align: right;
-            line-height: 1.15;
-        }
-
-        .header-text .republic {
-            font-size: 6.5px;
-            font-weight: 900;
-            color: #f0d060;
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
-        }
-
-        .header-text .ministry {
-            font-size: 6px;
+        .card-header {
+            background: rgba(212, 175, 55, 0.05);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            padding: 15px 20px;
             font-weight: 700;
-            color: #e8dcc0;
+        }
+        .card-header i { color: #d4af37; margin-left: 8px; }
+
+        /* ===== BUTTONS ===== */
+        .btn-gold {
+            background: #d4af37;
+            color: #0a0e17;
+            font-weight: 700;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-gold:hover {
+            background: #b8941a;
+            color: #fff;
+            transform: scale(1.03);
+        }
+        .btn-outline-gold {
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            background: transparent;
+            transition: 0.3s;
+        }
+        .btn-outline-gold:hover {
+            background: #d4af37;
+            color: #0a0e17;
         }
 
-        .header-text .dept {
-            font-size: 5px;
-            font-weight: 400;
-            color: #c9b894;
+        /* ===== SECTIONS ===== */
+        .section-title {
+            color: #d4af37;
+            border-right: 4px solid #d4af37;
+            padding-right: 15px;
+            margin-bottom: 25px;
         }
+        .gold-text { color: #d4af37; }
+        .text-secondary-custom { color: #8892a0; }
 
-        .title-badge {
+        /* ===== CODE BLOCK ===== */
+        .code-block {
+            background: #0d1117;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 4px solid #d4af37;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            color: #e6e6e6;
+            direction: ltr;
             text-align: left;
-            border-right: 2px solid rgba(212, 175, 55, 0.4);
-            padding-right: 4px;
         }
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .function { color: #dcdcaa; }
 
-        .title-badge .main-title {
-            font-size: 7px;
-            font-weight: 900;
-            color: #f0d060;
-            line-height: 1.1;
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        /* ===== FORMS ===== */
+        .form-control {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #e8e6e3;
+            border-radius: 8px;
+            padding: 12px 15px;
         }
+        .form-control:focus {
+            background: #0d1117;
+            border-color: #d4af37;
+            color: #e8e6e3;
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.15);
+        }
+        .form-label { color: #d4af37; font-weight: 600; }
 
-        .title-badge .sub-title {
-            font-size: 4.5px;
-            color: #d4c8a8;
-            font-weight: 300;
-            letter-spacing: 0.3px;
+        /* ===== ALERTS ===== */
+        .alert {
+            border-radius: 10px;
+            border: none;
         }
-
-        /* ===== BODY ===== */
-        .body {
-            display: flex;
-            flex: 1;
-            padding-top: 2px;
-            gap: 3px;
-            min-height: 0;
-        }
-
-        .photo-section {
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 1px;
-        }
-
-        .photo-frame {
-            width: 28px;
-            height: 32px;
-            border: 1.5px solid rgba(212, 175, 55, 0.4);
-            border-radius: 4px;
-            background: rgba(212, 175, 55, 0.06);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4.5px;
-            color: rgba(212, 175, 55, 0.3);
-            text-align: center;
-            line-height: 1.2;
-            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.03);
-        }
-
-        .photo-label {
-            font-size: 4px;
-            color: #c9b894;
-            margin-top: 1px;
-            font-weight: 300;
-        }
-
-        .info-section {
-            flex: 1;
-            min-width: 0;
-            line-height: 1.25;
-        }
-
-        .info-section .field {
-            font-size: 5px;
-            font-weight: 400;
-            color: #d4c8b0;
-            display: flex;
-            align-items: baseline;
-            gap: 2px;
-        }
-
-        .info-section .field .label {
-            color: #f0d060;
-            font-weight: 700;
-            font-size: 4.5px;
-            min-width: 36px;
-            flex-shrink: 0;
-        }
-
-        .info-section .field .value {
-            color: #ffffff;
-            font-weight: 400;
-            font-size: 5px;
-            word-break: break-word;
-        }
-
-        /* ===== WEAPON ===== */
-        .weapon-section {
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 1px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0px 5px;
-            flex-shrink: 0;
-        }
-
-        .weapon-section .field {
-            font-size: 4.5px;
-            color: #d4c8b0;
-            display: flex;
-            align-items: baseline;
-            gap: 2px;
-        }
-
-        .weapon-section .field .label {
-            color: #f0d060;
-            font-weight: 700;
-            font-size: 4px;
-        }
-
-        .weapon-section .field .value {
-            color: #ffffff;
-            font-weight: 400;
-            font-size: 4.5px;
-        }
-
-        /* ===== DATES & CONDITIONS ===== */
-        .dates-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1px 0;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-            gap: 1px;
-        }
-
-        .dates-section .date-field {
-            font-size: 4.5px;
-            color: #d4c8b0;
-        }
-
-        .dates-section .date-field .label {
-            color: #f0d060;
-            font-weight: 700;
-            font-size: 4px;
-        }
-
-        .dates-section .date-field .value {
-            color: #ffffff;
-            font-weight: 400;
-        }
-
-        .conditions {
-            font-size: 4px;
-            color: #c9b894;
-            font-weight: 300;
-            text-align: center;
-            letter-spacing: 0.2px;
-        }
+        .alert-success { background: rgba(46, 160, 67, 0.15); color: #3fb950; }
+        .alert-danger { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+        .alert-info { background: rgba(88, 166, 255, 0.15); color: #58a6ff; }
+        .alert-warning { background: rgba(212, 175, 55, 0.15); color: #d4af37; }
 
         /* ===== FOOTER ===== */
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1px;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-            flex-shrink: 0;
-        }
-
-        .signature {
+        footer {
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            padding: 30px 0;
+            margin-top: 60px;
             text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        footer .gold { color: #d4af37; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar-brand { font-size: 1.1rem; }
+            .card { margin-bottom: 15px; }
+            .code-block { font-size: 12px; padding: 12px; }
         }
 
-        .signature .sig-label {
-            font-size: 3.5px;
-            color: #c9b894;
-            font-weight: 300;
+        /* ===== GLOW ===== */
+        .glow-text {
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.08);
         }
 
-        .signature .sig-name {
-            font-size: 4.5px;
-            color: #ffffff;
-            font-weight: 700;
-            border-top: 1px solid rgba(212, 175, 55, 0.3);
-            padding-top: 1px;
-            margin-top: 1px;
+        /* ===== LOGIN/REGISTER ===== */
+        .auth-card {
+            max-width: 450px;
+            margin: 40px auto;
+            padding: 30px;
         }
 
-        .signature .sig-title {
-            font-size: 3px;
-            color: #d4c8a8;
-            font-weight: 300;
-        }
-
-        /* ===== الختم ===== */
-        .seal-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .seal {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid #c0392b;
-            background: rgba(192, 57, 43, 0.08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            flex-shrink: 0;
-            box-shadow: 0 0 15px rgba(192, 57, 43, 0.1);
-        }
-
-        .seal::before {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            right: 3px;
-            bottom: 3px;
-            border-radius: 50%;
-            border: 1px solid rgba(192, 57, 43, 0.25);
-        }
-
-        .seal .seal-text-top {
-            font-size: 3px;
-            color: #c0392b;
-            font-weight: 700;
-            line-height: 1;
+        /* ===== DASHBOARD ===== */
+        .stat-card {
+            background: #111927;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
-            letter-spacing: 0.2px;
+            transition: 0.3s;
         }
-
-        .seal .seal-text-center {
-            font-size: 3.5px;
-            color: #c0392b;
+        .stat-card:hover {
+            border-color: #d4af37;
+            transform: translateY(-3px);
+        }
+        .stat-card .number {
+            font-size: 2.5rem;
             font-weight: 900;
-            line-height: 1;
-            text-align: center;
+            color: #d4af37;
         }
-
-        .seal .seal-text-bottom {
-            font-size: 3px;
-            color: #c0392b;
-            font-weight: 700;
-            line-height: 1;
-            text-align: center;
-            letter-spacing: 0.2px;
+        .stat-card .label {
+            color: #8892a0;
+            font-size: 0.9rem;
         }
-
-        .seal .seal-star {
-            font-size: 4px;
-            color: #c0392b;
-            line-height: 1;
-        }
-
-        .seal-label {
-            font-size: 2.5px;
-            color: #c9b894;
-            margin-top: 1px;
-            font-weight: 300;
-        }
-
-        /* ===== استجابة ===== */
-        @media (max-width: 400px) {
-            .card {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 8.5 / 5.4;
-                padding: 3px 5px;
-            }
-            .logo {
-                width: 16px;
-                height: 16px;
-                font-size: 7px;
-            }
-            .header-text .republic { font-size: 5.5px; }
-            .header-text .ministry { font-size: 5px; }
-            .header-text .dept { font-size: 4px; }
-            .title-badge .main-title { font-size: 6px; }
-            .title-badge .sub-title { font-size: 3.5px; }
-            .photo-frame { width: 22px; height: 26px; font-size: 3.5px; }
-            .info-section .field { font-size: 4px; }
-            .info-section .field .label { font-size: 3.5px; min-width: 28px; }
-            .info-section .field .value { font-size: 4px; }
-            .weapon-section .field { font-size: 3.5px; }
-            .weapon-section .field .label { font-size: 3px; }
-            .weapon-section .field .value { font-size: 3.5px; }
-            .dates-section .date-field { font-size: 3.5px; }
-            .conditions { font-size: 3px; }
-            .seal { width: 24px; height: 24px; }
-            .seal .seal-text-top { font-size: 2.5px; }
-            .seal .seal-text-center { font-size: 3px; }
-            .seal .seal-text-bottom { font-size: 2.5px; }
-            .seal .seal-star { font-size: 3px; }
-            .signature .sig-name { font-size: 3.5px; }
-            .signature .sig-title { font-size: 2.5px; }
-        }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .card {
-                box-shadow: none;
-                margin: 0 auto;
-            }
+        .stat-card i {
+            font-size: 2rem;
+            color: #d4af37;
+            opacity: 0.3;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="shimmer"></div>
-        <div class="card-content">
-
-            <!-- ===== HEADER ===== -->
-            <div class="header">
-                <div class="header-right">
-                    <div class="logo">✦</div>
-                    <div class="header-text">
-                        <div class="republic">الجمهورية اليمنية</div>
-                        <div class="ministry">وزارة الداخلية</div>
-                        <div class="dept">الإدارة العامة للتراخيص والأسلحة</div>
-                    </div>
-                </div>
-                <div class="title-badge">
-                    <div class="main-title">بطاقة رخصة<br>استخدام السلاح الناري</div>
-                    <div class="sub-title">(للخدمة الرسمية)</div>
-                </div>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> عبود <span>@u_t_r</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home"><i class="fas fa-home"></i> الرئيسية</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#bots"><i class="fas fa-robot"></i> بوتات</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#python"><i class="fab fa-python"></i> بايثون</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#hacking"><i class="fas fa-skull"></i> اختراقات</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#login"><i class="fas fa-sign-in-alt"></i> دخول</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#register"><i class="fas fa-user-plus"></i> تسجيل</a></li>
+                </ul>
             </div>
-
-            <!-- ===== BODY ===== -->
-            <div class="body">
-
-                <div class="photo-section">
-                    <div class="photo-frame">صورة<br>شخصية</div>
-                    <div class="photo-label">الرقم: 102-0145</div>
-                </div>
-
-                <div class="info-section">
-                    <div class="field"><span class="label">الاسم:</span><span class="value">عبدالعالم الرصاص</span></div>
-                    <div class="field"><span class="label">تاريخ الميلاد:</span><span class="value">01 / 01 / 2002 م</span></div>
-                    <div class="field"><span class="label">العمر:</span><span class="value">24 سنة</span></div>
-                    <div class="field"><span class="label">الرقم القومي:</span><span class="value">102-0145-982736</span></div>
-                    <div class="field"><span class="label">جهة العمل:</span><span class="value">مكافحة الشغب – وزارة الداخلية</span></div>
-                    <div class="field"><span class="label">الرتبة:</span><span class="value">عنصر أمن / فرد ميداني</span></div>
-                    <div class="field"><span class="label">العنوان:</span><span class="value">صنعاء / حي الروضة / شارع الستين / بناية 24</span></div>
-                </div>
-            </div>
-
-            <!-- ===== WEAPON ===== -->
-            <div class="weapon-section">
-                <div class="field"><span class="label">نوع السلاح:</span><span class="value">مسدس نصف آلي – كلوك 19</span></div>
-                <div class="field"><span class="label">الرقم المسلسل:</span><span class="value">G19-YEM-8723</span></div>
-                <div class="field"><span class="label">العيار:</span><span class="value">9 مم</span></div>
-                <div class="field"><span class="label">عدد الطلقات:</span><span class="value">80 طلقة</span></div>
-            </div>
-
-            <!-- ===== DATES & CONDITIONS ===== -->
-            <div class="dates-section">
-                <div class="date-field"><span class="label">تاريخ الإصدار:</span><span class="value">30 / 07 / 2026 م</span></div>
-                <div class="date-field"><span class="label">تاريخ الانتهاء:</span><span class="value">30 / 07 / 2027 م</span></div>
-                <div class="conditions">الشروط: تُحمل مع السلاح، للواجب الرسمي فقط، التجديد قبل الشهر</div>
-            </div>
-
-            <!-- ===== FOOTER ===== -->
-            <div class="footer">
-
-                <div class="signature">
-                    <div class="sig-label">التوقيع</div>
-                    <div class="sig-name">عبدالعالم الرصاص</div>
-                    <div class="sig-title">(حامل الرخصة)</div>
-                </div>
-
-                <div class="seal-container">
-                    <div class="seal">
-                        <div class="seal-text-top">الإدارة العامة</div>
-                        <div class="seal-text-center">للتراخيص</div>
-                        <div class="seal-text-center">والأسلحة</div>
-                        <div class="seal-star">★</div>
-                        <div class="seal-text-bottom">وزارة الداخلية</div>
-                    </div>
-                    <div class="seal-label">ختم الإدارة</div>
-                </div>
-
-                <div class="signature">
-                    <div class="sig-label">التوقيع</div>
-                    <div class="sig-name">العميد محمد العاقل</div>
-                    <div class="sig-title">(مدير الإدارة)</div>
-                </div>
-
-            </div>
-
         </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="container py-4">
+
+        <!-- ===== HOME ===== -->
+        <section id="home" class="py-4">
+            <div class="text-center mb-5">
+                <h1 class="display-3 glow-text" style="color: #d4af37;">
+                    <i class="fas fa-bolt"></i> مرحباً بك في منصة عبود
+                </h1>
+                <p class="lead text-secondary-custom">@u_t_r — المركز الشامل لتعلم البرمجة والأمن السيبراني</p>
+                <div class="mt-4">
+                    <a href="#register" class="btn btn-gold"><i class="fas fa-user-plus"></i> انضم الآن</a>
+                    <a href="#login" class="btn btn-outline-gold ms-2"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card p-4 text-center h-100">
+                        <div class="display-1 gold-text">🤖</div>
+                        <h3 class="mt-3">صنع البوتات</h3>
+                        <p class="text-secondary-custom">تعلم بناء بوتات تلغرام وديسكورد وواتساب باستخدام مكتبات بايثون الاحترافية.</p>
+                        <a href="#bots" class="btn btn-outline-gold mt-auto">استكشف <i class="fas fa-arrow-left"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 text-center h-100">
+                        <div class="display-1" style="color: #f7c948;">🐍</div>
+                        <h3 class="mt-3">أساسيات بايثون</h3>
+                        <p class="text-secondary-custom">من الصفر إلى الاحتراف: متغيرات، دوال، مكتبات، برمجة كائنية، ومشاريع عملية.</p>
+                        <a href="#python" class="btn btn-outline-gold mt-auto">استكشف <i class="fas fa-arrow-left"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 text-center h-100">
+                        <div class="display-1" style="color: #ff4444;">💀</div>
+                        <h3 class="mt-3">الاختراقات</h3>
+                        <p class="text-secondary-custom">جميع أنواع الاختراقات: الشبكات، الويب، الهندسة الاجتماعية، الأنظمة، والأدوات.</p>
+                        <a href="#hacking" class="btn btn-outline-gold mt-auto">استكشف <i class="fas fa-arrow-left"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== BOTS SECTION ===== -->
+        <section id="bots" class="py-5">
+            <h2 class="section-title"><i class="fas fa-robot gold-text"></i> تعليم أساسيات صنع البوتات</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-telegram"></i> بوتات تلغرام</div>
+                        <div class="card-body">
+                            <h5>مكتبة python-telegram-bot</h5>
+                            <div class="code-block">
+                                <span class="keyword">from</span> telegram <span class="keyword">import</span> Update<br>
+                                <span class="keyword">from</span> telegram.ext <span class="keyword">import</span> ApplicationBuilder, CommandHandler<br><br>
+                                <span class="keyword">async def</span> <span class="function">start</span>(update: Update, context):<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">await</span> update.message.reply_text(<span class="string">"مرحباً بك في بوت عبود!"</span>)<br><br>
+                                app = ApplicationBuilder().token(<span class="string">"YOUR_BOT_TOKEN"</span>).build()<br>
+                                app.add_handler(CommandHandler(<span class="string">"start"</span>, start))<br>
+                                app.run_polling()
+                            </div>
+                            <div class="mt-3">
+                                <h6>مكتبات أخرى:</h6>
+                                <ul>
+                                    <li><strong>discord.py</strong> - لبوتات ديسكورد</li>
+                                    <li><strong>pywhatkit</strong> - للواتساب</li>
+                                    <li><strong>telethon</strong> - بديل لتلغرام</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-list"></i> خطوات أساسية</div>
+                        <div class="card-body">
+                            <ol>
+                                <li>إنشاء بوت عبر BotFather</li>
+                                <li>تثبيت المكتبة المطلوبة</li>
+                                <li>كتابة الكود الأساسي</li>
+                                <li>إضافة أوامر مخصصة</li>
+                                <li>تشغيل البوت</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PYTHON SECTION ===== -->
+        <section id="python" class="py-5">
+            <h2 class="section-title"><i class="fab fa-python gold-text"></i> تعليم أساسيات البايثون</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-layer-group"></i> المستوى الأول: الأساسيات</div>
+                        <div class="card-body">
+                            <ul>
+                                <li><strong>المتغيرات والأنواع:</strong> int, float, str, bool</li>
+                                <li><strong>الجمل الشرطية:</strong> if, elif, else</li>
+                                <li><strong>الحلقات:</strong> for, while</li>
+                                <li><strong>الدوال:</strong> def, return, parameters</li>
+                                <li><strong>القوائم والقواميس:</strong> list, dict, tuple</li>
+                            </ul>
+                            <div class="code-block">
+                                <span class="comment"># مثال على دالة بسيطة</span><br>
+                                <span class="keyword">def</span> <span class="function">greet</span>(name):<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">f"مرحباً {name}!"</span><br><br>
+                                <span class="keyword">print</span>(greet(<span class="string">"عبود"</span>))
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-cogs"></i> المستوى الثاني: الاحتراف</div>
+                        <div class="card-body">
+                            <ul>
+                                <li><strong>البرمجة الكائنية:</strong> class, object, inheritance</li>
+                                <li><strong>المكتبات الشائعة:</strong> requests, pandas, numpy</li>
+                                <li><strong>التعامل مع الملفات:</strong> open, read, write</li>
+                                <li><strong>الـ APIs:</strong> requests.get, json</li>
+                                <li><strong>مشاريع عملية:</strong> سكرابر، بوت، تحليل بيانات</li>
+                            </ul>
+                            <div class="code-block">
+                                <span class="comment"># مثال على class</span><br>
+                                <span class="keyword">class</span> <span class="function">User</span>:<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">__init__</span>(self, name):<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.name = name<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">def</span> <span class="function">greet</span>(self):<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">f"Hello {self.name}"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== HACKING SECTION ===== -->
+        <section id="hacking" class="py-5">
+            <h2 class="section-title"><i class="fas fa-skull gold-text"></i> تعليم الاختراقات</h2>
+            
+            <div class="row g-4">
+
+                <!-- الشبكات -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-wifi" style="color: #ff6b6b;"></i> اختراق الشبكات</div>
+                        <div class="card-body">
+                            <ul>
+                                <li><strong>Wi-Fi:</strong> Aircrack-ng، Wifite، تحليل حزم WPA2</li>
+                                <li><strong>MITM:</strong> ettercap، BetterCAP، هجمات ARP Spoofing</li>
+                                <li><strong>أدوات:</strong> Wireshark، Nmap، Kismet</li>
+                            </ul>
+                            <div class="code-block">
+                                <span class="comment"># أمر نموذجي لـ Nmap</span><br>
+                                nmap -sV -A -T4 target.com<br>
+                                <span class="comment"># فتح وضع المراقبة</span><br>
+                                airmon-ng start wlan0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الويب -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-globe" style="color: #ffd93d;"></i> اختراق الويب</div>
+                        <div class="card-body">
+                            <ul>
+                                <li><strong>SQL Injection:</strong> <code>' OR 1=1 --</code></li>
+                                <li><strong>XSS:</strong> <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+                                <li><strong>CSRF:</strong> استغلال الثقة بين المواقع</li>
+                                <li><strong>أدوات:</strong> Burp Suite، OWASP ZAP، sqlmap</li>
+                            </ul>
+                            <div class="code-block">
+                                <span class="comment"># sqlmap مثال</span><br>
+                                sqlmap -u "http://target.com/page?id=1" --dbs
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- هندسة اجتماعية -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-user-secret" style="color: #a29bfe;"></i> الهندسة الاجتماعية</div>
+                        <div class="card-body">
+                            <ul>
+                                <li><strong>التصيد:</strong> إنشاء صفحات مزيفة لجمع البيانات</li>
+                                <li><strong>الاحتيال:</strong> الاتصال الهاتفي، رسائل SMS</li>
+                                <li><strong>التضليل:</strong> استغلال الثقة البشرية</li>
+                                <li><strong>أدوات:</strong> Social-Engineer Toolkit (SET)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الأنظمة -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-desktop" style="color: #fd79a8;"></i> اختراق الأنظمة</div>
+                        <div class="card-body">
+                            <ul>
+                                <li><strong>Windows:</strong> استغلال الثغرات، Mimikatz</li>
+                                <li><strong>Linux:</strong> استغلال الأذونات، Kernel exploits</li>
+                                <li><strong>أدوات:</strong> Metasploit، Empire، Cobalt Strike</li>
+                            </ul>
+                            <div class="code-block">
+                                <span class="comment"># Metasploit مثال</span><br>
+                                use exploit/windows/smb/ms17_010_eternalblue<br>
+                                set RHOSTS target.com<br>
+                                exploit
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أدوات -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-tools" style="color: #55efc4;"></i> أدوات الاختراق</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 col-6">
+                                    <strong>Metasploit</strong><br>
+                                    <small>إطار عمل للاستغلال</small>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <strong>Nmap</strong><br>
+                                    <small>مسح المنافذ</small>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <strong>Burp Suite</strong><br>
+                                    <small>اختبار أمن الويب</small>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <strong>Wireshark</strong><br>
+                                    <small>تحليل الحزم</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===== LOGIN SECTION ===== -->
+        <section id="login" class="py-4">
+            <div class="auth-card card">
+                <h2 class="text-center gold-text"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+                <p class="text-center text-secondary-custom">قم بتسجيل الدخول للوصول إلى محتوى متقدم</p>
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">اسم المستخدم</label>
+                        <input type="text" class="form-control" placeholder="أدخل اسم المستخدم">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" placeholder="أدخل كلمة المرور">
+                    </div>
+                    <button type="submit" class="btn btn-gold w-100"><i class="fas fa-arrow-left"></i> دخول</button>
+                </form>
+                <p class="text-center mt-3">
+                    <a href="#register" class="text-secondary-custom" style="text-decoration: none;">ليس لديك حساب؟ سجل الآن</a>
+                </p>
+            </div>
+        </section>
+
+        <!-- ===== REGISTER SECTION ===== -->
+        <section id="register" class="py-4">
+            <div class="auth-card card">
+                <h2 class="text-center gold-text"><i class="fas fa-user-plus"></i> إنشاء حساب</h2>
+                <p class="text-center text-secondary-custom">انضم إلى منصة عبود وتعلم مجاناً</p>
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">اسم المستخدم</label>
+                        <input type="text" class="form-control" placeholder="اختر اسم مستخدم" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">الاسم الكامل</label>
+                        <input type="text" class="form-control" placeholder="أدخل اسمك الكامل">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" placeholder="example@mail.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور</label>
+                        <input type="password" class="form-control" placeholder="أدخل كلمة مرور قوية" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تأكيد كلمة المرور</label>
+                        <input type="password" class="form-control" placeholder="أعد كتابة كلمة المرور" required>
+                    </div>
+                    <button type="submit" class="btn btn-gold w-100"><i class="fas fa-user-plus"></i> تسجيل</button>
+                </form>
+                <p class="text-center mt-3">
+                    <a href="#login" class="text-secondary-custom" style="text-decoration: none;">لديك حساب؟ سجل دخول</a>
+                </p>
+            </div>
+        </section>
+
     </div>
 
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <p><i class="fas fa-bolt gold"></i> <span class="gold">عبود @u_t_r</span> — منصة تعليم البرمجة والأمن السيبراني</p>
+            <p style="font-size: 12px; color: #444;">⚠️ المحتوى مخصص للأغراض التعليمية فقط. نؤكد على أهمية الاستخدام الأخلاقي.</p>
+            <p style="font-size: 12px; color: #444;">جميع الحقوق محفوظة © 2026</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
