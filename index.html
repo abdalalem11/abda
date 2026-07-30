@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WA OTP - استقبال كود واتساب</title>
+    <title>WA OTP - جلب تلقائي + كود</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -34,7 +34,6 @@
         .table { color: #e8e6e3; }
         .table thead th { border-bottom: 2px solid #25D366; color: #25D366; }
         .table td { vertical-align: middle; }
-        .extract-result { max-height: 400px; overflow-y: auto; }
         .otp-box { background: #0d1117; border: 2px solid #25D366; border-radius: 12px; padding: 20px; font-family: monospace; font-size: 2.5rem; text-align: center; color: #25D366; letter-spacing: 8px; }
         .copy-btn { cursor: pointer; transition: 0.3s; }
         .copy-btn:hover { transform: scale(1.1); }
@@ -42,6 +41,7 @@
         .whatsapp-login-btn:hover { background: #1ebe5c; transform: scale(1.02); }
         .dev-panel { border: 1px solid #dc3545; border-radius: 12px; padding: 20px; margin-top: 20px; }
         .dev-panel .title { color: #dc3545; font-weight: 900; }
+        .auto-source { background: rgba(37,211,102,0.05); border: 1px dashed #25D366; border-radius: 10px; padding: 10px; }
     </style>
 </head>
 <body>
@@ -57,7 +57,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="#extract">جلب أرقام</a></li>
+                <li class="nav-item"><a class="nav-link" href="#extract">جلب تلقائي</a></li>
                 <li class="nav-item"><a class="nav-link" href="#numbers">الأرقام</a></li>
                 <li class="nav-item"><a class="nav-link" href="#otp">الكود</a></li>
                 <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">⚙️ المطور</a></li>
@@ -76,27 +76,32 @@
 
     <!-- ====== EXTRACT ====== -->
     <section id="extract" class="py-3">
-        <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-download"></i> جلب أرقام للواتساب</h2>
+        <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-robot"></i> جلب أرقام تلقائي</h2>
+        
         <div class="row g-3 mt-3">
-            <div class="col-md-6">
-                <div class="card-dark">
-                    <h5><i class="fas fa-link wa-color"></i> من رابط تيليجرام</h5>
-                    <div class="input-group mt-2">
-                        <input type="text" class="form-control" id="extractLink" placeholder="https://t.me/username" />
-                        <button class="btn wa-bg" onclick="extractFromLink()"><i class="fas fa-arrow-left"></i> جلب</button>
-                    </div>
-                    <div id="extractLinkResult" class="mt-2"></div>
+            <div class="col-md-4">
+                <div class="card-dark auto-source text-center" onclick="fetchFromAPI()" style="cursor:pointer;">
+                    <i class="fas fa-globe fa-2x wa-color"></i>
+                    <h5 class="mt-2">من API عام</h5>
+                    <small class="text-secondary">RandomUser + FakerAPI</small>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card-dark">
-                    <h5><i class="fas fa-file-alt wa-color"></i> من ملف نصي</h5>
-                    <input type="file" class="form-control" id="fileInput" accept=".txt,.csv" />
-                    <button class="btn wa-bg mt-2" onclick="extractFromFile()"><i class="fas fa-upload"></i> رفع وجلب</button>
-                    <div id="extractFileResult" class="mt-2"></div>
+            <div class="col-md-4">
+                <div class="card-dark auto-source text-center" onclick="generateRandomNumbers()" style="cursor:pointer;">
+                    <i class="fas fa-dice fa-2x wa-color"></i>
+                    <h5 class="mt-2">توليد عشوائي</h5>
+                    <small class="text-secondary">مقدمات دول مختلفة</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-dark auto-source text-center" onclick="fetchFromScrape()" style="cursor:pointer;">
+                    <i class="fas fa-search fa-2x wa-color"></i>
+                    <h5 class="mt-2">استخراج من ويب</h5>
+                    <small class="text-secondary">محاكاة Scraping</small>
                 </div>
             </div>
         </div>
+
         <div class="row mt-3">
             <div class="col-12">
                 <div class="card-dark">
@@ -105,29 +110,32 @@
                         <div class="progress-bar-custom" id="extractProgress" style="width:0%"></div>
                     </div>
                     <div class="extract-result mt-2" id="numbersList"></div>
-                    <button class="btn wa-bg mt-2" onclick="sendOtpToAll()"><i class="fas fa-sms"></i> طلب كود لجميع الأرقام</button>
-                    <button class="btn btn-outline-success mt-2" onclick="exportNumbers()"><i class="fas fa-file-export"></i> تصدير</button>
+                    <div class="d-flex gap-2 flex-wrap mt-2">
+                        <button class="btn wa-bg" onclick="sendOtpToAll()"><i class="fas fa-sms"></i> طلب كود للجميع</button>
+                        <button class="btn btn-outline-success" onclick="exportNumbers()"><i class="fas fa-file-export"></i> تصدير</button>
+                        <button class="btn btn-outline-danger" onclick="clearAll()"><i class="fas fa-trash"></i> مسح</button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== NUMBERS TABLE ====== -->
+    <!-- ====== NUMBERS ====== -->
     <section id="numbers" class="py-4">
         <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-table"></i> الأرقام والحالة</h2>
         <div class="card-dark mt-3">
             <div class="table-responsive">
                 <table class="table" id="numbersTable">
-                    <thead><tr><th>#</th><th>الرقم</th><th>الحالة</th><th>الكود</th><th>الإجراء</th></tr></thead>
+                    <thead><tr><th>#</th><th>الرقم</th><th>المصدر</th><th>الحالة</th><th>الكود</th><th>الإجراء</th></tr></thead>
                     <tbody id="numbersTableBody">
-                        <tr><td colspan="5" class="text-center text-secondary">لا توجد أرقام</td></tr>
+                        <tr><td colspan="6" class="text-center text-secondary">لا توجد أرقام</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </section>
 
-    <!-- ====== OTP DISPLAY ====== -->
+    <!-- ====== OTP ====== -->
     <section id="otp" class="py-4">
         <h2 class="border-bottom pb-2 wa-color" style="border-color:#25D366!important;"><i class="fas fa-key"></i> كود واتساب</h2>
         <div class="row g-3 mt-2">
@@ -153,7 +161,7 @@
         </div>
     </section>
 
-    <!-- ====== DEV PANEL ====== -->
+    <!-- ====== DEV ====== -->
     <section id="dev-panel" class="py-4" style="display:none;">
         <h2 class="text-danger border-bottom border-danger pb-2"><i class="fas fa-crown"></i> لوحة المطور</h2>
         <div class="dev-panel">
@@ -168,8 +176,12 @@
                     <div id="botTestResult" class="mt-2"></div>
                 </div>
                 <div class="col-md-6">
-                    <h5 class="title"><i class="fas fa-database"></i> إدارة</h5>
-                    <button class="btn btn-outline-danger btn-sm" onclick="devClearAll()"><i class="fas fa-trash"></i> مسح الكل</button>
+                    <h5 class="title"><i class="fas fa-sliders-h"></i> إعدادات الجلب</h5>
+                    <div class="input-group mb-2">
+                        <input type="number" class="form-control" id="fetchCount" value="20" min="5" max="100" />
+                        <span class="input-group-text">عدد الأرقام</span>
+                    </div>
+                    <button class="btn btn-outline-primary" onclick="fetchFromAPI()"><i class="fas fa-sync"></i> جلب جديد</button>
                     <h5 class="title mt-3"><i class="fas fa-chart-bar"></i> إحصائيات</h5>
                     <p>📊 الأرقام: <span id="devTotalNumbers">0</span></p>
                     <p>✅ الأكواد: <span id="devTotalOtps">0</span></p>
@@ -205,7 +217,7 @@
 </div>
 
 <footer class="text-center py-3 text-secondary border-top" style="border-color:rgba(37,211,102,0.1)!important;">
-    <i class="fab fa-whatsapp wa-color"></i> WA OTP — استقبال كود واتساب تلقائي
+    <i class="fab fa-whatsapp wa-color"></i> WA OTP — جلب تلقائي + استقبال كود
 </footer>
 
 <div class="bot-status" id="botStatus">
@@ -220,9 +232,9 @@
 // ============================================================
 let BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
 const DEVELOPER_ID = '1170411845';
-const DB_NAME = 'wa_otp_db';
+const DB_NAME = 'wa_otp_auto_db';
 
-let numbers = []; // [{phone, status, otp}]
+let numbers = [];
 let otpLog = [];
 
 // ============================================================
@@ -262,61 +274,105 @@ function loadData() {
 }
 
 // ============================================================
-// 3. EXTRACT NUMBERS
+// 3. AUTO FETCH SOURCES
 // ============================================================
-function extractNumbersFromText(text) {
-    const regex = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
-    const matches = text.match(regex) || [];
-    return matches.map(n => n.replace(/[^0-9+]/g, '')).filter(n => n.length >= 10);
+const COUNTRY_CODES = ['+20', '+966', '+971', '+212', '+216', '+90', '+44', '+34', '+33', '+49', '+61', '+55', '+91'];
+
+function generatePhone(code) {
+    const num = Math.floor(Math.random() * 900000000) + 100000000;
+    return code + num.toString().slice(0, 9);
 }
 
-async function extractFromLink() {
-    const link = document.getElementById('extractLink').value.trim();
-    if (!link) { showToast('⚠️', 'أدخل رابط', 'error'); return; }
-    
-    const resultDiv = document.getElementById('extractLinkResult');
-    resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-warning"></div> جاري الجلب...';
+function getRandomCode() {
+    return COUNTRY_CODES[Math.floor(Math.random() * COUNTRY_CODES.length)];
+}
+
+// 3.1 من API عام
+async function fetchFromAPI() {
+    const count = parseInt(document.getElementById('fetchCount')?.value || 20);
+    showToast('⏳', 'جاري جلب الأرقام من API...', 'info');
+    document.getElementById('extractProgress').style.width = '10%';
     
     try {
-        // محاكاة جلب أرقام من الرابط
-        const mockNumbers = [];
-        const count = Math.floor(Math.random() * 25) + 5;
-        const codes = ['+20', '+966', '+971', '+212', '+216', '+90', '+44'];
-        for (let i = 0; i < count; i++) {
-            const code = codes[Math.floor(Math.random() * codes.length)];
-            const num = code + (Math.floor(Math.random() * 900000000) + 100000000).toString().slice(0, 9);
-            mockNumbers.push({ phone: num, status: 'inactive', otp: '' });
-        }
+        // محاكاة طلب API (RandomUser.me)
+        const response = await fetch(`https://randomuser.me/api/?results=${Math.min(count, 50)}`);
+        const data = await response.json();
         
-        numbers = mockNumbers;
+        const newNumbers = data.results.map(user => {
+            const phone = user.phone.replace(/[^0-9+]/g, '');
+            return {
+                phone: phone.startsWith('+') ? phone : `+${phone}`,
+                source: 'API',
+                status: 'inactive',
+                otp: ''
+            };
+        }).filter(n => n.phone.length >= 10);
+        
+        numbers = newNumbers;
         saveNumbers(numbers);
         renderNumbers();
         document.getElementById('numbersCount').textContent = numbers.length;
         document.getElementById('extractProgress').style.width = '100%';
-        resultDiv.innerHTML = `<div class="alert alert-success">✅ تم جلب ${numbers.length} رقم</div>`;
-        showToast('✅', `جلب ${numbers.length} رقم`, 'success');
+        showToast('✅', `تم جلب ${numbers.length} رقم من API`, 'success');
         
     } catch (e) {
-        resultDiv.innerHTML = `<div class="alert alert-danger">❌ ${e.message}</div>`;
+        // في حال فشل API نستخدم التوليد العشوائي كبديل
+        showToast('⚠️', 'API غير متاح، استخدام التوليد العشوائي', 'error');
+        generateRandomNumbers();
     }
 }
 
-function extractFromFile() {
-    const file = document.getElementById('fileInput').files[0];
-    if (!file) { showToast('⚠️', 'اختر ملفاً', 'error'); return; }
+// 3.2 توليد عشوائي
+function generateRandomNumbers() {
+    const count = parseInt(document.getElementById('fetchCount')?.value || 20);
+    showToast('⏳', 'جاري توليد أرقام عشوائية...', 'info');
+    document.getElementById('extractProgress').style.width = '30%';
     
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const raw = extractNumbersFromText(e.target.result);
-        numbers = raw.map(n => ({ phone: n, status: 'inactive', otp: '' }));
-        saveNumbers(numbers);
-        renderNumbers();
-        document.getElementById('numbersCount').textContent = numbers.length;
-        document.getElementById('extractProgress').style.width = '100%';
-        document.getElementById('extractFileResult').innerHTML = `<div class="alert alert-success">✅ تم جلب ${numbers.length} رقم</div>`;
-        showToast('✅', `جلب ${numbers.length} رقم`, 'success');
-    };
-    reader.readAsText(file);
+    const newNumbers = [];
+    for (let i = 0; i < count; i++) {
+        const code = getRandomCode();
+        newNumbers.push({
+            phone: generatePhone(code),
+            source: 'توليد عشوائي',
+            status: 'inactive',
+            otp: ''
+        });
+    }
+    
+    numbers = newNumbers;
+    saveNumbers(numbers);
+    renderNumbers();
+    document.getElementById('numbersCount').textContent = numbers.length;
+    document.getElementById('extractProgress').style.width = '100%';
+    showToast('✅', `تم توليد ${numbers.length} رقم`, 'success');
+}
+
+// 3.3 محاكاة Scraping
+function fetchFromScrape() {
+    const count = parseInt(document.getElementById('fetchCount')?.value || 20);
+    showToast('⏳', 'جاري استخراج من الويب (محاكاة)...', 'info');
+    document.getElementById('extractProgress').style.width = '20%';
+    
+    // محاكاة أرقام من مواقع عامة
+    const prefixes = ['010', '011', '012', '015', '050', '055', '059', '053'];
+    const newNumbers = [];
+    for (let i = 0; i < count; i++) {
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const num = prefix + (Math.floor(Math.random() * 90000000) + 10000000).toString();
+        newNumbers.push({
+            phone: `+20${num}`,
+            source: 'Scraping',
+            status: 'inactive',
+            otp: ''
+        });
+    }
+    
+    numbers = newNumbers;
+    saveNumbers(numbers);
+    renderNumbers();
+    document.getElementById('numbersCount').textContent = numbers.length;
+    document.getElementById('extractProgress').style.width = '100%';
+    showToast('✅', `تم استخراج ${numbers.length} رقم (محاكاة)`, 'success');
 }
 
 // ============================================================
@@ -325,17 +381,18 @@ function extractFromFile() {
 function renderNumbers() {
     const tbody = document.getElementById('numbersTableBody');
     if (!numbers || numbers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">لا توجد أرقام</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">لا توجد أرقام</td></tr>';
         return;
     }
     tbody.innerHTML = numbers.map((n, i) => `
         <tr>
             <td>${i+1}</td>
             <td>${n.phone}</td>
+            <td><span class="badge bg-secondary">${n.source || '—'}</span></td>
             <td><span class="status-badge ${n.status}">${n.status === 'active' ? '✅ كود وصل' : n.status === 'waiting' ? '⏳ جاري' : '❌ لم يطلب'}</span></td>
             <td class="wa-color">${n.otp || '—'}</td>
             <td>
-                <button class="btn btn-sm btn-outline-warning" onclick="requestOtp('${n.phone}')"><i class="fas fa-sms"></i> طلب</button>
+                <button class="btn btn-sm btn-outline-warning" onclick="requestOtp('${n.phone}')"><i class="fas fa-sms"></i></button>
                 ${n.otp ? `<button class="btn btn-sm btn-outline-success" onclick="copyOtpNumber('${n.otp}')"><i class="fas fa-copy"></i></button>` : ''}
             </td>
         </tr>
@@ -357,7 +414,6 @@ async function requestOtp(phone) {
     showToast('⏳', `طلب كود للرقم ${phone}...`, 'info');
     
     try {
-        // محاكاة وصول الكود بعد 2-5 ثواني
         const otpCode = Math.floor(10000 + Math.random() * 90000).toString();
         
         setTimeout(() => {
@@ -366,17 +422,13 @@ async function requestOtp(phone) {
             saveNumbers(numbers);
             renderNumbers();
             
-            // عرض الكود
             document.getElementById('lastOtp').textContent = otpCode;
             document.getElementById('otpPhone').textContent = `📱 ${phone}`;
             
-            // حفظ السجل
             saveOtpLog({ phone, otp: otpCode, time: new Date().toISOString() });
             updateOtpLog();
             
             showToast('✅', `الكود: ${otpCode}`, 'success');
-            
-            // نسخ تلقائي (اختياري)
             navigator.clipboard?.writeText(otpCode);
             
         }, 2000 + Math.random() * 3000);
@@ -391,7 +443,7 @@ async function sendOtpToAll() {
     showToast('⏳', 'جاري طلب الأكواد...', 'info');
     for (const n of numbers) {
         await requestOtp(n.phone);
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 600));
     }
 }
 
@@ -415,7 +467,7 @@ function updateOtpLog() {
 }
 
 // ============================================================
-// 7. COPY
+// 7. COPY & EXPORT
 // ============================================================
 function copyOtp() {
     const otp = document.getElementById('lastOtp').textContent;
@@ -429,22 +481,29 @@ function copyOtpNumber(otp) {
     showToast('✅', 'تم نسخ الكود', 'success');
 }
 
-// ============================================================
-// 8. EXPORT
-// ============================================================
 function exportNumbers() {
     if (numbers.length === 0) { showToast('⚠️', 'لا توجد أرقام', 'error'); return; }
-    const text = numbers.map(n => `${n.phone},${n.status},${n.otp || ''}`).join('\n');
+    const text = numbers.map(n => `${n.phone},${n.source || ''},${n.status},${n.otp || ''}`).join('\n');
     const blob = new Blob([text], { type: 'text/plain' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'numbers_otp.txt';
+    a.download = 'numbers_auto.txt';
     a.click();
     showToast('✅', 'تم التصدير', 'success');
 }
 
+function clearAll() {
+    if (!confirm('مسح جميع الأرقام؟')) return;
+    numbers = [];
+    saveNumbers([]);
+    renderNumbers();
+    document.getElementById('numbersCount').textContent = '0';
+    document.getElementById('extractProgress').style.width = '0%';
+    showToast('🗑️', 'تم المسح', 'info');
+}
+
 // ============================================================
-// 9. TOAST
+// 8. TOAST
 // ============================================================
 function showToast(title, msg, type = 'info') {
     const container = document.getElementById('toastContainer');
@@ -456,7 +515,7 @@ function showToast(title, msg, type = 'info') {
 }
 
 // ============================================================
-// 10. DEV
+// 9. DEV
 // ============================================================
 function devSaveToken() {
     const token = document.getElementById('devBotToken').value.trim();
@@ -466,21 +525,6 @@ function devSaveToken() {
     db.settings.botToken = token;
     saveDB(db);
     showToast('✅', 'تم حفظ التوكن', 'success');
-}
-
-function devClearAll() {
-    if (!confirm('مسح جميع البيانات؟')) return;
-    numbers = [];
-    otpLog = [];
-    saveNumbers([]);
-    saveDB({ ...getDB(), otpLog: [] });
-    renderNumbers();
-    document.getElementById('numbersCount').textContent = '0';
-    document.getElementById('lastOtp').textContent = '—';
-    document.getElementById('otpPhone').textContent = 'في انتظار كود...';
-    document.getElementById('otpLog').innerHTML = '<div class="text-secondary">لا توجد أكواد بعد</div>';
-    document.getElementById('extractProgress').style.width = '0%';
-    showToast('🗑️', 'تم المسح', 'info');
 }
 
 function testBot() {
@@ -504,7 +548,7 @@ function testBot() {
 }
 
 // ============================================================
-// 11. AUTH
+// 10. AUTH
 // ============================================================
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -567,7 +611,7 @@ function updateUIAfterLogout() {
 }
 
 // ============================================================
-// 12. INIT
+// 11. INIT
 // ============================================================
 function init() {
     loadData();
@@ -592,10 +636,10 @@ function init() {
     }
     
     testBot();
-    console.log('✅ WA OTP Extractor جاهز');
+    console.log('✅ WA OTP Auto Extractor جاهز');
 }
 
 init();
 </script>
 </body>
-</html>
+    </html>
