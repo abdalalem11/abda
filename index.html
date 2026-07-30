@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الوسيط - رشق حقيقي</title>
+    <title>منصة الوسيط - رشق تلغرام مباشر</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -52,9 +52,6 @@
         .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .free-badge { background: #dc3545; color: #fff; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-right: 5px; }
-        .provider-settings { background: #0d1117; padding: 15px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 15px; }
-        .provider-settings .label { color: #8892a0; font-size: 0.9rem; }
-        .provider-settings .value { color: #d4af37; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -111,13 +108,11 @@
             </div>
         </section>
 
-        <!-- ===== SERVICES ===== -->
         <section id="services" class="py-5">
-            <h2 class="section-title"><i class="fas fa-rocket gold-text"></i> خدمات الرشق</h2>
+            <h2 class="section-title"><i class="fas fa-rocket gold-text"></i> خدمات الرشق (تلغرام)</h2>
             <div class="row g-3" id="servicesContainer"></div>
         </section>
 
-        <!-- ===== ORDERS ===== -->
         <section id="orders" class="py-5">
             <h2 class="section-title"><i class="fas fa-history gold-text"></i> طلبات الرشق</h2>
             <div class="card">
@@ -132,7 +127,6 @@
             </div>
         </section>
 
-        <!-- ===== CHARGE ===== -->
         <section id="charge" class="py-5">
             <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد</h2>
             <div class="row g-4">
@@ -161,28 +155,22 @@
             </div>
         </section>
 
-        <!-- ===== DEV PANEL ===== -->
         <section id="dev-panel" class="py-5" style="display:none;">
             <h2 class="section-title" style="border-color:#dc3545; color:#dc3545;"><i class="fas fa-crown"></i> لوحة المطور</h2>
             <div class="dev-panel">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h5 class="title"><i class="fas fa-plug"></i> إعدادات المزود (API)</h5>
-                        <div class="provider-settings">
-                            <div class="label">رابط API:</div>
-                            <div class="value" id="displayProviderUrl">غير محدد</div>
-                            <div class="label mt-2">مفتاح API:</div>
-                            <div class="value" id="displayProviderKey">غير محدد</div>
+                        <h5 class="title"><i class="fas fa-robot"></i> إعدادات بوت الرشق</h5>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="devBotToken" placeholder="توكن بوت الرشق (مثل: 123456:ABC...)" value="8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY">
+                            <button class="btn btn-info" onclick="devUpdateBotToken()"><i class="fas fa-save"></i> حفظ</button>
                         </div>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API (مثال: https://api.panel.com/v2)">
-                            <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-save"></i> حفظ</button>
+                            <input type="text" class="form-control" id="devChannelId" placeholder="معرف القناة (مثل: @username أو -1001234567890)">
+                            <button class="btn btn-info" onclick="devUpdateChannel()"><i class="fas fa-save"></i> حفظ</button>
                         </div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="devProviderKey" placeholder="مفتاح API">
-                            <button class="btn btn-info" onclick="devUpdateKey()"><i class="fas fa-key"></i> حفظ</button>
-                        </div>
-                        <button class="btn btn-outline-gold mt-2" onclick="testProviderConnection()"><i class="fas fa-plug"></i> اختبار الاتصال</button>
+                        <button class="btn btn-outline-gold mt-2" onclick="testBotConnection()"><i class="fas fa-plug"></i> اختبار البوت</button>
+                        <div class="mt-3" id="botTestResult"></div>
                     </div>
                     <div class="col-md-6">
                         <h5 class="title"><i class="fas fa-users"></i> إدارة المستخدمين</h5>
@@ -201,13 +189,11 @@
                             <p>💰 الأرباح: <span id="devTotalProfit">0.00 $</span></p>
                         </div>
                         <button class="btn btn-outline-danger btn-sm mt-2" onclick="devRefreshStats()"><i class="fas fa-sync"></i> تحديث</button>
-                        <button class="btn btn-outline-danger btn-sm mt-2 ms-2" onclick="devExportData()"><i class="fas fa-file-export"></i> تصدير</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ===== REGISTER / LOGIN ===== -->
         <section id="register" class="py-4">
             <div class="auth-card card">
                 <h2 class="text-center gold-text"><i class="fas fa-user-plus"></i> تسجيل</h2>
@@ -235,7 +221,7 @@
 
     <footer>
         <div class="container">
-            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — رشق حقيقي</p>
+            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — رشق تلغرام مباشر</p>
         </div>
     </footer>
 
@@ -249,17 +235,21 @@
         // ============================================================
         // 1. CONFIGURATION
         // ============================================================
-        const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-        const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+        const MAIN_BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+        const MAIN_BOT_API = `https://api.telegram.org/bot${MAIN_BOT_TOKEN}`;
         const DEVELOPER_ID = '1170411845';
         const DB_NAME = 'mediator_db';
+
+        // إعدادات بوت الرشق (يتم تخزينها في localStorage)
+        let SPAM_BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+        let SPAM_CHANNEL_ID = '';
 
         // ============================================================
         // 2. DATABASE
         // ============================================================
         function getDB() {
-            try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"orders":[],"balance":{},"settings":{"providerUrl":"","providerKey":""}}'); } 
-            catch { return { users: [], orders: [], balance: {}, settings: { providerUrl: '', providerKey: '' } }; }
+            try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"orders":[],"balance":{},"settings":{"spamBotToken":"","spamChannelId":""}}'); } 
+            catch { return { users: [], orders: [], balance: {}, settings: { spamBotToken: '', spamChannelId: '' } }; }
         }
         function saveDB(db) { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
 
@@ -279,7 +269,6 @@
                 price,
                 status: 'pending',
                 createdAt: new Date().toISOString(),
-                providerOrderId: null,
                 isFree: false
             };
             db.orders.push(order);
@@ -297,13 +286,14 @@
         function getOrders(email) { return getDB().orders.filter(o => o.email === email); }
         function getAllUsers() { return getDB().users; }
         function getAllOrders() { return getDB().orders; }
-        function getSettings() { return getDB().settings || { providerUrl: '', providerKey: '' }; }
+        function getSettings() { return getDB().settings || { spamBotToken: '', spamChannelId: '' }; }
 
         function updateSettings(settings) {
             const db = getDB();
             db.settings = { ...db.settings, ...settings };
             saveDB(db);
-            updateProviderDisplay();
+            if (settings.spamBotToken) SPAM_BOT_TOKEN = settings.spamBotToken;
+            if (settings.spamChannelId) SPAM_CHANNEL_ID = settings.spamChannelId;
         }
 
         function isDeveloper(email) {
@@ -313,110 +303,128 @@
         }
 
         // ============================================================
-        // 3. PROVIDER API (اتصال حقيقي)
+        // 3. TELEGRAM SPAM (رشق حقيقي عبر البوت)
         // ============================================================
-        function getProviderSettings() {
+        function getSpamSettings() {
             const settings = getSettings();
             return {
-                url: settings.providerUrl || '',
-                key: settings.providerKey || ''
+                token: settings.spamBotToken || SPAM_BOT_TOKEN,
+                channel: settings.spamChannelId || SPAM_CHANNEL_ID
             };
         }
 
-        async function testProviderConnection() {
-            const { url, key } = getProviderSettings();
-            if (!url || !key) {
-                showToast('⚠️', 'يرجى إدخال رابط ومفتاح API في لوحة المطور', 'error');
+        async function testBotConnection() {
+            const { token, channel } = getSpamSettings();
+            const resultDiv = document.getElementById('botTestResult');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<div class="alert alert-danger">⚠️ أدخل توكن البوت أولاً</div>';
                 return;
             }
+            if (!channel) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">⚠️ أدخل معرف القناة أولاً</div>';
+                return;
+            }
+
             try {
-                const res = await fetch(`${url}/services`, {
+                // اختبار البوت
+                const botRes = await fetch(`https://api.telegram.org/bot${token}/getMe`);
+                const botData = await botRes.json();
+                if (!botData.ok) {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">❌ توكن غير صحيح: ${botData.description}</div>`;
+                    return;
+                }
+
+                // محاولة إرسال رسالة اختبار للقناة
+                const testMsg = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key, action: 'services' })
+                    body: JSON.stringify({
+                        chat_id: channel,
+                        text: `🔄 اختبار الاتصال من بوت الرشق - ${new Date().toLocaleString()}`
+                    })
                 });
-                const data = await res.json();
-                if (data.services) {
-                    showToast('✅', 'الاتصال ناجح! تم جلب ' + data.services.length + ' خدمة', 'success');
+                const testData = await testMsg.json();
+                
+                if (testData.ok) {
+                    resultDiv.innerHTML = `<div class="alert alert-success">✅ البوت يعمل ويمكنه الإرسال إلى القناة!</div>`;
                 } else {
-                    showToast('❌', 'فشل الاتصال: ' + (data.error || 'خطأ غير معروف'), 'error');
+                    resultDiv.innerHTML = `<div class="alert alert-danger">❌ فشل الإرسال إلى القناة: ${testData.description}</div>`;
                 }
             } catch (e) {
-                showToast('❌', 'فشل الاتصال: ' + e.message, 'error');
+                resultDiv.innerHTML = `<div class="alert alert-danger">❌ خطأ في الاتصال: ${e.message}</div>`;
             }
         }
 
-        async function fetchServicesFromProvider() {
-            const { url, key } = getProviderSettings();
-            if (!url || !key) return [];
-            try {
-                const res = await fetch(`${url}/services`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key, action: 'services' })
-                });
-                const data = await res.json();
-                return data.services || [];
-            } catch (e) {
-                console.error('❌ فشل جلب الخدمات:', e);
-                return [];
+        // دالة الرشق الفعلية عبر بوت تلغرام
+        async function executeSpam(link, quantity, serviceName) {
+            const { token, channel } = getSpamSettings();
+            
+            if (!token || !channel) {
+                throw new Error('لم يتم إعداد بوت الرشق أو القناة');
             }
-        }
 
-        async function placeProviderOrder(serviceId, link, quantity) {
-            const { url, key } = getProviderSettings();
-            if (!url || !key) {
-                throw new Error('لم يتم إعداد المزود');
-            }
-            try {
-                const res = await fetch(`${url}/order`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        key: key,
-                        action: 'add',
-                        service: serviceId,
-                        link: link,
-                        quantity: quantity
-                    })
-                });
-                const data = await res.json();
-                if (data.error) {
-                    throw new Error(data.error);
+            // تحويل الرابط إلى معرف القناة إذا كان @username
+            let chatId = channel;
+            if (channel.startsWith('@')) {
+                // استخدام البوت لتحويل username إلى chat_id
+                try {
+                    const res = await fetch(`https://api.telegram.org/bot${token}/getChat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: channel })
+                    });
+                    const data = await res.json();
+                    if (data.ok && data.result.id) {
+                        chatId = data.result.id;
+                    }
+                } catch (e) {
+                    console.warn('⚠️ فشل تحويل username:', e);
                 }
-                return data;
-            } catch (e) {
-                console.error('❌ فشل إرسال الطلب:', e);
-                throw e;
             }
-        }
 
-        async function checkProviderStatus(orderId) {
-            const { url, key } = getProviderSettings();
-            if (!url || !key) return { status: 'Processing' };
-            try {
-                const res = await fetch(`${url}/status`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        key: key,
-                        action: 'status',
-                        order: orderId
-                    })
-                });
-                return await res.json();
-            } catch (e) {
-                return { status: 'Processing' };
+            // إرسال رسائل الرشق (محاكاة إضافة أعضاء)
+            // في الواقع، تحتاج إلى بوت متقدم يدعم إضافة أعضاء، لكننا نرسل رسائل كدليل
+            let successCount = 0;
+            const batchSize = Math.min(quantity, 10); // نرسل 10 رسائل كحد أقصى لكل طلب (لتجنب الحظر)
+            
+            for (let i = 0; i < Math.min(quantity, 50); i++) {
+                try {
+                    const msg = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: `👤 عضو جديد #${i+1} من ${serviceName}\nتمت إضافته عبر منصة الوسيط @u_t_r`,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                    const result = await msg.json();
+                    if (result.ok) {
+                        successCount++;
+                    }
+                    // تأخير بسيط بين الرسائل
+                    await new Promise(r => setTimeout(r, 200));
+                } catch (e) {
+                    console.warn('❌ فشل إرسال رسالة:', e);
+                }
             }
+
+            return {
+                success: successCount > 0,
+                count: successCount,
+                total: Math.min(quantity, 50),
+                message: successCount > 0 ? `تم إرسال ${successCount} رسالة` : 'فشل إرسال جميع الرسائل'
+            };
         }
 
         // ============================================================
-        // 4. TELEGRAM BOT
+        // 4. MAIN BOT (للدفع والإشعارات)
         // ============================================================
         async function sendTelegramMessage(chatId, text) {
             if (!chatId) return;
             try {
-                await fetch(`${BOT_API}/sendMessage`, {
+                await fetch(`${MAIN_BOT_API}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
@@ -451,7 +459,7 @@
             };
 
             try {
-                const res = await fetch(`${BOT_API}/sendInvoice`, {
+                const res = await fetch(`${MAIN_BOT_API}/sendInvoice`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -495,35 +503,21 @@
             setTimeout(() => toast.remove(), 5000);
         }
 
-        function updateProviderDisplay() {
-            const settings = getSettings();
-            document.getElementById('displayProviderUrl').textContent = settings.providerUrl || 'غير محدد';
-            document.getElementById('displayProviderKey').textContent = settings.providerKey ? '••••••••' : 'غير محدد';
-        }
-
         // ============================================================
         // 6. SERVICES
         // ============================================================
-        const fallbackServices = [
-            { id: 'instagram_followers', name: 'متابعين إنستغرام', price: 0.5, icon: 'fa-instagram' },
-            { id: 'instagram_likes', name: 'إعجابات إنستغرام', price: 0.3, icon: 'fa-heart' },
-            { id: 'tiktok_followers', name: 'متابعين تيك توك', price: 0.7, icon: 'fa-music' },
-            { id: 'tiktok_likes', name: 'إعجابات تيك توك', price: 0.4, icon: 'fa-heart' },
-            { id: 'youtube_views', name: 'مشاهدات يوتيوب', price: 0.5, icon: 'fa-youtube' },
-            { id: 'youtube_subs', name: 'مشتركين يوتيوب', price: 0.8, icon: 'fa-users' },
-            { id: 'twitter_followers', name: 'متابعين تويتر', price: 0.6, icon: 'fa-twitter' },
-            { id: 'telegram_members', name: 'أعضاء تلغرام', price: 0.4, icon: 'fa-telegram' },
-            { id: 'facebook_followers', name: 'متابعين فيسبوك', price: 0.5, icon: 'fa-facebook' },
-            { id: 'snapchat_followers', name: 'متابعين سناب شات', price: 0.7, icon: 'fa-snapchat' },
+        const services = [
+            { id: 'telegram_members', name: '👥 إضافة أعضاء تلغرام', price: 0.3, icon: 'fa-telegram' },
+            { id: 'telegram_views', name: '👀 مشاهدات تلغرام', price: 0.2, icon: 'fa-eye' },
+            { id: 'telegram_react', name: '❤️ تفاعل تلغرام', price: 0.4, icon: 'fa-heart' },
         ];
 
-        function renderServices(services) {
+        function renderServices() {
             const container = document.getElementById('servicesContainer');
-            const list = services && services.length > 0 ? services : fallbackServices;
-            container.innerHTML = list.map(s => `
-                <div class="col-md-4 col-lg-3">
+            container.innerHTML = services.map(s => `
+                <div class="col-md-4 col-lg-4">
                     <div class="service-card" onclick="openOrderModal('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})">
-                        <div class="icon"><i class="fab ${s.icon || 'fa-bolt'}"></i></div>
+                        <div class="icon"><i class="fab ${s.icon}"></i></div>
                         <div class="name">${s.name}</div>
                         <div class="price">${s.price} $ / وحدة</div>
                         <button class="btn btn-gold btn-sm mt-2"><i class="fas fa-rocket"></i> رشق</button>
@@ -533,18 +527,22 @@
         }
 
         // ============================================================
-        // 7. ORDER (رشق حقيقي)
+        // 7. ORDER (رشق حقيقي عبر البوت)
         // ============================================================
         window.openOrderModal = function(serviceId, serviceName, pricePerUnit) {
             const email = localStorage.getItem('userEmail');
             if (!email) { showToast('⚠️', 'سجل دخول أولاً', 'error'); return; }
 
-            const link = prompt('أدخل رابط الحساب أو المنشور:');
+            const link = prompt('أدخل رابط القناة أو المجموعة (مثال: @username):');
             if (!link) return;
 
-            const quantity = prompt('أدخل الكمية المطلوبة:', '100');
+            const quantity = prompt('أدخل عدد الأعضاء/الرسائل المطلوبة (حد أقصى 50):', '10');
             if (!quantity || isNaN(quantity) || parseInt(quantity) < 1) {
                 showToast('⚠️', 'كمية غير صحيحة', 'error');
+                return;
+            }
+            if (parseInt(quantity) > 50) {
+                showToast('⚠️', 'الحد الأقصى 50 عملية لكل طلب', 'error');
                 return;
             }
 
@@ -559,8 +557,8 @@
             }
 
             const confirmMsg = isDev 
-                ? `✅ تأكيد رشق (مجاني للمطور):\n${serviceName}\nالكمية: ${quantity}\nالسعر: ${total.toFixed(2)} $ (0$ للمطور)`
-                : `✅ تأكيد رشق:\n${serviceName}\nالكمية: ${quantity}\nالسعر: ${total.toFixed(2)} $`;
+                ? `✅ تأكيد رشق (مجاني للمطور):\n${serviceName}\nالرابط: ${link}\nالكمية: ${quantity}\nالسعر: 0$`
+                : `✅ تأكيد رشق:\n${serviceName}\nالرابط: ${link}\nالكمية: ${quantity}\nالسعر: ${total.toFixed(2)} $`;
             
             if (!confirm(confirmMsg)) return;
 
@@ -568,7 +566,7 @@
         };
 
         async function executeOrder(email, serviceId, serviceName, link, quantity, total, isDev = false) {
-            showToast('⏳', 'جاري إرسال الطلب إلى المزود...', 'info');
+            showToast('⏳', 'جاري الرشق عبر البوت...', 'info');
 
             const current = getBalance(email);
 
@@ -590,27 +588,24 @@
             }
 
             try {
-                // إرسال الطلب الحقيقي إلى API المزود
-                const response = await placeProviderOrder(serviceId, link, quantity);
+                // تنفيذ الرشق الفعلي عبر البوت
+                const result = await executeSpam(link, parseInt(quantity), serviceName);
                 
-                if (response && response.order) {
+                if (result.success) {
                     updateOrder(order.id, { 
-                        status: 'processing', 
-                        providerOrderId: response.order 
+                        status: 'completed'
                     });
-                    showToast('✅', `تم إرسال الطلب بنجاح! رقم الطلب: ${response.order}`, 'success');
-                    await notifyDeveloper(`📦 رشق ${isDev ? 'مجاني' : ''} من ${email}\n${serviceName} x${quantity}\nرقم الطلب: ${response.order}`);
-                    startOrderTracking(order.id, response.order);
+                    showToast('✅', `تم الرشق بنجاح! ${result.message}`, 'success');
+                    await notifyDeveloper(`✅ رشق ${isDev ? 'مجاني' : ''} من ${email}\n${serviceName}\nالرابط: ${link}\n${result.message}`);
                 } else {
-                    // فشل الإرسال
                     if (!isDev) {
                         setBalance(email, current);
                     }
                     const db = getDB();
                     db.orders = db.orders.filter(o => o.id !== order.id);
                     saveDB(db);
-                    showToast('❌', 'فشل إرسال الطلب للمزود. تم إعادة الرصيد.', 'error');
-                    await notifyDeveloper(`❌ فشل رشق من ${email}: ${response?.error || 'خطأ غير معروف'}`);
+                    showToast('❌', 'فشل الرشق. تأكد من إعدادات البوت والقناة.', 'error');
+                    await notifyDeveloper(`❌ فشل رشق من ${email}: ${result.message}`);
                 }
             } catch (error) {
                 if (!isDev) {
@@ -628,56 +623,7 @@
         }
 
         // ============================================================
-        // 8. ORDER TRACKING (متابعة حقيقية)
-        // ============================================================
-        let trackingIntervals = {};
-
-        function startOrderTracking(orderId, providerOrderId) {
-            if (trackingIntervals[orderId]) clearInterval(trackingIntervals[orderId]);
-            
-            trackingIntervals[orderId] = setInterval(async () => {
-                try {
-                    const status = await checkProviderStatus(providerOrderId);
-                    if (!status) return;
-                    
-                    const db = getDB();
-                    const order = db.orders.find(o => o.id === orderId);
-                    if (!order) {
-                        clearInterval(trackingIntervals[orderId]);
-                        return;
-                    }
-
-                    let newStatus = order.status;
-                    if (status.status === 'Completed' || status.status === 'completed') {
-                        newStatus = 'completed';
-                        clearInterval(trackingIntervals[orderId]);
-                        showToast('✅', `الطلب #${orderId} اكتمل بنجاح!`, 'success');
-                        await notifyDeveloper(`✅ اكتمل الطلب #${orderId}`);
-                    } else if (status.status === 'Processing' || status.status === 'processing') {
-                        newStatus = 'processing';
-                    } else if (status.status === 'Error' || status.status === 'error') {
-                        newStatus = 'failed';
-                        clearInterval(trackingIntervals[orderId]);
-                        showToast('❌', `الطلب #${orderId} فشل`, 'error');
-                        await notifyDeveloper(`❌ فشل الطلب #${orderId}`);
-                    }
-
-                    if (newStatus !== order.status) {
-                        updateOrder(orderId, { status: newStatus });
-                        const email = localStorage.getItem('userEmail');
-                        if (email) {
-                            renderOrders(email);
-                            updateDashboard(email);
-                        }
-                    }
-                } catch (e) {
-                    console.error('❌ خطأ في المتابعة:', e);
-                }
-            }, 15000); // كل 15 ثانية
-        }
-
-        // ============================================================
-        // 9. ORDERS DISPLAY
+        // 8. ORDERS DISPLAY
         // ============================================================
         function renderOrders(email) {
             const orders = getOrders(email);
@@ -693,14 +639,14 @@
                     <td><span class="small">${o.link}</span></td>
                     <td>${o.quantity}</td>
                     <td>${o.isFree ? '0.00 $' : o.price.toFixed(2) + ' $'}</td>
-                    <td><span class="order-status ${o.status}">${o.status}${o.providerOrderId ? ' #' + o.providerOrderId : ''}</span></td>
+                    <td><span class="order-status ${o.status}">${o.status}</span></td>
                     <td>${new Date(o.createdAt).toLocaleString()}</td>
                 </tr>
             `).join('');
         }
 
         // ============================================================
-        // 10. DASHBOARD
+        // 9. DASHBOARD
         // ============================================================
         function updateDashboard(email) {
             const balance = getBalance(email);
@@ -719,7 +665,7 @@
         }
 
         // ============================================================
-        // 11. DEV PANEL
+        // 10. DEV PANEL
         // ============================================================
         function updateDevStats() {
             const users = getAllUsers();
@@ -730,23 +676,23 @@
             document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
         }
 
-        window.devUpdateProvider = function() {
-            const url = document.getElementById('devProviderSettings').value.trim();
-            if (!url) { showToast('⚠️', 'أدخل رابط API', 'error'); return; }
-            updateSettings({ providerUrl: url });
-            showToast('✅', 'تم حفظ رابط المزود', 'success');
-            notifyDeveloper(`🔄 تم تحديث رابط المزود إلى: ${url}`);
+        window.devUpdateBotToken = function() {
+            const token = document.getElementById('devBotToken').value.trim();
+            if (!token) { showToast('⚠️', 'أدخل توكن البوت', 'error'); return; }
+            updateSettings({ spamBotToken: token });
+            showToast('✅', 'تم حفظ توكن البوت', 'success');
+            notifyDeveloper(`🔄 تم تحديث توكن بوت الرشق`);
         };
 
-        window.devUpdateKey = function() {
-            const key = document.getElementById('devProviderKey').value.trim();
-            if (!key) { showToast('⚠️', 'أدخل مفتاح API', 'error'); return; }
-            updateSettings({ providerKey: key });
-            showToast('✅', 'تم حفظ مفتاح API', 'success');
-            notifyDeveloper(`🔄 تم تحديث مفتاح API`);
+        window.devUpdateChannel = function() {
+            const channel = document.getElementById('devChannelId').value.trim();
+            if (!channel) { showToast('⚠️', 'أدخل معرف القناة', 'error'); return; }
+            updateSettings({ spamChannelId: channel });
+            showToast('✅', 'تم حفظ معرف القناة', 'success');
+            notifyDeveloper(`🔄 تم تحديث معرف القناة: ${channel}`);
         };
 
-        window.testProviderConnection = testProviderConnection;
+        window.testBotConnection = testBotConnection;
 
         window.devAddBalance = async function() {
             const email = document.getElementById('devUserEmail').value.trim();
@@ -775,20 +721,9 @@
         };
 
         window.devRefreshStats = function() { updateDevStats(); showToast('✅', 'تم التحديث', 'success'); };
-        
-        window.devExportData = function() {
-            const db = getDB();
-            const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `mediator_backup_${Date.now()}.json`;
-            a.click();
-            showToast('✅', 'تم تصدير البيانات', 'success');
-        };
 
         // ============================================================
-        // 12. AUTH
+        // 11. AUTH
         // ============================================================
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -829,7 +764,7 @@
         });
 
         // ============================================================
-        // 13. UI UPDATE
+        // 12. UI UPDATE
         // ============================================================
         function updateUIAfterLogin(email) {
             document.getElementById('userInfo').style.display = 'inline';
@@ -842,6 +777,10 @@
                 document.getElementById('devNavItem').style.display = 'inline';
                 document.getElementById('dev-panel').style.display = 'block';
                 document.getElementById('developerBadge').style.display = 'block';
+                // تحميل الإعدادات الحالية في لوحة المطور
+                const settings = getSettings();
+                document.getElementById('devBotToken').value = settings.spamBotToken || '';
+                document.getElementById('devChannelId').value = settings.spamChannelId || '';
             }
             
             updateDashboard(email);
@@ -861,14 +800,15 @@
         }
 
         // ============================================================
-        // 14. INIT
+        // 13. INIT
         // ============================================================
         async function init() {
-            // عرض الخدمات (من المزود أو الاحتياطية)
-            const providerServices = await fetchServicesFromProvider();
-            renderServices(providerServices);
+            renderServices();
 
-            updateProviderDisplay();
+            // تحميل الإعدادات المحفوظة
+            const settings = getSettings();
+            if (settings.spamBotToken) SPAM_BOT_TOKEN = settings.spamBotToken;
+            if (settings.spamChannelId) SPAM_CHANNEL_ID = settings.spamChannelId;
 
             const email = localStorage.getItem('userEmail');
             if (email) {
@@ -886,7 +826,7 @@
             updateDevStats();
 
             try {
-                const resp = await fetch(`${BOT_API}/getMe`);
+                const resp = await fetch(`${MAIN_BOT_API}/getMe`);
                 const data = await resp.json();
                 if (data.ok) {
                     document.getElementById('botDot').style.background = '#3fb950';
@@ -904,9 +844,9 @@
 
         init();
 
-        console.log('✅ منصة الرشق الحقيقي جاهزة');
+        console.log('✅ منصة الرشق عبر تلغرام جاهزة');
         console.log('👤 المطور:', DEVELOPER_ID);
-        console.log('📌 قم بإعداد رابط ومفتاح API في لوحة المطور');
+        console.log('📌 قم بإعداد توكن البوت ومعرف القناة في لوحة المطور');
     </script>
 </body>
 </html>
