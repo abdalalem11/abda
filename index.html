@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الوسيط - SMM Panel</title>
+    <title>منصة الوسيط - رشق مباشر</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* نفس الـ Styles السابقة */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0e17; min-height: 100vh; font-family: 'Tahoma', sans-serif; color: #e8e6e3; }
-        .navbar { background: rgba(17,25,39,0.98) !important; border-bottom: 3px solid #d4af37; padding: 15px 0; }
+        body { background: #0a0e17; font-family: 'Tahoma', sans-serif; color: #e8e6e3; }
+        .navbar { background: rgba(17,25,39,0.98); border-bottom: 3px solid #d4af37; padding: 15px 0; }
         .navbar-brand { color: #d4af37 !important; font-weight: 900; font-size: 1.8rem; }
         .navbar-brand span { color: #fff; }
         .btn-gold { background: #d4af37; color: #0a0e17; font-weight: 700; border: none; padding: 10px 30px; border-radius: 8px; transition: 0.3s; }
         .btn-gold:hover { background: #b8941a; color: #fff; transform: scale(1.05); }
-        .btn-outline-gold { border: 2px solid #d4af37; color: #d4af37; background: transparent; transition: 0.3s; }
+        .btn-outline-gold { border: 2px solid #d4af37; color: #d4af37; background: transparent; }
         .btn-outline-gold:hover { background: #d4af37; color: #0a0e17; }
-        .card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 16px; transition: 0.3s; }
+        .card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 16px; }
         .card:hover { border-color: #d4af37; transform: translateY(-5px); }
         .card-header { background: rgba(212,175,55,0.05); border-bottom: 1px solid rgba(212,175,55,0.1); padding: 18px 22px; font-weight: 700; }
         .card-header i { color: #d4af37; margin-left: 10px; }
@@ -24,12 +25,11 @@
         .section-title { color: #d4af37; border-right: 5px solid #d4af37; padding-right: 15px; margin-bottom: 30px; }
         .stat-card { background: #111927; border: 1px solid rgba(212,175,55,0.1); border-radius: 16px; padding: 25px; text-align: center; }
         .stat-card .number { font-size: 2.5rem; font-weight: 900; color: #d4af37; }
-        .service-card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; cursor: pointer; height: 100%; }
+        .service-card { background: #111927; border: 1px solid rgba(212,175,55,0.12); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; height: 100%; transition: 0.3s; }
         .service-card:hover { border-color: #d4af37; transform: scale(1.02); box-shadow: 0 0 30px rgba(212,175,55,0.1); }
-        .service-card .icon { font-size: 2.5rem; color: #d4af37; margin-bottom: 10px; }
-        .service-card .name { font-weight: 700; font-size: 1rem; }
-        .service-card .price { color: #8892a0; font-size: 0.9rem; }
-        .service-card .btn-order { margin-top: 10px; }
+        .service-card .icon { font-size: 2.5rem; color: #d4af37; }
+        .service-card .name { font-weight: 700; }
+        .service-card .price { color: #8892a0; }
         .form-control { background: #0d1117; border: 1px solid #30363d; color: #e8e6e3; border-radius: 10px; padding: 14px 18px; }
         .form-control:focus { border-color: #d4af37; box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.15); }
         .auth-card { max-width: 480px; margin: 40px auto; padding: 35px; background: #111927; border-radius: 20px; border: 1px solid rgba(212,175,55,0.2); }
@@ -39,35 +39,31 @@
         .bot-status .dot { width: 12px; height: 12px; border-radius: 50%; background: #3fb950; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         footer { border-top: 1px solid rgba(212,175,55,0.1); padding: 35px 0; margin-top: 60px; text-align: center; color: #666; }
-        .admin-badge { background: #dc3545; color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; margin-right: 8px; }
         .dev-panel { background: #1a1a2e; border: 1px solid #dc3545; border-radius: 12px; padding: 20px; margin-top: 20px; }
         .dev-panel .title { color: #dc3545; font-weight: 900; }
         .toast-container { position: fixed; top: 20px; left: 20px; z-index: 99999; max-width: 350px; }
         .toast-custom { background: #111927; border: 1px solid #d4af37; border-radius: 12px; padding: 15px 20px; margin-bottom: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         .toast-custom.success { border-color: #3fb950; }
         .toast-custom.error { border-color: #f85149; }
-        .toast-custom .title { font-weight: 700; }
-        .toast-custom .msg { color: #8892a0; font-size: 0.9rem; }
-        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
         .order-status { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
         .order-status.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
         .order-status.processing { background: rgba(13,202,240,0.2); color: #0dcaf0; }
         .order-status.completed { background: rgba(25,135,84,0.2); color: #198754; }
         .order-status.failed { background: rgba(220,53,69,0.2); color: #dc3545; }
-        @media (max-width:768px){ .service-card { padding: 10px; } .navbar-brand { font-size:1.2rem; } }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(212,175,55,0.3); border-radius: 50%; border-top-color: #d4af37; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .free-badge { background: #dc3545; color: #fff; font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-right: 5px; }
     </style>
 </head>
 <body>
 
-    <!-- ===== TOAST CONTAINER ===== -->
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> الوسيط <span>@u_t_r</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
@@ -79,9 +75,7 @@
                     <li class="nav-item" id="devNavItem" style="display:none;"><a class="nav-link" href="#dev-panel" style="color:#dc3545;">لوحة المطور</a></li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item" id="userInfo" style="display:none;">
-                        <span class="nav-link gold-text" id="userEmailDisplay"></span>
-                    </li>
+                    <li class="nav-item" id="userInfo" style="display:none;"><span class="nav-link gold-text" id="userEmailDisplay"></span></li>
                     <li class="nav-item"><a class="nav-link" href="#login" id="loginBtn">دخول</a></li>
                     <li class="nav-item"><a class="nav-link" href="#register" id="registerBtn">تسجيل</a></li>
                     <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn" style="display:none;color:#dc3545;"><i class="fas fa-sign-out-alt"></i> خروج</a></li>
@@ -90,7 +84,6 @@
         </div>
     </nav>
 
-    <!-- ===== MAIN ===== -->
     <div class="container py-4">
 
         <!-- ===== DASHBOARD ===== -->
@@ -102,6 +95,9 @@
                         <div class="amount" id="userBalance">0.00 $</div>
                         <div class="text-secondary-custom">رصيدك الحالي</div>
                         <a href="#charge" class="btn btn-gold btn-sm mt-2"><i class="fas fa-plus"></i> شحن الرصيد</a>
+                        <div id="developerBadge" style="display:none;margin-top:10px;">
+                            <span class="badge bg-danger">⭐ مطور - رشق مجاني</span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -117,35 +113,21 @@
 
         <!-- ===== SERVICES ===== -->
         <section id="services" class="py-5">
-            <h2 class="section-title"><i class="fas fa-th-list gold-text"></i> الخدمات المتاحة</h2>
+            <h2 class="section-title"><i class="fas fa-th-list gold-text"></i> خدمات الرشق</h2>
             <div class="row g-3" id="servicesContainer">
-                <div class="col-12 text-center text-secondary-custom">
-                    <div class="spinner"></div> جاري تحميل الخدمات...
-                </div>
+                <div class="col-12 text-center text-secondary-custom"><div class="spinner"></div> جاري تحميل الخدمات...</div>
             </div>
         </section>
 
         <!-- ===== ORDERS ===== -->
         <section id="orders" class="py-5">
-            <h2 class="section-title"><i class="fas fa-history gold-text"></i> طلباتي</h2>
+            <h2 class="section-title"><i class="fas fa-history gold-text"></i> طلبات الرشق</h2>
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-dark table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>الخدمة</th>
-                                    <th>الرابط</th>
-                                    <th>الكمية</th>
-                                    <th>السعر</th>
-                                    <th>الحالة</th>
-                                    <th>التاريخ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTableBody">
-                                <tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>
-                            </tbody>
+                            <thead><tr><th>#</th><th>الخدمة</th><th>الرابط</th><th>الكمية</th><th>السعر</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                            <tbody id="ordersTableBody"><tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -154,7 +136,7 @@
 
         <!-- ===== CHARGE ===== -->
         <section id="charge" class="py-5">
-            <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد بنجوم تيليجرام</h2>
+            <h2 class="section-title"><i class="fas fa-coins gold-text"></i> شحن الرصيد (دفع مباشر بالنجوم)</h2>
             <div class="row g-4">
                 <div class="col-md-6">
                     <div class="card">
@@ -173,14 +155,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card">
-                        <div class="card-header"><i class="fas fa-info-circle"></i> كيفية الدفع</div>
+                        <div class="card-header"><i class="fas fa-info-circle"></i> الدفع المباشر</div>
                         <div class="card-body">
-                            <p>1. اختر الباقة المناسبة.</p>
+                            <p>1. اختر الباقة.</p>
                             <p>2. سيتم فتح بوت تيليجرام <code>@SmmMediatorBot</code>.</p>
-                            <p>3. ادفع عبر نجوم تيليجرام (Telegram Stars).</p>
-                            <p>4. سيتم إضافة الرصيد فوراً إلى حسابك.</p>
-                            <div class="alert alert-info mt-3">💡 تأكد من ربط حساب تيليجرام الخاص بك أولاً.</div>
-                            <div class="alert alert-warning mt-2">⚡ البوت الرسمي: <code>@SmmMediatorBot</code></div>
+                            <p>3. ادفع عبر <b>نجوم تيليجرام</b> (Telegram Stars).</p>
+                            <p>4. <b class="gold-text">يتم إضافة الرصيد فوراً</b> بعد الدفع.</p>
+                            <div class="alert alert-success mt-3">✅ دفع مباشر وفوري بدون انتظار</div>
+                            <div class="alert alert-warning mt-2">⚡ البوت: <code>@SmmMediatorBot</code></div>
                         </div>
                     </div>
                 </div>
@@ -199,24 +181,28 @@
                             <button class="btn btn-danger" onclick="devAddBalance()"><i class="fas fa-plus"></i> إضافة رصيد</button>
                         </div>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="devBroadcastMsg" placeholder="رسالة عامة للمستخدمين">
+                            <input type="text" class="form-control" id="devBroadcastMsg" placeholder="رسالة عامة">
                             <button class="btn btn-warning" onclick="devBroadcast()"><i class="fas fa-bullhorn"></i> إرسال</button>
                         </div>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API الجديد">
-                            <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-sync"></i> تحديث المزود</button>
+                            <input type="text" class="form-control" id="devProviderSettings" placeholder="رابط API المزود">
+                            <button class="btn btn-info" onclick="devUpdateProvider()"><i class="fas fa-sync"></i> تحديث</button>
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control" id="devProviderKey" placeholder="مفتاح API">
+                            <button class="btn btn-info" onclick="devUpdateKey()"><i class="fas fa-key"></i> تحديث المفتاح</button>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h5 class="title"><i class="fas fa-chart-bar"></i> إحصائيات المنصة</h5>
+                        <h5 class="title"><i class="fas fa-chart-bar"></i> الإحصائيات</h5>
                         <div id="devStats">
-                            <p>👥 إجمالي المستخدمين: <span id="devTotalUsers">0</span></p>
-                            <p>📦 إجمالي الطلبات: <span id="devTotalOrders">0</span></p>
-                            <p>💰 إجمالي الأرباح: <span id="devTotalProfit">0.00 $</span></p>
-                            <p>📊 الطلبات اليوم: <span id="devTodayOrders">0</span></p>
+                            <p>👥 المستخدمين: <span id="devTotalUsers">0</span></p>
+                            <p>📦 الطلبات: <span id="devTotalOrders">0</span></p>
+                            <p>💰 الأرباح: <span id="devTotalProfit">0.00 $</span></p>
+                            <p>📊 طلبات اليوم: <span id="devTodayOrders">0</span></p>
                         </div>
                         <button class="btn btn-outline-danger btn-sm mt-2" onclick="devRefreshStats()"><i class="fas fa-sync"></i> تحديث</button>
-                        <button class="btn btn-outline-danger btn-sm mt-2 ms-2" onclick="devExportData()"><i class="fas fa-file-export"></i> تصدير البيانات</button>
+                        <button class="btn btn-outline-danger btn-sm mt-2 ms-2" onclick="devExportData()"><i class="fas fa-file-export"></i> تصدير</button>
                     </div>
                 </div>
             </div>
@@ -225,40 +211,36 @@
         <!-- ===== REGISTER / LOGIN ===== -->
         <section id="register" class="py-4">
             <div class="auth-card card">
-                <h2 class="text-center gold-text"><i class="fas fa-user-plus"></i> تسجيل جديد</h2>
+                <h2 class="text-center gold-text"><i class="fas fa-user-plus"></i> تسجيل</h2>
                 <form id="registerForm">
-                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required placeholder="example@mail.com"></div>
-                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="regPassword" required placeholder="********"></div>
-                    <div class="mb-3"><label class="form-label">معرف تيليجرام (لربط الدفع)</label><input type="text" class="form-control" id="regTelegram" placeholder="@username أو ID"></div>
+                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="regEmail" required></div>
+                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="regPassword" required></div>
+                    <div class="mb-3"><label class="form-label">معرف تيليجرام (للدفع المباشر)</label><input type="text" class="form-control" id="regTelegram" placeholder="@username"></div>
                     <button type="submit" class="btn btn-gold w-100"><i class="fas fa-user-shield"></i> تسجيل</button>
                 </form>
-                <p class="text-center mt-3">لديك حساب؟ <a href="#login" class="gold-text" style="text-decoration:none;">سجل دخول</a></p>
             </div>
         </section>
 
         <section id="login" class="py-4">
             <div class="auth-card card">
-                <h2 class="text-center gold-text"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+                <h2 class="text-center gold-text"><i class="fas fa-sign-in-alt"></i> دخول</h2>
                 <form id="loginForm">
-                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" required placeholder="example@mail.com"></div>
-                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="loginPassword" required placeholder="********"></div>
+                    <div class="mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="loginEmail" required></div>
+                    <div class="mb-3"><label class="form-label">كلمة المرور</label><input type="password" class="form-control" id="loginPassword" required></div>
                     <button type="submit" class="btn btn-gold w-100"><i class="fas fa-arrow-left"></i> دخول</button>
                 </form>
-                <p class="text-center mt-3">ليس لديك حساب؟ <a href="#register" class="gold-text" style="text-decoration:none;">سجل الآن</a></p>
             </div>
         </section>
 
     </div>
 
-    <!-- ===== FOOTER ===== -->
     <footer>
         <div class="container">
-            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — منصة وسيطة لخدمات التواصل الاجتماعي</p>
-            <p style="font-size:12px;color:#444;">جميع الحقوق محفوظة © 2026 | المطور: <span class="gold-text">@u_t_r</span></p>
+            <p><i class="fas fa-bolt gold-text"></i> <span class="gold-text">الوسيط @u_t_r</span> — رشق مباشر</p>
+            <p style="font-size:12px;color:#444;">جميع الحقوق محفوظة © 2026</p>
         </div>
     </footer>
 
-    <!-- ===== BOT STATUS ===== -->
     <div class="bot-status" id="botStatus">
         <span class="dot" id="botDot"></span>
         <span id="botText">جاري الاتصال...</span>
@@ -274,12 +256,21 @@
         const DEVELOPER_ID = '1170411845';
         const DB_NAME = 'mediator_db';
 
-        // إعدادات المزود (سيتم تحديثها من لوحة المطور)
-        let PROVIDER_API_URL = 'https://api.newpanel.com/v2'; // استبدل برابط API الحقيقي
-        let PROVIDER_API_KEY = 'your_api_key_here'; // استبدل بمفتاحك الحقيقي
+        // إعدادات المزود (ضع هنا رابط API ومفتاح الموقع الذي تريد الربط به)
+        let PROVIDER_API_URL = 'https://api.your-provider.com/v2'; // ⚠️ استبدل برابط المزود الحقيقي
+        let PROVIDER_API_KEY = 'your_api_key_here'; // ⚠️ استبدل بمفتاح API الحقيقي
 
         // ============================================================
-        // 2. DATABASE (localStorage)
+        // 1.5. التحقق من صلاحيات المطور
+        // ============================================================
+        function isDeveloper(email) {
+            const user = getUser(email);
+            if (!user) return false;
+            return user.telegramId === DEVELOPER_ID || email === 'developer@mediator.com';
+        }
+
+        // ============================================================
+        // 2. DATABASE
         // ============================================================
         function getDB() {
             try { return JSON.parse(localStorage.getItem(DB_NAME) || '{"users":[],"orders":[],"balance":{},"settings":{"providerUrl":"","providerKey":""}}'); } 
@@ -287,20 +278,9 @@
         }
         function saveDB(db) { localStorage.setItem(DB_NAME, JSON.stringify(db)); }
 
-        function getUser(email) {
-            return getDB().users.find(u => u.email === email);
-        }
-
-        function getBalance(email) {
-            const db = getDB();
-            return db.balance[email] || 0;
-        }
-
-        function setBalance(email, amount) {
-            const db = getDB();
-            db.balance[email] = amount;
-            saveDB(db);
-        }
+        function getUser(email) { return getDB().users.find(u => u.email === email); }
+        function getBalance(email) { return getDB().balance[email] || 0; }
+        function setBalance(email, amount) { const db = getDB(); db.balance[email] = amount; saveDB(db); }
 
         function addOrder(email, service, serviceId, link, quantity, price) {
             const db = getDB();
@@ -315,8 +295,7 @@
                 status: 'pending',
                 createdAt: new Date().toISOString(),
                 providerOrderId: null,
-                startCounter: 0,
-                remains: 0
+                isFree: false
             };
             db.orders.push(order);
             saveDB(db);
@@ -326,35 +305,21 @@
         function updateOrder(orderId, updates) {
             const db = getDB();
             const idx = db.orders.findIndex(o => o.id === orderId);
-            if (idx !== -1) {
-                db.orders[idx] = { ...db.orders[idx], ...updates };
-                saveDB(db);
-                return db.orders[idx];
-            }
+            if (idx !== -1) { db.orders[idx] = { ...db.orders[idx], ...updates }; saveDB(db); return db.orders[idx]; }
             return null;
         }
 
-        function getOrders(email) {
-            return getDB().orders.filter(o => o.email === email);
-        }
-
-        function getAllUsers() {
-            return getDB().users;
-        }
-
-        function getAllOrders() {
-            return getDB().orders;
-        }
-
-        function getSettings() {
-            const db = getDB();
-            return db.settings || { providerUrl: '', providerKey: '' };
-        }
+        function getOrders(email) { return getDB().orders.filter(o => o.email === email); }
+        function getAllUsers() { return getDB().users; }
+        function getAllOrders() { return getDB().orders; }
+        function getSettings() { return getDB().settings || { providerUrl: '', providerKey: '' }; }
 
         function updateSettings(settings) {
             const db = getDB();
             db.settings = { ...db.settings, ...settings };
             saveDB(db);
+            if (settings.providerUrl) PROVIDER_API_URL = settings.providerUrl;
+            if (settings.providerKey) PROVIDER_API_KEY = settings.providerKey;
         }
 
         // ============================================================
@@ -364,94 +329,77 @@
             const settings = getSettings();
             const url = settings.providerUrl || PROVIDER_API_URL;
             const key = settings.providerKey || PROVIDER_API_KEY;
-            
-            if (!url || !key) {
-                console.warn('⚠️ لم يتم تعيين إعدادات المزود');
-                return [];
-            }
-
+            if (!url || !key) return [];
             try {
-                const response = await fetch(`${url}/services`, {
+                const res = await fetch(`${url}/services`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: key, action: 'services' })
+                    body: JSON.stringify({ key, action: 'services' })
                 });
-                const data = await response.json();
+                const data = await res.json();
                 return data.services || [];
-            } catch (error) {
-                console.error('❌ فشل جلب الخدمات:', error);
-                return [];
-            }
+            } catch (e) { return []; }
         }
 
         async function placeProviderOrder(serviceId, link, quantity) {
             const settings = getSettings();
             const url = settings.providerUrl || PROVIDER_API_URL;
             const key = settings.providerKey || PROVIDER_API_KEY;
-            
             try {
-                const response = await fetch(`${url}/order`, {
+                const res = await fetch(`${url}/order`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        key: key,
-                        action: 'add',
-                        service: serviceId,
-                        link: link,
-                        quantity: quantity
-                    })
+                    body: JSON.stringify({ key, action: 'add', service: serviceId, link, quantity })
                 });
-                return await response.json();
-            } catch (error) {
-                console.error('❌ فشل إرسال الطلب للمزود:', error);
-                return null;
-            }
+                return await res.json();
+            } catch (e) { return null; }
         }
 
         async function checkProviderStatus(orderId) {
             const settings = getSettings();
             const url = settings.providerUrl || PROVIDER_API_URL;
             const key = settings.providerKey || PROVIDER_API_KEY;
-            
             try {
-                const response = await fetch(`${url}/status`, {
+                const res = await fetch(`${url}/status`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        key: key,
-                        action: 'status',
-                        order: orderId
-                    })
+                    body: JSON.stringify({ key, action: 'status', order: orderId })
                 });
-                return await response.json();
-            } catch (error) {
-                console.error('❌ فشل التحقق من حالة الطلب:', error);
-                return null;
-            }
+                return await res.json();
+            } catch (e) { return null; }
         }
 
         // ============================================================
         // 4. TELEGRAM BOT
         // ============================================================
-        async function sendTelegramMessage(chatId, text, parseMode = 'HTML') {
+        async function sendTelegramMessage(chatId, text) {
             if (!chatId) return;
             try {
                 await fetch(`${BOT_API}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, text, parse_mode: parseMode })
+                    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
                 });
-            } catch (e) { console.error('❌ فشل إرسال رسالة:', e); }
+            } catch (e) {}
         }
 
         async function notifyDeveloper(text) {
-            await sendTelegramMessage(DEVELOPER_ID, `🔔 <b>إشعار المطور</b>\n${text}`);
+            await sendTelegramMessage(DEVELOPER_ID, `🔔 ${text}`);
         }
 
-        async function sendInvoice(chatId, stars, email) {
+        window.chargeStars = async function(stars) {
+            const email = localStorage.getItem('userEmail');
+            if (!email) { showToast('⚠️', 'سجل دخول أولاً', 'error'); return; }
+            
+            const user = getUser(email);
+            if (!user || !user.telegramId) {
+                showToast('⚠️', 'اربط حساب تيليجرام في التسجيل', 'error');
+                return;
+            }
+
             const amount = stars * 0.1;
             const payload = {
-                chat_id: chatId,
+                chat_id: user.telegramId,
                 title: `شراء ${stars} نجمة`,
                 description: `شحن رصيدك في منصة الوسيط`,
                 payload: JSON.stringify({ email, stars, amount }),
@@ -462,49 +410,63 @@
             };
 
             try {
-                const response = await fetch(`${BOT_API}/sendInvoice`, {
+                const res = await fetch(`${BOT_API}/sendInvoice`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                return await response.json();
-            } catch (error) {
-                console.error('❌ خطأ في إرسال الفاتورة:', error);
-                return null;
+                const result = await res.json();
+                if (result.ok) {
+                    showToast('✅', 'تم إرسال فاتورة الدفع إلى تيليجرام', 'success');
+                    await notifyDeveloper(`💳 طلب شحن ${stars} نجمة من ${email}`);
+                } else {
+                    showToast('❌', result.description || 'فشل الإرسال', 'error');
+                }
+            } catch (e) {
+                showToast('❌', 'خطأ في الاتصال', 'error');
             }
-        }
+        };
+
+        window.handleSuccessfulPayment = async function(email, stars, amount) {
+            const current = getBalance(email);
+            setBalance(email, current + amount);
+            const user = getUser(email);
+            if (user && user.telegramId) {
+                await sendTelegramMessage(user.telegramId, 
+                    `✅ تم شحن رصيدك بنجاح!\nالمبلغ: ${amount.toFixed(2)} $\nالرصيد الحالي: ${(current + amount).toFixed(2)} $`);
+            }
+            await notifyDeveloper(`💰 تم شحن ${amount.toFixed(2)} $ للمستخدم ${email}`);
+            if (localStorage.getItem('userEmail') === email) {
+                updateDashboard(email);
+            }
+            showToast('✅', `تم شحن ${amount.toFixed(2)} $`, 'success');
+        };
 
         // ============================================================
-        // 5. TOAST NOTIFICATIONS
+        // 5. UI FUNCTIONS
         // ============================================================
-        function showToast(title, message, type = 'info') {
+        function showToast(title, msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast-custom ${type}`;
-            toast.innerHTML = `
-                <div class="title">${title}</div>
-                <div class="msg">${message}</div>
-            `;
+            toast.innerHTML = `<div class="title">${title}</div><div class="msg">${msg}</div>`;
             container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 5000);
+            setTimeout(() => toast.remove(), 5000);
         }
 
-        // ============================================================
-        // 6. UI RENDERERS
-        // ============================================================
         function renderServices(services) {
             const container = document.getElementById('servicesContainer');
             if (!services || services.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center text-secondary-custom">لا توجد خدمات متاحة حالياً</div>';
+                container.innerHTML = '<div class="col-12 text-center text-secondary-custom">لا توجد خدمات. تأكد من إعدادات المزود.</div>';
                 return;
             }
             container.innerHTML = services.map(s => `
                 <div class="col-md-4 col-lg-3">
                     <div class="service-card" onclick="openOrderModal('${s.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})">
-                        <div class="icon"><i class="fas fa-${s.icon || 'bolt'}"></i></div>
+                        <div class="icon"><i class="fas fa-bolt"></i></div>
                         <div class="name">${s.name}</div>
                         <div class="price">${s.price} $</div>
-                        <button class="btn btn-gold btn-sm btn-order"><i class="fas fa-shopping-cart"></i> طلب</button>
+                        <button class="btn btn-gold btn-sm mt-2"><i class="fas fa-rocket"></i> رشق</button>
                     </div>
                 </div>
             `).join('');
@@ -513,17 +475,17 @@
         function renderOrders(email) {
             const orders = getOrders(email);
             const tbody = document.getElementById('ordersTableBody');
-            if (orders.length === 0) {
+            if (!orders.length) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
                 return;
             }
             tbody.innerHTML = orders.map((o, i) => `
                 <tr>
                     <td>${i+1}</td>
-                    <td>${o.service}</td>
+                    <td>${o.service} ${o.isFree ? '<span class="free-badge">⭐ مجاني</span>' : ''}</td>
                     <td><span class="small">${o.link}</span></td>
                     <td>${o.quantity}</td>
-                    <td>${o.price.toFixed(2)} $</td>
+                    <td>${o.isFree ? '0.00 $' : o.price.toFixed(2) + ' $'}</td>
                     <td><span class="order-status ${o.status}">${o.status}</span></td>
                     <td>${new Date(o.createdAt).toLocaleString()}</td>
                 </tr>
@@ -533,13 +495,18 @@
         function updateDashboard(email) {
             const balance = getBalance(email);
             document.getElementById('userBalance').textContent = balance.toFixed(2) + ' $';
-            
             const orders = getOrders(email);
             document.getElementById('totalOrders').textContent = orders.length;
             document.getElementById('activeOrders').textContent = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
             document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
-            const spent = orders.reduce((sum, o) => sum + o.price, 0);
-            document.getElementById('spentAmount').textContent = spent.toFixed(2) + ' $';
+            document.getElementById('spentAmount').textContent = orders.reduce((s, o) => s + o.price, 0).toFixed(2) + ' $';
+            
+            // إظهار شارة المطور
+            if (isDeveloper(email)) {
+                document.getElementById('developerBadge').style.display = 'block';
+            } else {
+                document.getElementById('developerBadge').style.display = 'none';
+            }
         }
 
         function updateDevStats() {
@@ -547,302 +514,200 @@
             const orders = getAllOrders();
             document.getElementById('devTotalUsers').textContent = users.length;
             document.getElementById('devTotalOrders').textContent = orders.length;
-            const profit = orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price * 0.2), 0);
+            const profit = orders.filter(o => o.status === 'completed' && !o.isFree).reduce((s, o) => s + (o.price * 0.2), 0);
             document.getElementById('devTotalProfit').textContent = profit.toFixed(2) + ' $';
-            
             const today = new Date().toDateString();
-            const todayOrders = orders.filter(o => new Date(o.createdAt).toDateString() === today);
-            document.getElementById('devTodayOrders').textContent = todayOrders.length;
+            document.getElementById('devTodayOrders').textContent = orders.filter(o => new Date(o.createdAt).toDateString() === today).length;
         }
 
         // ============================================================
-        // 7. ORDER MODAL (نافذة الطلب)
+        // 6. ORDER (الرشق الفعلي مع دعم المطور المجاني)
         // ============================================================
-        function openOrderModal(serviceId, serviceName, price) {
+        window.openOrderModal = function(serviceId, serviceName, price) {
             const email = localStorage.getItem('userEmail');
-            if (!email) {
-                showToast('⚠️ تنبيه', 'يرجى تسجيل الدخول أولاً.', 'error');
-                document.getElementById('login').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
+            if (!email) { showToast('⚠️', 'سجل دخول أولاً', 'error'); return; }
 
-            // نافذة مخصصة للطلب
             const link = prompt('أدخل رابط الحساب أو المنشور:');
             if (!link) return;
 
-            const quantity = prompt('أدخل الكمية المطلوبة:', '100');
+            const quantity = prompt('أدخل الكمية:', '100');
             if (!quantity || isNaN(quantity) || parseInt(quantity) < 1) {
-                showToast('⚠️ تنبيه', 'الكمية غير صحيحة.', 'error');
+                showToast('⚠️', 'كمية غير صحيحة', 'error');
                 return;
             }
 
-            const totalPrice = price * parseInt(quantity);
+            const total = price * parseInt(quantity);
             const balance = getBalance(email);
+            const isDev = isDeveloper(email);
 
-            if (balance < totalPrice) {
-                showToast('⚠️ رصيد غير كافٍ', `رصيدك: ${balance.toFixed(2)} $، المطلوب: ${totalPrice.toFixed(2)} $`, 'error');
+            if (!isDev && balance < total) {
+                showToast('⚠️', `رصيدك: ${balance.toFixed(2)} $، المطلوب: ${total.toFixed(2)} $`, 'error');
                 document.getElementById('charge').scrollIntoView({ behavior: 'smooth' });
                 return;
             }
 
-            // تأكيد الطلب
-            if (!confirm(`✅ تأكيد الطلب:\nالخدمة: ${serviceName}\nالكمية: ${quantity}\nالسعر: ${totalPrice.toFixed(2)} $\nهل تريد المتابعة؟`)) {
-                return;
+            const confirmMsg = isDev 
+                ? `✅ تأكيد رشق (مجاني للمطور):\n${serviceName}\nالكمية: ${quantity}\nالسعر: ${total.toFixed(2)} $ (0$ للمطور)`
+                : `✅ تأكيد رشق:\n${serviceName}\nالكمية: ${quantity}\nالسعر: ${total.toFixed(2)} $`;
+            
+            if (!confirm(confirmMsg)) return;
+
+            executeOrder(email, serviceId, serviceName, link, quantity, total, isDev);
+        };
+
+        async function executeOrder(email, serviceId, serviceName, link, quantity, total, isDev = false) {
+            showToast('⏳', 'جاري الرشق...', 'info');
+
+            const current = getBalance(email);
+
+            if (!isDev) {
+                setBalance(email, current - total);
+            } else {
+                showToast('⭐', 'رشق مجاني للمطور', 'success');
+                await notifyDeveloper(`⭐ رشق مجاني للمطور: ${serviceName} x${quantity}`);
             }
 
-            // تنفيذ الطلب
-            executeOrder(email, serviceId, serviceName, link, quantity, totalPrice);
-        }
-
-        async function executeOrder(email, serviceId, serviceName, link, quantity, totalPrice) {
-            showToast('⏳ جاري التنفيذ', 'يتم معالجة طلبك...', 'info');
-
-            // خصم الرصيد
-            const currentBalance = getBalance(email);
-            setBalance(email, currentBalance - totalPrice);
-
-            // إنشاء الطلب
-            const order = addOrder(email, serviceName, serviceId, link, quantity, totalPrice);
+            const order = addOrder(email, serviceName, serviceId, link, quantity, isDev ? 0 : total);
+            if (isDev) {
+                const db = getDB();
+                const idx = db.orders.findIndex(o => o.id === order.id);
+                if (idx !== -1) {
+                    db.orders[idx].isFree = true;
+                    saveDB(db);
+                }
+            }
 
             try {
-                // إرسال الطلب إلى المزود
-                const providerResponse = await placeProviderOrder(serviceId, link, quantity);
+                const response = await placeProviderOrder(serviceId, link, quantity);
                 
-                if (providerResponse && providerResponse.order) {
-                    // تحديث الطلب بمعرف المزود
-                    updateOrder(order.id, {
-                        status: 'processing',
-                        providerOrderId: providerResponse.order
-                    });
-                    
-                    showToast('✅ تم الإرسال', `تم إرسال الطلب بنجاح! رقم الطلب: ${providerResponse.order}`, 'success');
-                    await notifyDeveloper(`📦 طلب جديد من ${email}\nالخدمة: ${serviceName}\nالكمية: ${quantity}\nالسعر: ${totalPrice.toFixed(2)} $\nرقم الطلب: ${providerResponse.order}`);
-                    
-                    // بدء متابعة حالة الطلب
-                    startOrderTracking(order.id, providerResponse.order);
+                if (response && response.order) {
+                    updateOrder(order.id, { status: 'processing', providerOrderId: response.order });
+                    const msg = isDev ? `✅ تم الرشق المجاني! رقم الطلب: ${response.order}` : `✅ تم الرشق بنجاح! رقم الطلب: ${response.order}`;
+                    showToast('✅', msg, 'success');
+                    await notifyDeveloper(`📦 رشق ${isDev ? 'مجاني' : ''} من ${email}\n${serviceName} x${quantity}\n${isDev ? '(0$)' : total.toFixed(2) + '$'}`);
+                    startOrderTracking(order.id, response.order);
                 } else {
-                    // فشل الإرسال - إعادة الرصيد
-                    setBalance(email, currentBalance);
+                    if (!isDev) {
+                        setBalance(email, current);
+                    }
                     const db = getDB();
                     db.orders = db.orders.filter(o => o.id !== order.id);
                     saveDB(db);
-                    
-                    showToast('❌ فشل الإرسال', 'فشل إرسال الطلب إلى المزود. تم إعادة الرصيد.', 'error');
-                    await notifyDeveloper(`❌ فشل طلب من ${email}\nالخدمة: ${serviceName}\nالسبب: فشل الاتصال بالمزود`);
+                    showToast('❌', 'فشل الرشق. تم إعادة الرصيد.', 'error');
+                    await notifyDeveloper(`❌ فشل رشق من ${email}`);
                 }
-            } catch (error) {
-                // خطأ - إعادة الرصيد
-                setBalance(email, currentBalance);
+            } catch (e) {
+                if (!isDev) {
+                    setBalance(email, current);
+                }
                 const db = getDB();
                 db.orders = db.orders.filter(o => o.id !== order.id);
                 saveDB(db);
-                
-                showToast('❌ خطأ', 'حدث خطأ غير متوقع. تم إعادة الرصيد.', 'error');
-                await notifyDeveloper(`❌ خطأ في طلب ${email}: ${error.message}`);
+                showToast('❌', 'خطأ في الرشق.', 'error');
             }
 
-            // تحديث الواجهة
             renderOrders(email);
             updateDashboard(email);
         }
 
-        // ============================================================
-        // 8. ORDER TRACKING (متابعة الطلبات)
-        // ============================================================
+        // متابعة الطلب
         let trackingIntervals = {};
-
         function startOrderTracking(orderId, providerOrderId) {
-            if (trackingIntervals[orderId]) {
-                clearInterval(trackingIntervals[orderId]);
-            }
-
+            if (trackingIntervals[orderId]) clearInterval(trackingIntervals[orderId]);
             trackingIntervals[orderId] = setInterval(async () => {
                 try {
                     const status = await checkProviderStatus(providerOrderId);
                     if (status && status.status) {
                         const db = getDB();
                         const order = db.orders.find(o => o.id === orderId);
-                        if (!order) {
-                            clearInterval(trackingIntervals[orderId]);
-                            delete trackingIntervals[orderId];
-                            return;
-                        }
+                        if (!order) { clearInterval(trackingIntervals[orderId]); return; }
 
                         let newStatus = order.status;
-                        if (status.status === 'Completed' || status.status === 'completed') {
-                            newStatus = 'completed';
-                            clearInterval(trackingIntervals[orderId]);
-                            delete trackingIntervals[orderId];
-                            showToast('✅ اكتمل الطلب', `الطلب #${orderId} اكتمل بنجاح!`, 'success');
-                            await notifyDeveloper(`✅ اكتمل الطلب #${orderId} للمستخدم ${order.email}`);
-                        } else if (status.status === 'Processing' || status.status === 'processing') {
-                            newStatus = 'processing';
-                        } else if (status.status === 'Error' || status.status === 'error') {
-                            newStatus = 'failed';
-                            clearInterval(trackingIntervals[orderId]);
-                            delete trackingIntervals[orderId];
-                            showToast('❌ فشل الطلب', `الطلب #${orderId} فشل.`, 'error');
-                            await notifyDeveloper(`❌ فشل الطلب #${orderId} للمستخدم ${order.email}`);
-                        }
+                        if (status.status === 'Completed') newStatus = 'completed';
+                        else if (status.status === 'Processing') newStatus = 'processing';
+                        else if (status.status === 'Error') newStatus = 'failed';
 
                         if (newStatus !== order.status) {
-                            updateOrder(orderId, { 
-                                status: newStatus,
-                                startCounter: status.start_counter || 0,
-                                remains: status.remains || 0
-                            });
-                            renderOrders(localStorage.getItem('userEmail'));
-                            updateDashboard(localStorage.getItem('userEmail'));
+                            updateOrder(orderId, { status: newStatus });
+                            const email = localStorage.getItem('userEmail');
+                            if (email) { renderOrders(email); updateDashboard(email); }
+                            if (newStatus === 'completed' || newStatus === 'failed') {
+                                clearInterval(trackingIntervals[orderId]);
+                                showToast('✅', `الطلب #${orderId} ${newStatus === 'completed' ? 'اكتمل' : 'فشل'}`, newStatus === 'completed' ? 'success' : 'error');
+                            }
                         }
                     }
-                } catch (error) {
-                    console.error('❌ خطأ في متابعة الطلب:', error);
-                }
-            }, 30000); // كل 30 ثانية
+                } catch (e) {}
+            }, 15000);
         }
 
         // ============================================================
-        // 9. CHARGE STARS
-        // ============================================================
-        window.chargeStars = async function(stars) {
-            const email = localStorage.getItem('userEmail');
-            if (!email) {
-                showToast('⚠️ تنبيه', 'يرجى تسجيل الدخول أولاً.', 'error');
-                document.getElementById('login').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-            
-            const user = getUser(email);
-            if (!user || !user.telegramId) {
-                showToast('⚠️ تنبيه', 'يرجى ربط حساب تيليجرام الخاص بك أولاً.', 'error');
-                document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-
-            const result = await sendInvoice(user.telegramId, stars, email);
-            if (result && result.ok) {
-                showToast('✅ تم الإرسال', 'تم إرسال فاتورة الدفع إلى بوت تيليجرام.', 'success');
-                await notifyDeveloper(`💳 طلب شحن من ${email}\nالنجوم: ${stars}\nالمبلغ: ${(stars * 0.1).toFixed(2)} $`);
-            } else {
-                showToast('❌ فشل', result?.description || 'فشل إنشاء الفاتورة.', 'error');
-            }
-        };
-
-        // ============================================================
-        // 10. DEV PANEL FUNCTIONS
+        // 7. DEV PANEL
         // ============================================================
         window.devAddBalance = async function() {
             const email = document.getElementById('devUserEmail').value.trim();
-            if (!email) { showToast('⚠️ تنبيه', 'أدخل البريد الإلكتروني', 'error'); return; }
-            const amount = parseFloat(prompt('أدخل المبلغ المراد إضافته:'));
-            if (!amount || amount <= 0) { showToast('⚠️ تنبيه', 'مبلغ غير صحيح', 'error'); return; }
-            
-            const user = getUser(email);
-            if (!user) { showToast('❌ خطأ', 'المستخدم غير موجود', 'error'); return; }
-            
+            if (!email) { showToast('⚠️', 'أدخل بريداً', 'error'); return; }
+            const amount = parseFloat(prompt('المبلغ:'));
+            if (!amount || amount <= 0) return;
             const current = getBalance(email);
             setBalance(email, current + amount);
-            if (user.telegramId) {
-                await sendTelegramMessage(user.telegramId, `✅ تم إضافة ${amount.toFixed(2)} $ إلى رصيدك. الرصيد الحالي: ${(current + amount).toFixed(2)} $`);
+            const user = getUser(email);
+            if (user && user.telegramId) {
+                await sendTelegramMessage(user.telegramId, `✅ تم إضافة ${amount.toFixed(2)} $`);
             }
-            await notifyDeveloper(`➕ تم إضافة ${amount.toFixed(2)} $ للمستخدم ${email} بواسطة المطور`);
-            showToast('✅ تم الإضافة', `تم إضافة ${amount.toFixed(2)} $ إلى ${email}`, 'success');
+            showToast('✅', `تم إضافة ${amount.toFixed(2)} $`, 'success');
             updateDevStats();
-            if (localStorage.getItem('userEmail') === email) {
-                updateDashboard(email);
-            }
         };
 
         window.devBroadcast = async function() {
             const msg = document.getElementById('devBroadcastMsg').value.trim();
-            if (!msg) { showToast('⚠️ تنبيه', 'أدخل رسالة', 'error'); return; }
-            
+            if (!msg) return;
             const users = getAllUsers();
             let sent = 0;
-            for (const user of users) {
-                if (user.telegramId) {
-                    await sendTelegramMessage(user.telegramId, `📢 <b>إعلان هام</b>\n${msg}`);
-                    sent++;
-                }
+            for (const u of users) {
+                if (u.telegramId) { await sendTelegramMessage(u.telegramId, `📢 ${msg}`); sent++; }
             }
-            await notifyDeveloper(`📢 تم إرسال إعلان إلى ${sent} مستخدم`);
-            showToast('✅ تم الإرسال', `تم إرسال الإعلان إلى ${sent} مستخدم`, 'success');
-            document.getElementById('devBroadcastMsg').value = '';
+            showToast('✅', `أرسل إلى ${sent} مستخدم`, 'success');
         };
 
         window.devUpdateProvider = function() {
             const url = document.getElementById('devProviderSettings').value.trim();
-            if (!url) { showToast('⚠️ تنبيه', 'أدخل رابط API', 'error'); return; }
-            updateSettings({ providerUrl: url });
-            PROVIDER_API_URL = url;
-            showToast('✅ تم التحديث', 'تم تحديث رابط المزود بنجاح', 'success');
-            notifyDeveloper(`🔄 تم تحديث رابط المزود إلى: ${url}`);
-            // إعادة تحميل الخدمات
-            loadServices();
+            if (url) { updateSettings({ providerUrl: url }); showToast('✅', 'تم تحديث رابط المزود', 'success'); loadServices(); }
         };
 
-        window.devRefreshStats = function() {
-            updateDevStats();
-            showToast('✅ تم التحديث', 'تم تحديث الإحصائيات', 'success');
+        window.devUpdateKey = function() {
+            const key = document.getElementById('devProviderKey').value.trim();
+            if (key) { updateSettings({ providerKey: key }); showToast('✅', 'تم تحديث المفتاح', 'success'); loadServices(); }
         };
 
+        window.devRefreshStats = function() { updateDevStats(); showToast('✅', 'تم التحديث', 'success'); };
         window.devExportData = function() {
             const db = getDB();
-            const data = {
-                exportedAt: new Date().toISOString(),
-                version: '1.0',
-                ...db
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `mediator_backup_${Date.now()}.json`;
             a.click();
-            URL.revokeObjectURL(url);
-            showToast('✅ تم التصدير', 'تم تصدير البيانات بنجاح', 'success');
-            notifyDeveloper(`📤 تم تصدير بيانات المنصة`);
+            showToast('✅', 'تم تصدير البيانات', 'success');
         };
 
         // ============================================================
-        // 11. LOAD SERVICES
-        // ============================================================
-        async function loadServices() {
-            const container = document.getElementById('servicesContainer');
-            container.innerHTML = '<div class="col-12 text-center text-secondary-custom"><div class="spinner"></div> جاري تحميل الخدمات...</div>';
-            
-            const services = await fetchServices();
-            renderServices(services);
-            
-            if (services.length === 0) {
-                showToast('⚠️ تنبيه', 'لم يتم العثور على خدمات. تأكد من إعدادات المزود.', 'error');
-            }
-        }
-
-        // ============================================================
-        // 12. AUTH
+        // 8. AUTH
         // ============================================================
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value.trim();
             const telegram = document.getElementById('regTelegram').value.trim();
-            if (!email || !password) {
-                showToast('⚠️ تنبيه', 'يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-
+            if (!email || !password) { showToast('⚠️', 'املأ الحقول', 'error'); return; }
             const db = getDB();
-            if (db.users.find(u => u.email === email)) {
-                showToast('⚠️ تنبيه', 'هذا البريد مسجل مسبقاً.', 'error');
-                return;
-            }
-
+            if (db.users.find(u => u.email === email)) { showToast('⚠️', 'مسجل مسبقاً', 'error'); return; }
             db.users.push({ email, password, telegramId: telegram, createdAt: new Date().toISOString() });
             saveDB(db);
             localStorage.setItem('userEmail', email);
-            showToast('✅ تم التسجيل', 'تم التسجيل بنجاح!', 'success');
-            notifyDeveloper(`🆕 مستخدم جديد: ${email} (تيليجرام: ${telegram || 'غير مرتبط'})`);
+            showToast('✅', 'تم التسجيل', 'success');
+            notifyDeveloper(`🆕 مستخدم جديد: ${email}`);
             updateUIAfterLogin(email);
         });
 
@@ -853,23 +718,23 @@
             const user = getUser(email);
             if (user && user.password === password) {
                 localStorage.setItem('userEmail', email);
-                showToast('✅ تم الدخول', 'تم تسجيل الدخول بنجاح!', 'success');
-                notifyDeveloper(`🔓 المستخدم ${email} قام بتسجيل الدخول`);
+                showToast('✅', 'تم الدخول', 'success');
+                notifyDeveloper(`🔓 دخول: ${email}`);
                 updateUIAfterLogin(email);
             } else {
-                showToast('❌ خطأ', 'البريد أو كلمة المرور غير صحيحة.', 'error');
+                showToast('❌', 'بيانات غير صحيحة', 'error');
             }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('userEmail');
-            showToast('✅ تم الخروج', 'تم تسجيل الخروج بنجاح.', 'success');
+            showToast('✅', 'تم الخروج', 'success');
             updateUIAfterLogout();
         });
 
         // ============================================================
-        // 13. UI UPDATE FUNCTIONS
+        // 9. UI UPDATE
         // ============================================================
         function updateUIAfterLogin(email) {
             document.getElementById('userInfo').style.display = 'inline';
@@ -878,13 +743,12 @@
             document.getElementById('registerBtn').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'inline';
             
-            // التحقق من صلاحيات المطور
-            const user = getUser(email);
-            if (user && email === 'developer@mediator.com') { // يمكن تعديل هذا الشرط
+            if (isDeveloper(email)) {
                 document.getElementById('devNavItem').style.display = 'inline';
                 document.getElementById('dev-panel').style.display = 'block';
+                document.getElementById('developerBadge').style.display = 'block';
             }
-
+            
             updateDashboard(email);
             renderOrders(email);
             loadServices();
@@ -897,87 +761,23 @@
             document.getElementById('logoutBtn').style.display = 'none';
             document.getElementById('devNavItem').style.display = 'none';
             document.getElementById('dev-panel').style.display = 'none';
-            
+            document.getElementById('developerBadge').style.display = 'none';
             document.getElementById('userBalance').textContent = '0.00 $';
-            document.getElementById('totalOrders').textContent = '0';
-            document.getElementById('activeOrders').textContent = '0';
-            document.getElementById('completedOrders').textContent = '0';
-            document.getElementById('spentAmount').textContent = '0.00 $';
             document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-secondary-custom">لا توجد طلبات</td></tr>';
-            document.getElementById('servicesContainer').innerHTML = '<div class="col-12 text-center text-secondary-custom">يرجى تسجيل الدخول لعرض الخدمات.</div>';
         }
 
         // ============================================================
-        // 14. BOT WEBHOOK HANDLER (محاكاة)
+        // 10. LOAD SERVICES
         // ============================================================
-        // في الواقع، هذا الجزء يجب أن يكون في ملف منفصل (bot.php أو bot.js)
-        // لكننا نضيفه هنا لمحاكاة استقبال الرسائل من البوت
-
-        // معالج أوامر المطور عبر البوت
-        async function handleBotCommand(text, chatId) {
-            if (String(chatId) !== DEVELOPER_ID) {
-                await sendTelegramMessage(chatId, '⛔ أنت غير مخول لاستخدام هذا البوت.');
-                return;
-            }
-
-            if (text.startsWith('/stats')) {
-                const users = getAllUsers();
-                const orders = getAllOrders();
-                const profit = orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.price * 0.2), 0);
-                await sendTelegramMessage(chatId, 
-                    `📊 <b>إحصائيات المنصة</b>\n` +
-                    `👥 المستخدمين: ${users.length}\n` +
-                    `📦 الطلبات: ${orders.length}\n` +
-                    `💰 الأرباح: ${profit.toFixed(2)} $`
-                );
-            }
-            else if (text.startsWith('/addbalance ')) {
-                const parts = text.split(' ');
-                if (parts.length < 3) {
-                    await sendTelegramMessage(chatId, '⚠️ استخدم: /addbalance email@example.com 10');
-                    return;
-                }
-                const email = parts[1];
-                const amount = parseFloat(parts[2]);
-                if (!amount || amount <= 0) {
-                    await sendTelegramMessage(chatId, '⚠️ مبلغ غير صحيح');
-                    return;
-                }
-                const user = getUser(email);
-                if (!user) {
-                    await sendTelegramMessage(chatId, '❌ المستخدم غير موجود');
-                    return;
-                }
-                const current = getBalance(email);
-                setBalance(email, current + amount);
-                if (user.telegramId) {
-                    await sendTelegramMessage(user.telegramId, `✅ تم إضافة ${amount.toFixed(2)} $ إلى رصيدك. الرصيد الحالي: ${(current + amount).toFixed(2)} $`);
-                }
-                await sendTelegramMessage(chatId, `✅ تم إضافة ${amount.toFixed(2)} $ إلى ${email}`);
-                await notifyDeveloper(`➕ تم إضافة ${amount.toFixed(2)} $ للمستخدم ${email} عبر البوت`);
-            }
-            else if (text === '/users') {
-                const users = getAllUsers();
-                let list = users.map(u => `${u.email} (${u.telegramId || 'غير مرتبط'})`).join('\n') || 'لا يوجد مستخدمين';
-                await sendTelegramMessage(chatId, `👥 <b>قائمة المستخدمين</b>\n${list}`);
-            }
-            else if (text === '/help') {
-                await sendTelegramMessage(chatId, 
-                    `🛠 <b>أوامر المطور</b>\n` +
-                    `/stats - إحصائيات المنصة\n` +
-                    `/users - قائمة المستخدمين\n` +
-                    `/addbalance email@example.com 10 - إضافة رصيد\n` +
-                    `/help - هذه الرسالة`
-                );
-            }
+        async function loadServices() {
+            const container = document.getElementById('servicesContainer');
+            container.innerHTML = '<div class="col-12 text-center"><div class="spinner"></div> جاري التحميل...</div>';
+            const services = await fetchServices();
+            renderServices(services);
         }
 
-        // محاكاة استقبال الرسائل (في الواقع تستخدم Webhook)
-        // هنا نضيف مستمعاً للرسائل القادمة من البوت (عند تعيين Webhook)
-        // لكن في هذا الملف، سنستخدم آلية بسيطة للاختبار
-
         // ============================================================
-        // 15. INIT
+        // 11. INIT
         // ============================================================
         async function init() {
             const email = localStorage.getItem('userEmail');
@@ -985,11 +785,6 @@
                 const user = getUser(email);
                 if (user) {
                     updateUIAfterLogin(email);
-                    // التحقق من صلاحيات المطور
-                    if (email === 'developer@mediator.com') {
-                        document.getElementById('devNavItem').style.display = 'inline';
-                        document.getElementById('dev-panel').style.display = 'block';
-                    }
                 } else {
                     localStorage.removeItem('userEmail');
                     updateUIAfterLogout();
@@ -998,104 +793,30 @@
                 updateUIAfterLogout();
             }
 
-            // تحميل الخدمات إذا كان المستخدم مسجلاً
-            if (email) {
-                await loadServices();
-            }
-
-            // تحديث لوحة المطور
             updateDevStats();
 
-            // حالة البوت
             try {
                 const resp = await fetch(`${BOT_API}/getMe`);
                 const data = await resp.json();
                 if (data.ok) {
                     document.getElementById('botDot').style.background = '#3fb950';
-                    document.getElementById('botText').textContent = `البوت ${data.result.username} متصل ✅`;
-                    await notifyDeveloper('✅ تم تشغيل منصة الوسيط بنجاح');
+                    document.getElementById('botText').textContent = `✅ ${data.result.username}`;
+                    await notifyDeveloper('✅ المنصة تعمل');
                 } else {
                     document.getElementById('botDot').style.background = '#f85149';
-                    document.getElementById('botText').textContent = 'البوت غير متصل ❌';
+                    document.getElementById('botText').textContent = '❌ غير متصل';
                 }
             } catch (e) {
                 document.getElementById('botDot').style.background = '#f85149';
-                document.getElementById('botText').textContent = 'فشل الاتصال بالبوت ❌';
+                document.getElementById('botText').textContent = '❌ خطأ';
             }
         }
 
-        // بدء التطبيق
         init();
 
-        // ربط الدوال العامة
-        window.devAddBalance = devAddBalance;
-        window.devBroadcast = devBroadcast;
-        window.devUpdateProvider = devUpdateProvider;
-        window.devRefreshStats = devRefreshStats;
-        window.devExportData = devExportData;
-        window.chargeStars = chargeStars;
-        window.openOrderModal = openOrderModal;
-
-        console.log('✅ تم تحميل منصة الوسيط بالكامل');
-        console.log(`👤 المطور ID: ${DEVELOPER_ID}`);
-        console.log(`🤖 توكن البوت: ${BOT_TOKEN}`);
-        console.log('📌 للتحكم بالمزود، استخدم لوحة المطور');
-
-        // ============================================================
-        // 16. معالج Webhook للبوت (يُستدعى من خارج الملف)
-        // ============================================================
-        // هذا الكود يجب أن يُوضع في ملف منفصل (bot.php) ويتم تعيينه كـ Webhook
-        // لكن نضيفه هنا للتوضيح
-
-        window.handleTelegramWebhook = async function(update) {
-            try {
-                if (update.message && update.message.text) {
-                    const chatId = update.message.chat.id;
-                    const text = update.message.text;
-                    
-                    // تخزين chatId للمستخدم
-                    const email = localStorage.getItem('userEmail');
-                    if (email) {
-                        const user = getUser(email);
-                        if (user && !user.telegramId) {
-                            const db = getDB();
-                            const userIdx = db.users.findIndex(u => u.email === email);
-                            if (userIdx !== -1) {
-                                db.users[userIdx].telegramId = String(chatId);
-                                saveDB(db);
-                            }
-                        }
-                    }
-
-                    // معالجة أوامر المطور
-                    if (text.startsWith('/')) {
-                        await handleBotCommand(text, String(chatId));
-                    }
-                }
-
-                // معالجة الدفع الناجح
-                if (update.message && update.message.successful_payment) {
-                    const payment = update.message.successful_payment;
-                    const chatId = String(update.message.chat.id);
-                    const payload = JSON.parse(payment.payload || '{}');
-                    const { email, stars, amount } = payload;
-                    
-                    if (email && stars) {
-                        const current = getBalance(email);
-                        setBalance(email, current + amount);
-                        await sendTelegramMessage(chatId, `✅ تم شحن رصيدك بنجاح!\nالمبلغ: ${amount.toFixed(2)} $\nالرصيد الحالي: ${(current + amount).toFixed(2)} $`);
-                        await notifyDeveloper(`💰 تم شحن ${amount.toFixed(2)} $ للمستخدم ${email} عبر نجوم تيليجرام`);
-                        if (localStorage.getItem('userEmail') === email) {
-                            updateDashboard(email);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('❌ خطأ في معالج Webhook:', error);
-            }
-        };
-
-        console.log('✅ جاهز لاستقبال Webhook من تيليجرام');
+        console.log('✅ منصة الرشق المباشر جاهزة (مع دعم المطور المجاني)');
+        console.log('👤 المطور:', DEVELOPER_ID);
+        console.log('📌 استبدل PROVIDER_API_URL و PROVIDER_API_KEY بقيم المزود الحقيقي');
     </script>
 </body>
 </html>
