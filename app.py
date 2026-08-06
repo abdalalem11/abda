@@ -14,11 +14,11 @@ from flask import Flask, request, jsonify
 # ===== إعدادات =====
 logging.basicConfig(level=logging.INFO)
 
-# ===== متغيرات البيئة =====
-API_ID = int(os.environ.get('API_ID', 0))
-API_HASH = os.environ.get('API_HASH', '')
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI')
-OWNER_ID = int(os.environ.get('OWNER_ID', 1170411845))
+# ===== متغيرات البوت =====
+API_ID = 38532428
+API_HASH = "bd13b721c96184649dbbce14de78147d"
+BOT_TOKEN = "8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI"
+OWNER_ID = 1170411845
 
 # ===== إعداد Flask =====
 flask_app = Flask(__name__)
