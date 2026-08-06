@@ -10,7 +10,6 @@ from pyrogram.types import (
     KeyboardButton
 )
 from flask import Flask, request, jsonify
-import threading
 
 # ===== إعدادات =====
 logging.basicConfig(level=logging.INFO)
@@ -352,12 +351,14 @@ def index():
 def health():
     return jsonify({"status": "ok", "bot": "running"})
 
-# ===== تشغيل البوت في thread منفصل =====
-def run_bot():
+# ===== التشغيل الرئيسي =====
+if __name__ == "__main__":
+    # تشغيل البوت و Flask في نفس الحلقة
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
-    async def start_bot():
+    async def main():
+        # بدء البوت
         await bot.start()
         print("✅ Bot is running!")
         me = await bot.get_me()
@@ -365,21 +366,18 @@ def run_bot():
         print(f"👤 Owner ID: {OWNER_ID}")
         print("📢 Support Channel: @u_t_r2")
         print("📱 Contact: @u_t_r")
-        await asyncio.Event().wait()  # انتظر للأبد
+        
+        # تشغيل Flask في thread منفصل
+        import threading
+        def run_flask():
+            port = int(os.environ.get('PORT', 10000))
+            flask_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+        
+        flask_thread = threading.Thread(target=run_flask)
+        flask_thread.daemon = True
+        flask_thread.start()
+        
+        # البقاء في الحلقة
+        await asyncio.Event().wait()
     
-    loop.run_until_complete(start_bot())
-
-# ===== تشغيل Flask =====
-def run_flask():
-    port = int(os.environ.get('PORT', 10000))
-    flask_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
-
-# ===== التشغيل الرئيسي =====
-if __name__ == "__main__":
-    # تشغيل البوت في thread منفصل
-    bot_thread = threading.Thread(target=run_bot)
-    bot_thread.daemon = True
-    bot_thread.start()
-    
-    # تشغيل Flask في thread الرئيسي
-    run_flask()
+    loop.run_until_complete(main())
