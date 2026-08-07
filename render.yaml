@@ -1,11 +1,16 @@
 services:
   - type: web
-    name: tepthon-ultimate
+    name: telegram-bot-factory
     runtime: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
+    repo: https://github.com/abdalalem11/telegram-bot-factory
+    plan: free
+    region: oregon
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: gunicorn app:flask_app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.11.0
       - key: PORT
-        value: 10000
+        value: 8080
