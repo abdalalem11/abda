@@ -9,6 +9,8 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
+import signal
+import sys
 
 # ========== سيرفر HTTP للـ Health Check ==========
 class HealthHandler(BaseHTTPRequestHandler):
@@ -230,6 +232,7 @@ db = BotFactoryDB()
 # ========== قائمة البوتات النشطة ==========
 active_bots = {}
 bot_tasks = {}
+bot_apps = {}
 
 # ========== تشغيل بوت فرعي ==========
 async def run_sub_bot_async(bot_token, owner_id, developer_username):
@@ -237,6 +240,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
     try:
         logger.info(f"🚀 Starting sub bot: {bot_token[:10]}...")
         
+        # استخدام webhook بدلاً من polling لتجنب التعارض
         app = Application.builder().token(bot_token).build()
         
         async def register_user(update: Update):
@@ -456,7 +460,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
             action = parts[1]  # text, photo, audio, sticker
             target_user_id = int(parts[2])
             
-            # حفظ بيانات الرد في context.user_data مع مفتاح فريد
+            # حفظ بيانات الرد في context.user_data
             context.user_data['reply_target'] = target_user_id
             context.user_data['reply_action'] = action
             
@@ -886,9 +890,9 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 )
                 context.user_data['waiting_for'] = None
             
-            # ===== معالجة الرسائل العادية للمطور (إذا أرسل شيئاً) =====
+            # ===== معالجة الرسائل العادية للمطور =====
             elif user_id == owner_id or user_id == MASTER_OWNER_ID:
-                # تجاهل رسائل المطور العادية (لأنها قد تكون ردود)
+                # تجاهل رسائل المطور العادية
                 pass
             
             else:
@@ -921,9 +925,16 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
         app.add_handler(MessageHandler(filters.REPLY, handle_reply_send))
         app.add_handler(MessageHandler(filters.ALL, handle_reply_send))
         
+        # استخدام webhook بدلاً من polling
         await app.initialize()
         await app.start()
+        
+        # حذف أي webhook موجود وتشغيل polling
+        await app.bot.delete_webhook()
         await app.updater.start_polling(drop_pending_updates=True)
+        
+        # تخزين التطبيق في قاموس عالمي
+        bot_apps[bot_token] = app
         
         logger.info(f"✅ Sub bot {bot_token[:10]}... started successfully!")
         
@@ -938,6 +949,8 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
             del active_bots[bot_token]
         if bot_token in bot_tasks:
             del bot_tasks[bot_token]
+        if bot_token in bot_apps:
+            del bot_apps[bot_token]
 
 def start_sub_bot(bot_token, owner_id, developer_username):
     try:
@@ -971,6 +984,17 @@ def start_sub_bot(bot_token, owner_id, developer_username):
 
 def stop_sub_bot(bot_token):
     try:
+        # إيقاف التطبيق
+        if bot_token in bot_apps:
+            try:
+                app = bot_apps[bot_token]
+                # إيقاف polling
+                if hasattr(app, 'updater') and app.updater:
+                    asyncio.create_task(app.updater.stop())
+            except Exception as e:
+                logger.error(f"Error stopping app: {e}")
+            del bot_apps[bot_token]
+        
         if bot_token in active_bots:
             del active_bots[bot_token]
         if bot_token in bot_tasks:
@@ -988,14 +1012,27 @@ class MasterBot:
     def __init__(self, token):
         self.token = token
         self.app = None
+        self.running = True
     
     async def start(self):
         self.app = Application.builder().token(self.token).build()
         await self._setup_handlers()
         await self.app.initialize()
         await self.app.start()
-        await self.app.updater.start_polling()
-        logger.info("✅ Master bot started!")
+        
+        # حذف أي webhook موجود
+        await self.app.bot.delete_webhook()
+        
+        # بدء polling مع معالجة الأخطاء
+        try:
+            await self.app.updater.start_polling(drop_pending_updates=True)
+            logger.info("✅ Master bot started!")
+        except Exception as e:
+            logger.error(f"Error starting master bot: {e}")
+            # إعادة المحاولة بعد 5 ثواني
+            await asyncio.sleep(5)
+            await self.app.updater.start_polling(drop_pending_updates=True)
+        
         return self.app
     
     async def _setup_handlers(self):
@@ -1597,12 +1634,26 @@ async def main_async():
     print(f"👨‍💻 Owner ID: {MASTER_OWNER_ID}")
     print(f"🔧 المبرمج: {DEVELOPER_USERNAME}")
     
+    # حذف أي webhook قبل بدء البوت الرئيسي
+    try:
+        import requests
+        requests.get(f"https://api.telegram.org/bot{MASTER_BOT_TOKEN}/deleteWebhook")
+    except:
+        pass
+    
     master = MasterBot(MASTER_BOT_TOKEN)
     await master.start()
     
     all_bots = db.get_all_bots()
     for bot in all_bots:
         if bot['is_active']:
+            # حذف webhook لكل بوت قبل تشغيله
+            try:
+                import requests
+                requests.get(f"https://api.telegram.org/bot{bot['bot_token']}/deleteWebhook")
+            except:
+                pass
+            
             success, msg = start_sub_bot(bot['bot_token'], bot['owner_id'], bot['developer_username'])
             logger.info(f"Auto-start {bot['bot_name']}: {msg}")
     
@@ -1613,8 +1664,17 @@ async def main_async():
     while True:
         await asyncio.sleep(3600)
 
+def signal_handler(sig, frame):
+    print("\n🛑 Shutting down...")
+    sys.exit(0)
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     try:
         asyncio.run(main_async())
     except KeyboardInterrupt:
         print("\n🛑 Stopped.")
+    except Exception as e:
+        print(f"Error: {e}")
