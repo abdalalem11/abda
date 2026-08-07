@@ -218,14 +218,11 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 await update.message.reply_text("🚫 **أنت محظور**", parse_mode="Markdown")
                 return
             
-            # الأزرار الرئيسية
+            # الأزرار الرئيسية - مرتبة في صفوف (كل صف زرين)
             buttons = [
-                [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message")],
-                [InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
-                [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video")],
-                [InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
-                [InlineKeyboardButton("📎 إرسال ملف", callback_data="send_document")],
-                [InlineKeyboardButton("📌 عن البوت", callback_data="about_bot")],
+                [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message"), InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
+                [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video"), InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
+                [InlineKeyboardButton("📎 إرسال ملف", callback_data="send_document"), InlineKeyboardButton("📌 عن البوت", callback_data="about_bot")],
             ]
             
             if user_id == owner_id or user_id == MASTER_OWNER_ID:
@@ -253,6 +250,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 f"/about - معلومات عن البوت\n"
                 f"/dev - معلومات المطور\n"
                 f"/stats - إحصائيات البوت (للمطور فقط)\n"
+                f"/reply - الرد على مستخدم (للمطور فقط)\n"
                 f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                 f"📩 استخدم الأزرار لإرسال:\n"
                 f"• رسالة 📩\n"
@@ -317,7 +315,328 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 parse_mode="Markdown"
             )
         
-        # ===== معالج الأزرار =====
+        # ===== أمر الرد على المستخدمين (بنظام الأزرار) =====
+        async def reply_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            user = update.message.from_user
+            user_id = user.id
+            
+            if user_id != owner_id and user_id != MASTER_OWNER_ID:
+                await update.message.reply_text(
+                    f"🚫 **هذا الأمر للمطور فقط**\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+                return
+            
+            try:
+                args = context.args
+                if len(args) < 1:
+                    await update.message.reply_text(
+                        f"❌ **استخدام خاطئ**\n\n"
+                        f"📌 استخدم: `/reply [معرف_المستخدم]`\n"
+                        f"مثال: `/reply 123456789`\n\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    return
+                
+                target_id = int(args[0])
+                
+                # حفظ ID المستخدم في البيانات المؤقتة
+                context.user_data['reply_target'] = target_id
+                context.user_data['waiting_for'] = 'reply_choice'
+                
+                # عرض أزرار الرد - مرتبة في صفوف (كل صف زرين)
+                keyboard = [
+                    [InlineKeyboardButton("📝 رسالة خاصة", callback_data="reply_message"), InlineKeyboardButton("🖼️ صورة", callback_data="reply_photo")],
+                    [InlineKeyboardButton("🎨 ملصق", callback_data="reply_sticker"), InlineKeyboardButton("🎵 صوت", callback_data="reply_audio")],
+                    [InlineKeyboardButton("🎥 فيديو", callback_data="reply_video"), InlineKeyboardButton("📎 ملف", callback_data="reply_document")],
+                    [InlineKeyboardButton("❌ إلغاء", callback_data="reply_cancel")],
+                ]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                
+                await update.message.reply_text(
+                    f"📩 **الرد على المستخدم**\n\n"
+                    f"🆔 المعرف: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 اختر نوع الرد الذي تريد إرساله:\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    reply_markup=reply_markup,
+                    parse_mode="Markdown"
+                )
+                
+            except ValueError:
+                await update.message.reply_text(
+                    f"❌ **معرف المستخدم غير صحيح**\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ **حدث خطأ**\n\n"
+                    f"الخطأ: {str(e)}\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+        
+        # ===== معالج أزرار الرد =====
+        async def reply_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            query = update.callback_query
+            await query.answer()
+            
+            user_id = query.from_user.id
+            data = query.data
+            
+            if user_id != owner_id and user_id != MASTER_OWNER_ID:
+                await query.edit_message_text(
+                    f"🚫 **غير مصرح لك**\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+                return
+            
+            target_id = context.user_data.get('reply_target')
+            if not target_id:
+                await query.edit_message_text(
+                    f"❌ **لا يوجد مستهدف للرد**\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+                return
+            
+            if data == "reply_message":
+                context.user_data['waiting_for'] = 'reply_text'
+                await query.edit_message_text(
+                    f"📝 **إرسال رسالة خاصة**\n\n"
+                    f"🆔 للمستخدم: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 أرسل النص الذي تريد إرساله:\n"
+                    f"🔄 /cancel للإلغاء\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            
+            elif data == "reply_photo":
+                context.user_data['waiting_for'] = 'reply_photo'
+                await query.edit_message_text(
+                    f"🖼️ **إرسال صورة**\n\n"
+                    f"🆔 للمستخدم: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 أرسل الصورة التي تريد إرسالها:\n"
+                    f"🔄 /cancel للإلغاء\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            
+            elif data == "reply_sticker":
+                context.user_data['waiting_for'] = 'reply_sticker'
+                await query.edit_message_text(
+                    f"🎨 **إرسال ملصق**\n\n"
+                    f"🆔 للمستخدم: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 أرسل الملصق الذي تريد إرساله:\n"
+                    f"🔄 /cancel للإلغاء\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            
+            elif data == "reply_audio":
+                context.user_data['waiting_for'] = 'reply_audio'
+                await query.edit_message_text(
+                    f"🎵 **إرسال صوت**\n\n"
+                    f"🆔 للمستخدم: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 أرسل الصوت الذي تريد إرساله:\n"
+                    f"🔄 /cancel للإلغاء\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            
+            elif data == "reply_video":
+                context.user_data['waiting_for'] = 'reply_video'
+                await query.edit_message_text(
+                    f"🎥 **إرسال فيديو**\n\n"
+                    f"🆔 للمستخدم: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 أرسل الفيديو الذي تريد إرساله:\n"
+                    f"🔄 /cancel للإلغاء\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            
+            elif data == "reply_document":
+                context.user_data['waiting_for'] = 'reply_document'
+                await query.edit_message_text(
+                    f"📎 **إرسال ملف**\n\n"
+                    f"🆔 للمستخدم: `{target_id}`\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"📌 أرسل الملف الذي تريد إرساله:\n"
+                    f"🔄 /cancel للإلغاء\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+            
+            elif data == "reply_cancel":
+                context.user_data.clear()
+                await query.edit_message_text(
+                    f"❌ **تم إلغاء الرد**\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+        
+        # ===== معالج إرسال الردود =====
+        async def handle_reply_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            user = update.message.from_user
+            user_id = user.id
+            
+            if user_id != owner_id and user_id != MASTER_OWNER_ID:
+                return
+            
+            waiting_for = context.user_data.get('waiting_for')
+            target_id = context.user_data.get('reply_target')
+            
+            if not target_id:
+                return
+            
+            try:
+                if waiting_for == 'reply_text':
+                    await context.bot.send_message(
+                        chat_id=target_id,
+                        text=f"📩 **رد من المطور**\n\n"
+                             f"{update.message.text}\n\n"
+                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                             f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الرد النصي**\n\n"
+                        f"🆔 للمستخدم: `{target_id}`\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    context.user_data.clear()
+                
+                elif waiting_for == 'reply_photo' and update.message.photo:
+                    photo = update.message.photo[-1]
+                    caption = update.message.caption or "🖼️ رد من المطور"
+                    await context.bot.send_photo(
+                        chat_id=target_id,
+                        photo=photo.file_id,
+                        caption=f"🖼️ **رد من المطور**\n\n{caption}\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الصورة**\n\n"
+                        f"🆔 للمستخدم: `{target_id}`\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    context.user_data.clear()
+                
+                elif waiting_for == 'reply_sticker' and update.message.sticker:
+                    sticker = update.message.sticker
+                    await context.bot.send_sticker(
+                        chat_id=target_id,
+                        sticker=sticker.file_id
+                    )
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الملصق**\n\n"
+                        f"🆔 للمستخدم: `{target_id}`\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    context.user_data.clear()
+                
+                elif waiting_for == 'reply_audio' and update.message.audio:
+                    audio = update.message.audio
+                    caption = update.message.caption or "🎵 رد من المطور"
+                    await context.bot.send_audio(
+                        chat_id=target_id,
+                        audio=audio.file_id,
+                        caption=f"🎵 **رد من المطور**\n\n{caption}\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الصوت**\n\n"
+                        f"🆔 للمستخدم: `{target_id}`\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    context.user_data.clear()
+                
+                elif waiting_for == 'reply_video' and update.message.video:
+                    video = update.message.video
+                    caption = update.message.caption or "🎥 رد من المطور"
+                    await context.bot.send_video(
+                        chat_id=target_id,
+                        video=video.file_id,
+                        caption=f"🎥 **رد من المطور**\n\n{caption}\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الفيديو**\n\n"
+                        f"🆔 للمستخدم: `{target_id}`\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    context.user_data.clear()
+                
+                elif waiting_for == 'reply_document' and update.message.document:
+                    doc = update.message.document
+                    caption = update.message.caption or "📎 رد من المطور"
+                    await context.bot.send_document(
+                        chat_id=target_id,
+                        document=doc.file_id,
+                        caption=f"📎 **رد من المطور**\n\n{caption}\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    await update.message.reply_text(
+                        f"✅ **تم إرسال الملف**\n\n"
+                        f"🆔 للمستخدم: `{target_id}`\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    context.user_data.clear()
+                
+                else:
+                    await update.message.reply_text(
+                        f"❌ **نوع الرد غير معروف أو الوسائط غير صحيحة**\n\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                    
+            except Exception as e:
+                await update.message.reply_text(
+                    f"❌ **فشل الإرسال**\n\n"
+                    f"الخطأ: {str(e)}\n\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 المبرمج: @SSSTlF",
+                    parse_mode="Markdown"
+                )
+                context.user_data.clear()
+        
+        # ===== معالج الأزرار الرئيسية =====
         async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query = update.callback_query
             await query.answer()
@@ -401,8 +720,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
             
             elif data == "admin_panel" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
                 keyboard = [
-                    [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats")],
-                    [InlineKeyboardButton("👥 المستخدمين", callback_data="admin_users")],
+                    [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats"), InlineKeyboardButton("👥 المستخدمين", callback_data="admin_users")],
                     [InlineKeyboardButton("📢 إرسال جماعي", callback_data="admin_broadcast")],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
                 ]
@@ -464,13 +782,11 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 )
             
             elif data == "back_to_start":
+                # الأزرار الرئيسية - مرتبة في صفوف (كل صف زرين)
                 buttons = [
-                    [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message")],
-                    [InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
-                    [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video")],
-                    [InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
-                    [InlineKeyboardButton("📎 إرسال ملف", callback_data="send_document")],
-                    [InlineKeyboardButton("📌 عن البوت", callback_data="about_bot")],
+                    [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message"), InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
+                    [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video"), InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
+                    [InlineKeyboardButton("📎 إرسال ملف", callback_data="send_document"), InlineKeyboardButton("📌 عن البوت", callback_data="about_bot")],
                 ]
                 if user_id == owner_id or user_id == MASTER_OWNER_ID:
                     buttons.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
@@ -529,7 +845,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                          f"🆔 ID: `{user_id}`\n"
                          f"📝 المحتوى:\n{update.message.text}\n\n"
                          f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                         f"💡 للرد: اكتب /reply {user_id} ثم رسالتك\n"
+                         f"💡 للرد: اكتب /reply {user_id}\n"
                          f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -553,7 +869,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"🆔 ID: `{user_id}`\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id} ثم رسالتك\n"
+                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -576,7 +892,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"🆔 ID: `{user_id}`\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id} ثم رسالتك\n"
+                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -599,7 +915,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"🆔 ID: `{user_id}`\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id} ثم رسالتك\n"
+                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -623,7 +939,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"📄 الاسم: {doc.file_name}\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id} ثم رسالتك\n"
+                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -648,106 +964,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                     parse_mode="Markdown"
                 )
         
-        # ===== أمر الرد على المستخدمين =====
-        async def reply_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            user = update.message.from_user
-            user_id = user.id
-            
-            if user_id != owner_id and user_id != MASTER_OWNER_ID:
-                await update.message.reply_text("🚫 **هذا الأمر للمطور فقط**", parse_mode="Markdown")
-                return
-            
-            try:
-                args = context.args
-                if len(args) < 2:
-                    await update.message.reply_text(
-                        f"❌ **استخدام خاطئ**\n\n"
-                        f"📌 استخدم: `/reply [معرف_المستخدم] [الرسالة]`\n"
-                        f"مثال: `/reply 123456789 مرحباً`\n\n"
-                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                        f"🔧 المبرمج: @SSSTlF",
-                        parse_mode="Markdown"
-                    )
-                    return
-                
-                target_id = int(args[0])
-                reply_text = " ".join(args[1:])
-                
-                await context.bot.send_message(
-                    chat_id=target_id,
-                    text=f"📩 **رد من المطور**\n\n"
-                         f"{reply_text}\n\n"
-                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                         f"🔧 المبرمج: @SSSTlF",
-                    parse_mode="Markdown"
-                )
-                
-                await update.message.reply_text(
-                    f"✅ **تم إرسال الرد**\n\n"
-                    f"🆔 للمستخدم: `{target_id}`\n"
-                    f"📝 الرسالة: {reply_text}\n"
-                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                    f"🔧 المبرمج: @SSSTlF",
-                    parse_mode="Markdown"
-                )
-            except ValueError:
-                await update.message.reply_text(
-                    f"❌ **معرف المستخدم غير صحيح**\n\n"
-                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                    f"🔧 المبرمج: @SSSTlF",
-                    parse_mode="Markdown"
-                )
-            except Exception as e:
-                await update.message.reply_text(
-                    f"❌ **فشل الإرسال**\n\n"
-                    f"الخطأ: {str(e)}\n\n"
-                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                    f"🔧 المبرمج: @SSSTlF",
-                    parse_mode="Markdown"
-                )
-        
-        # ===== معالج الردود (Reply to message) =====
-        async def handle_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            user = update.message.from_user
-            user_id = user.id
-            
-            if user_id != owner_id and user_id != MASTER_OWNER_ID:
-                return
-            
-            if update.message.reply_to_message:
-                original = update.message.reply_to_message
-                original_text = original.text or original.caption or ""
-                
-                match = re.search(r'🆔 ID: `(\d+)`', original_text)
-                if match:
-                    target_id = int(match.group(1))
-                    reply_text = update.message.text or "📌 رد من المطور"
-                    
-                    try:
-                        await context.bot.send_message(
-                            chat_id=target_id,
-                            text=f"📩 **رد من المطور**\n\n"
-                                 f"{reply_text}\n\n"
-                                 f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                                 f"🔧 المبرمج: @SSSTlF",
-                            parse_mode="Markdown"
-                        )
-                        await update.message.reply_text(
-                            f"✅ **تم إرسال الرد**\n\n"
-                            f"🆔 للمستخدم: `{target_id}`\n"
-                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"🔧 المبرمج: @SSSTlF",
-                            parse_mode="Markdown"
-                        )
-                    except Exception as e:
-                        await update.message.reply_text(
-                            f"❌ **فشل الإرسال**\n\n"
-                            f"الخطأ: {str(e)}\n\n"
-                            f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"🔧 المبرمج: @SSSTlF",
-                            parse_mode="Markdown"
-                        )
-        
         # ===== إضافة المعالجات =====
         app.add_handler(CommandHandler("start", start))
         app.add_handler(CommandHandler("help", help_command))
@@ -757,12 +973,13 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
         app.add_handler(CommandHandler("reply", reply_command))
         app.add_handler(CommandHandler("cancel", lambda u, c: u.message.reply_text("❌ تم الإلغاء\n\n🔧 المبرمج: @SSSTlF", parse_mode="Markdown")))
         app.add_handler(CallbackQueryHandler(button_handler))
+        app.add_handler(CallbackQueryHandler(reply_button_handler, pattern="^reply_"))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         app.add_handler(MessageHandler(filters.PHOTO, handle_message))
         app.add_handler(MessageHandler(filters.VIDEO, handle_message))
         app.add_handler(MessageHandler(filters.AUDIO, handle_message))
         app.add_handler(MessageHandler(filters.Document.ALL, handle_message))
-        app.add_handler(MessageHandler(filters.REPLY, handle_reply))
+        app.add_handler(MessageHandler(filters.REPLY, handle_reply_send))
         
         # ===== تشغيل البوت =====
         await app.initialize()
@@ -1132,8 +1349,7 @@ class MasterBot:
                         f"🔧 المبرمج: @SSSTlF",
                         parse_mode="Markdown"
                     )
-                    return
-                
+                    return                
                 if db.get_bot(bot_token):
                     await update.message.reply_text(
                         f"❌ **هذا البوت مستخدم**\n\nأرسل توكن آخر:\n"
