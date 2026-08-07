@@ -5,7 +5,7 @@ import asyncio
 import threading
 import sqlite3
 from datetime import datetime
-from flask import Flask, request, jsonify, render_template_string, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template_string
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 import secrets
@@ -252,7 +252,7 @@ class BotManager:
 
 bot_manager = BotManager(db)
 
-# ========== واجهة ويب احترافية ==========
+# ========== واجهة ويب ==========
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -262,58 +262,25 @@ HTML_TEMPLATE = '''
     <title>🏭 مصنع بوتات التواصل</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Cairo', Tahoma, sans-serif;
+            font-family: 'Cairo', sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
             color: #fff;
             padding: 20px;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 40px 0 30px;
-            position: relative;
-        }
-        
-        .header .logo {
-            font-size: 80px;
-            display: block;
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-        
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; padding: 30px 0; }
+        .header .logo { font-size: 70px; display: block; }
         .header h1 {
-            font-size: 3.5em;
+            font-size: 3em;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 10px 0;
         }
-        
-        .header .subtitle {
-            font-size: 1.2em;
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-        
+        .header .subtitle { opacity: 0.6; font-size: 1.1em; }
         .status-badge {
             display: inline-block;
             background: rgba(74, 222, 128, 0.15);
@@ -322,17 +289,14 @@ HTML_TEMPLATE = '''
             border-radius: 50px;
             border: 1px solid rgba(74, 222, 128, 0.3);
             font-weight: 600;
-            margin: 15px 0;
+            margin: 10px 0;
         }
-        
-        /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             margin: 30px 0;
         }
-        
         .stat-card {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
@@ -340,14 +304,7 @@ HTML_TEMPLATE = '''
             padding: 25px;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.3s;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.08);
-        }
-        
         .stat-card .number {
             font-size: 2.5em;
             font-weight: 800;
@@ -355,28 +312,14 @@ HTML_TEMPLATE = '''
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        .stat-card .label {
-            opacity: 0.6;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        
-        /* Main Content */
+        .stat-card .label { opacity: 0.6; font-size: 0.9em; }
         .main-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 30px;
             margin: 30px 0;
         }
-        
-        @media (max-width: 768px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Form */
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
         .card {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
@@ -384,29 +327,10 @@ HTML_TEMPLATE = '''
             padding: 30px;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        
-        .card-title {
-            font-size: 1.5em;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            opacity: 0.8;
-        }
-        
-        .form-group input,
-        .form-group textarea {
+        .card-title { font-size: 1.5em; font-weight: 700; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; opacity: 0.8; }
+        .form-group input {
             width: 100%;
             padding: 14px 18px;
             background: rgba(255,255,255,0.08);
@@ -415,22 +339,13 @@ HTML_TEMPLATE = '''
             color: #fff;
             font-size: 1em;
             font-family: 'Cairo', sans-serif;
-            transition: all 0.3s;
             direction: ltr;
         }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
             background: rgba(255,255,255,0.12);
         }
-        
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: rgba(255,255,255,0.4);
-        }
-        
         .btn {
             padding: 14px 35px;
             border: none;
@@ -440,47 +355,21 @@ HTML_TEMPLATE = '''
             font-family: 'Cairo', sans-serif;
             cursor: pointer;
             transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+            width: 100%;
         }
-        
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: #fff;
-            width: 100%;
         }
-        
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #4ade80, #22d3ee);
-            color: #000;
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #f87171, #ef4444);
-            color: #fff;
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #000;
-        }
-        
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 0.85em;
-        }
-        
-        /* Bots List */
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 10px 40px rgba(102,126,234,0.4); }
+        .btn-success { background: #4ade80; color: #000; }
+        .btn-danger { background: #f87171; color: #fff; }
+        .btn-warning { background: #fbbf24; color: #000; }
+        .btn-small { padding: 6px 14px; font-size: 0.85em; width: auto; }
         .bot-item {
             background: rgba(255,255,255,0.03);
             border-radius: 15px;
-            padding: 18px 20px;
+            padding: 15px 20px;
             margin-bottom: 12px;
             border: 1px solid rgba(255,255,255,0.05);
             display: flex;
@@ -488,52 +377,32 @@ HTML_TEMPLATE = '''
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            transition: all 0.3s;
         }
-        
-        .bot-item:hover {
-            background: rgba(255,255,255,0.06);
+        .bot-name { font-weight: 700; font-size: 1.1em; }
+        .bot-username { opacity: 0.6; font-size: 0.9em; }
+        .bot-status { font-size: 0.85em; padding: 2px 12px; border-radius: 20px; }
+        .status-active { background: rgba(74,222,128,0.2); color: #4ade80; }
+        .status-inactive { background: rgba(248,113,113,0.2); color: #f87171; }
+        .bot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .loading.active { display: block; }
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        
-        .bot-info {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            opacity: 0.5;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 30px;
         }
-        
-        .bot-name {
-            font-weight: 700;
-            font-size: 1.1em;
-        }
-        
-        .bot-username {
-            opacity: 0.6;
-            font-size: 0.9em;
-        }
-        
-        .bot-status {
-            font-size: 0.85em;
-            padding: 3px 12px;
-            border-radius: 20px;
-        }
-        
-        .status-active {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-        }
-        
-        .status-inactive {
-            background: rgba(248, 113, 113, 0.2);
-            color: #f87171;
-        }
-        
-        .bot-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -546,74 +415,13 @@ HTML_TEMPLATE = '''
             transition: all 0.5s;
             z-index: 999;
         }
-        
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .toast-success {
-            background: linear-gradient(135deg, #4ade80, #22d3ee);
-            color: #000;
-        }
-        
-        .toast-error {
-            background: linear-gradient(135deg, #f87171, #ef4444);
-            color: #fff;
-        }
-        
-        /* Loading */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .loading.active {
-            display: block;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.1);
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 30px 0;
-            opacity: 0.5;
-            font-size: 0.9em;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 30px;
-        }
-        
-        .footer .highlight {
-            color: #a78bfa;
-        }
-        
-        /* Responsive */
-        @media (max-width: 600px) {
-            .header h1 { font-size: 2.2em; }
-            .header .logo { font-size: 60px; }
-            .bot-item { flex-direction: column; align-items: stretch; }
-            .bot-actions { justify-content: center; }
-            .card { padding: 20px; }
-        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { background: #4ade80; color: #000; }
+        .toast-error { background: #f87171; color: #fff; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <span class="logo">🏭</span>
             <h1>مصنع بوتات التواصل</h1>
@@ -621,7 +429,6 @@ HTML_TEMPLATE = '''
             <div class="status-badge">🟢 النظام يعمل</div>
         </div>
         
-        <!-- Stats -->
         <div class="stats-grid" id="stats">
             <div class="stat-card">
                 <div class="number" id="totalBots">0</div>
@@ -637,9 +444,7 @@ HTML_TEMPLATE = '''
             </div>
         </div>
         
-        <!-- Main -->
         <div class="main-grid">
-            <!-- Create Bot Form -->
             <div class="card">
                 <div class="card-title">🤖 صنع بوت جديد</div>
                 <form id="createBotForm" onsubmit="createBot(event)">
@@ -663,73 +468,60 @@ HTML_TEMPLATE = '''
                 </div>
             </div>
             
-            <!-- Bots List -->
             <div class="card">
                 <div class="card-title">📋 البوتات الخاصة بك</div>
                 <div id="botsList">
-                    <p style="opacity:0.5; text-align:center; padding:20px;">قم بصنع بوتك الأول الآن 🚀</p>
+                    <p style="opacity:0.5; text-align:center; padding:20px;">قم بصنع بوتك الأول 🚀</p>
                 </div>
             </div>
         </div>
         
-        <!-- Footer -->
         <div class="footer">
-            👨‍💻 المطور الرئيسي: <span class="highlight">@SSSTlF</span> &nbsp;|&nbsp; 🆔 <span class="highlight">1170411845</span>
+            👨‍💻 المطور الرئيسي: <span style="color:#a78bfa;">@SSSTlF</span>
         </div>
     </div>
     
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
     
     <script>
-        // ========== Load Bots ==========
         async function loadBots() {
             try {
                 const res = await fetch('/api/bots');
                 const data = await res.json();
-                
                 if (data.success) {
                     updateStats(data.bots);
                     renderBots(data.bots);
                 }
-            } catch (e) {
-                console.error('Error loading bots:', e);
-            }
+            } catch(e) { console.error(e); }
         }
         
         function updateStats(bots) {
             const total = bots.length;
             const active = bots.filter(b => b.is_active).length;
-            const inactive = total - active;
-            
             document.getElementById('totalBots').textContent = total;
             document.getElementById('activeBots').textContent = active;
-            document.getElementById('inactiveBots').textContent = inactive;
+            document.getElementById('inactiveBots').textContent = total - active;
         }
         
         function renderBots(bots) {
             const container = document.getElementById('botsList');
-            
             if (!bots || bots.length === 0) {
-                container.innerHTML = '<p style="opacity:0.5; text-align:center; padding:20px;">قم بصنع بوتك الأول الآن 🚀</p>';
+                container.innerHTML = '<p style="opacity:0.5; text-align:center; padding:20px;">قم بصنع بوتك الأول 🚀</p>';
                 return;
             }
-            
             container.innerHTML = bots.map(bot => `
                 <div class="bot-item">
-                    <div class="bot-info">
+                    <div>
                         <div class="bot-name">${bot.bot_name}</div>
                         <div class="bot-username">@${bot.bot_username}</div>
-                        <div>
-                            <span class="bot-status ${bot.is_active ? 'status-active' : 'status-inactive'}">
-                                ${bot.is_active ? '🟢 مفعل' : '🔴 معطل'}
-                            </span>
-                        </div>
+                        <span class="bot-status ${bot.is_active ? 'status-active' : 'status-inactive'}">
+                            ${bot.is_active ? '🟢 مفعل' : '🔴 معطل'}
+                        </span>
                     </div>
                     <div class="bot-actions">
                         ${bot.is_active ? 
-                            `<button class="btn btn-warning btn-small" onclick="toggleBot('${bot.bot_token}', false)">⏸️ إيقاف</button>` :
-                            `<button class="btn btn-success btn-small" onclick="toggleBot('${bot.bot_token}', true)">▶️ تشغيل</button>`
+                            `<button class="btn btn-warning btn-small" onclick="toggleBot('${bot.bot_token}', false)">⏸️</button>` :
+                            `<button class="btn btn-success btn-small" onclick="toggleBot('${bot.bot_token}', true)">▶️</button>`
                         }
                         <button class="btn btn-danger btn-small" onclick="deleteBot('${bot.bot_token}')">🗑️</button>
                     </div>
@@ -737,21 +529,14 @@ HTML_TEMPLATE = '''
             `).join('');
         }
         
-        // ========== Create Bot ==========
         async function createBot(e) {
             e.preventDefault();
-            
             const token = document.getElementById('botToken').value.trim();
             const name = document.getElementById('botName').value.trim();
             const username = document.getElementById('botUsername').value.trim().replace('@', '');
             
             if (!token || !name || !username) {
                 showToast('❌ يرجى ملء جميع الحقول', 'error');
-                return;
-            }
-            
-            if (!token.includes(':') || token.length < 20) {
-                showToast('❌ توكن غير صحيح', 'error');
                 return;
             }
             
@@ -762,15 +547,9 @@ HTML_TEMPLATE = '''
                 const res = await fetch('/api/create_bot', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        bot_token: token,
-                        bot_name: name,
-                        bot_username: username
-                    })
+                    body: JSON.stringify({ bot_token: token, bot_name: name, bot_username: username })
                 });
-                
                 const data = await res.json();
-                
                 if (data.success) {
                     showToast('✅ تم صنع البوت بنجاح!', 'success');
                     loadBots();
@@ -778,15 +557,13 @@ HTML_TEMPLATE = '''
                 } else {
                     showToast('❌ ' + data.message, 'error');
                 }
-            } catch (e) {
+            } catch(e) {
                 showToast('❌ حدث خطأ', 'error');
             }
-            
             document.getElementById('loading').classList.remove('active');
             document.querySelector('#createBotForm button').disabled = false;
         }
         
-        // ========== Toggle Bot ==========
         async function toggleBot(token, active) {
             try {
                 const res = await fetch('/api/toggle_bot', {
@@ -794,57 +571,34 @@ HTML_TEMPLATE = '''
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ bot_token: token, active: active })
                 });
-                
                 const data = await res.json();
-                if (data.success) {
-                    showToast(data.message, 'success');
-                    loadBots();
-                } else {
-                    showToast('❌ ' + data.message, 'error');
-                }
-            } catch (e) {
-                showToast('❌ حدث خطأ', 'error');
-            }
+                showToast(data.message, data.success ? 'success' : 'error');
+                loadBots();
+            } catch(e) { showToast('❌ حدث خطأ', 'error'); }
         }
         
-        // ========== Delete Bot ==========
         async function deleteBot(token) {
             if (!confirm('⚠️ هل أنت متأكد من حذف هذا البوت؟')) return;
-            
             try {
                 const res = await fetch('/api/delete_bot', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ bot_token: token })
                 });
-                
                 const data = await res.json();
-                if (data.success) {
-                    showToast('🗑️ تم حذف البوت', 'success');
-                    loadBots();
-                } else {
-                    showToast('❌ ' + data.message, 'error');
-                }
-            } catch (e) {
-                showToast('❌ حدث خطأ', 'error');
-            }
+                showToast(data.message, 'success');
+                loadBots();
+            } catch(e) { showToast('❌ حدث خطأ', 'error'); }
         }
         
-        // ========== Toast ==========
-        function showToast(message, type = 'success') {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
+            toast.textContent = msg;
             toast.className = 'toast toast-' + type + ' show';
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
         
-        // ========== Load on Start ==========
         loadBots();
-        
-        // Auto refresh every 10 seconds
         setInterval(loadBots, 10000);
     </script>
 </body>
@@ -860,11 +614,7 @@ def index():
 def api_bots():
     try:
         bots = db.get_all_bots()
-        return jsonify({
-            "success": True,
-            "count": len(bots),
-            "bots": bots
-        })
+        return jsonify({"success": True, "count": len(bots), "bots": bots})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
@@ -894,17 +644,10 @@ def api_create_bot():
         
         if bot_id:
             success, message = bot_manager.start_bot_process(bot_token)
-            return jsonify({
-                "success": True,
-                "message": "تم صنع البوت بنجاح",
-                "bot_id": bot_id,
-                "running": success
-            })
+            return jsonify({"success": True, "message": "تم صنع البوت بنجاح", "bot_id": bot_id})
         else:
             return jsonify({"success": False, "message": "فشل في إنشاء البوت"})
-            
     except Exception as e:
-        logger.error(f"Error creating bot: {e}")
         return jsonify({"success": False, "message": str(e)})
 
 @flask_app.route('/api/toggle_bot', methods=['POST'])
@@ -913,12 +656,10 @@ def api_toggle_bot():
         data = request.json
         bot_token = data.get('bot_token')
         active = data.get('active')
-        
         if active:
             success, message = bot_manager.start_bot_process(bot_token)
         else:
             success, message = bot_manager.stop_bot(bot_token)
-        
         return jsonify({"success": success, "message": message})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
@@ -928,23 +669,17 @@ def api_delete_bot():
     try:
         data = request.json
         bot_token = data.get('bot_token')
-        
         bot_manager.stop_bot(bot_token)
         db.delete_bot(bot_token)
-        
         return jsonify({"success": True, "message": "تم حذف البوت"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
 
 @flask_app.route('/health')
 def health():
-    return jsonify({
-        "status": "ok",
-        "version": "2.0",
-        "master_id": MASTER_OWNER_ID
-    })
+    return jsonify({"status": "ok", "version": "2.0"})
 
-# ========== Master Bot (Telegram) ==========
+# ========== Master Bot ==========
 class MasterBot:
     def __init__(self, token):
         self.token = token
@@ -962,16 +697,12 @@ class MasterBot:
     async def _setup_handlers(self):
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard = [
-                [InlineKeyboardButton("🌐 افتح الويب", url="https://your-app.onrender.com")],
-                [InlineKeyboardButton("📋 بوتاتي", callback_data="my_bots")],
-                [InlineKeyboardButton("ℹ️ عن المصنع", callback_data="about")]
+                [InlineKeyboardButton("🌐 افتح الويب", url=os.environ.get('WEB_URL', 'https://your-app.onrender.com'))],
+                [InlineKeyboardButton("📋 بوتاتي", callback_data="my_bots")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             await update.message.reply_text(
-                "🏭 **مصنع بوتات التواصل v2.0**\n\n"
-                "🔹 اصنع بوتك من خلال الويب\n"
-                "🔹 إدارة متقدمة وتحكم كامل\n\n"
-                "🌐 **افتح الويب للبدء**",
+                "🏭 **مصنع بوتات التواصل v2.0**\n\n🌐 **افتح الويب لصنع بوتك**",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
@@ -979,26 +710,14 @@ class MasterBot:
         async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query = update.callback_query
             await query.answer()
-            
-            if query.data == "about":
-                await query.edit_message_text(
-                    "🏭 **مصنع بوتات التواصل v2.0**\n\n"
-                    "👨‍💻 المطور: @SSSTlF\n"
-                    "🆔 ID: 1170411845\n"
-                    "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                    "🌐 افتح الويب لصنع بوتك",
-                    parse_mode="Markdown"
-                )
-            elif query.data == "my_bots":
+            if query.data == "my_bots":
                 bots = db.get_bots_by_owner(MASTER_OWNER_ID)
                 if not bots:
                     await query.edit_message_text("📭 لا توجد بوتات", parse_mode="Markdown")
                     return
                 text = "📋 **بوتاتي**\n\n"
                 for bot in bots:
-                    text += f"🤖 {bot['bot_name']}\n"
-                    text += f"🆔 @{bot['bot_username']}\n"
-                    text += f"📌 {'🟢 مفعل' if bot['is_active'] else '🔴 معطل'}\n⎯\n"
+                    text += f"🤖 {bot['bot_name']} - {'🟢' if bot['is_active'] else '🔴'}\n"
                 await query.edit_message_text(text, parse_mode="Markdown")
         
         self.app.add_handler(CommandHandler("start", start))
@@ -1006,7 +725,6 @@ class MasterBot:
 
 # ========== Main ==========
 def main():
-    # Start Master Bot
     master = MasterBot(MASTER_BOT_TOKEN)
     
     def run_master():
@@ -1018,10 +736,8 @@ def main():
     thread = threading.Thread(target=run_master, daemon=True)
     thread.start()
     
-    # Start Flask
     port = int(os.environ.get('PORT', 8080))
     print(f"🚀 Server running on port {port}")
-    print(f"🌐 Open: http://localhost:{port}")
     flask_app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == "__main__":
