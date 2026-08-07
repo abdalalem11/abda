@@ -9,6 +9,25 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+# ========== سيرفر HTTP للمنفذ ==========
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Bot Factory is running!')
+    
+    def log_message(self, format, *args):
+        pass
+
+def run_health_server():
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(('0.0.0.0', port), HealthHandler)
+    print(f"✅ Health server running on port {port}")
+    server.serve_forever()
+
+# تشغيل السيرفر في خيط منفصل
+threading.Thread(target=run_health_server, daemon=True).start()
+
 # ========== إعدادات ==========
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -123,7 +142,7 @@ class BotFactoryDB:
 
 db = BotFactoryDB()
 
-# ========== نظام إدارة البوتات (مُصلَح) ==========
+# ========== نظام إدارة البوتات (مُصلَح بالكامل) ==========
 class BotManager:
     def __init__(self, db):
         self.db = db
@@ -141,16 +160,14 @@ class BotManager:
             
             # إنشاء حلقة أحداث جديدة لكل بوت
             loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
             
-            # إنشاء التطبيق
-            app = Application.builder().token(bot_token).build()
-            self._setup_bot_handlers(app, bot_data)
-            
-            # تشغيل في thread منفصل مع الحلقة
+            # إنشاء التطبيق داخل الحلقة
             def run_bot():
+                asyncio.set_event_loop(loop)
                 try:
-                    asyncio.set_event_loop(loop)
+                    app = Application.builder().token(bot_token).build()
+                    self._setup_bot_handlers(app, bot_data)
+                    
                     loop.run_until_complete(app.initialize())
                     loop.run_until_complete(app.start())
                     loop.run_until_complete(app.updater.start_polling(drop_pending_updates=True))
@@ -159,15 +176,15 @@ class BotManager:
                     logger.error(f"Bot {bot_token} error: {e}")
                 finally:
                     try:
-                        loop.run_until_complete(app.shutdown())
+                        loop.close()
                     except:
                         pass
             
             thread = threading.Thread(target=run_bot, daemon=True)
             thread.start()
             
-            self.bot_instances[bot_token] = app
-            self.active_bots[bot_token] = {"app": app, "thread": thread, "loop": loop}
+            self.bot_instances[bot_token] = None  # سنحصل على app لاحقاً
+            self.active_bots[bot_token] = {"thread": thread, "loop": loop}
             
             logger.info(f"✅ Bot {bot_token} started successfully")
             return True, "تم تشغيل البوت بنجاح ✅"
@@ -179,13 +196,10 @@ class BotManager:
     def stop_bot(self, bot_token):
         try:
             if bot_token in self.active_bots:
-                app = self.bot_instances.get(bot_token)
                 loop = self.active_bots[bot_token].get("loop")
-                
-                if app and loop:
+                if loop:
                     try:
-                        asyncio.run_coroutine_threadsafe(app.stop(), loop)
-                        asyncio.run_coroutine_threadsafe(app.shutdown(), loop)
+                        loop.call_soon_threadsafe(loop.stop)
                     except:
                         pass
                 
