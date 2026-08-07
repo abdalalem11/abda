@@ -57,7 +57,7 @@ class BotFactoryDB:
                 owner_username TEXT,
                 developer_username TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                is_active BOOLEAN DEFAULT 1,
+                is_active BOOLEAN DEFAULT 0,
                 total_users INTEGER DEFAULT 0,
                 config TEXT
             )
@@ -173,9 +173,9 @@ class BotFactoryDB:
         try:
             self.cursor.execute(
                 '''INSERT INTO bots 
-                   (bot_token, bot_name, bot_username, owner_id, owner_username, developer_username, config)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                (bot_token, bot_name, bot_username, owner_id, owner_username, developer_username, json.dumps(config) if config else None)
+                   (bot_token, bot_name, bot_username, owner_id, owner_username, developer_username, config, is_active)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                (bot_token, bot_name, bot_username, owner_id, owner_username, developer_username, json.dumps(config) if config else None, 1)
             )
             self.conn.commit()
             return self.cursor.lastrowid
@@ -1306,23 +1306,28 @@ class MasterBot:
                     await query.edit_message_text("❌ الطلب غير موجود.", parse_mode="Markdown")
                     return
                 
-                bot_id = db.add_bot(
-                    bot_token=req['bot_token'],
-                    bot_name=req['bot_name'],
-                    bot_username=req['bot_username'],
-                    owner_id=req['user_id'],
-                    owner_username=req['username'],
-                    developer_username=f"@{req['username'] or 'unknown'}"
-                )
+                # ✅ تشغيل البوت فور الموافقة
+                success, msg = start_sub_bot(req['bot_token'], req['user_id'], f"@{req['username'] or 'unknown'}")
                 
-                if bot_id:
-                    success, msg = start_sub_bot(req['bot_token'], req['user_id'], f"@{req['username'] or 'unknown'}")
+                if success:
+                    # حفظ البوت في قاعدة البيانات بعد التشغيل
+                    bot_id = db.add_bot(
+                        bot_token=req['bot_token'],
+                        bot_name=req['bot_name'],
+                        bot_username=req['bot_username'],
+                        owner_id=req['user_id'],
+                        owner_username=req['username'],
+                        developer_username=f"@{req['username'] or 'unknown'}"
+                    )
+                    
+                    # تحديث حالة الطلب إلى approved
                     db.update_request_status(request_id, 'approved')
                     
+                    # إرسال رسالة للمستخدم
                     try:
                         await context.bot.send_message(
                             chat_id=req['user_id'],
-                            text=f"✅ **تم قبول طلبك!**\n\n"
+                            text=f"✅ **تم قبول طلبك وتفعيل البوت!**\n\n"
                                  f"🤖 بوتك جاهز الآن:\n"
                                  f"@{req['bot_username']}\n\n"
                                  f"📌 استخدم /start للبدء\n\n"
@@ -1334,9 +1339,16 @@ class MasterBot:
                         pass
                     
                     await query.edit_message_text(
-                        f"✅ **تم قبول الطلب**\n\n"
-                        f"🤖 تم تشغيل بوت {req['bot_name']}\n"
+                        f"✅ **تم قبول الطلب وتشغيل البوت**\n\n"
+                        f"🤖 البوت: {req['bot_name']}\n"
                         f"👤 المالك: @{req['username'] or 'unknown'}\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 المبرمج: @SSSTlF",
+                        parse_mode="Markdown"
+                    )
+                else:
+                    await query.edit_message_text(
+                        f"❌ **فشل تشغيل البوت:** {msg}\n\n"
                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                         f"🔧 المبرمج: @SSSTlF",
                         parse_mode="Markdown"
@@ -1351,7 +1363,7 @@ class MasterBot:
                     try:
                         await context.bot.send_message(
                             chat_id=req['user_id'],
-                            text=f"❌ **للأسف تم رفض طلبك**\n\n"
+                            text=f"❌ **تم رفض طلبك**\n\n"
                                  f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                                  f"🔧 المبرمج: @SSSTlF",
                             parse_mode="Markdown"
@@ -1584,11 +1596,8 @@ async def main():
     master = MasterBot(MASTER_BOT_TOKEN)
     await master.start()
     
-    # تشغيل البوتات المخزنة
-    bots = db.get_all_bots()
-    for bot in bots:
-        if bot['is_active']:
-            start_sub_bot(bot['bot_token'], bot['owner_id'], bot['developer_username'])
+    # ❌ لا يتم تشغيل أي بوت تلقائيًا
+    # البوتات تعمل فقط بعد الموافقة اليدوية من المطور
     
     while True:
         await asyncio.sleep(60)
