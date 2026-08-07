@@ -9,7 +9,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-# ========== سيرفر HTTP للمنفذ ==========
+# ========== سيرفر HTTP ==========
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -25,7 +25,6 @@ def run_health_server():
     print(f"✅ Health server running on port {port}")
     server.serve_forever()
 
-# تشغيل السيرفر في خيط منفصل
 threading.Thread(target=run_health_server, daemon=True).start()
 
 # ========== إعدادات ==========
@@ -142,84 +141,18 @@ class BotFactoryDB:
 
 db = BotFactoryDB()
 
-# ========== نظام إدارة البوتات (مُصلَح بالكامل) ==========
-class BotManager:
-    def __init__(self, db):
-        self.db = db
-        self.active_bots = {}
-        self.bot_instances = {}
-    
-    def start_bot_process(self, bot_token):
-        try:
-            bot_data = self.db.get_bot(bot_token)
-            if not bot_data:
-                return False, "البوت غير موجود"
-            
-            if not bot_data['is_active']:
-                return False, "البوت معطل"
-            
-            # إنشاء حلقة أحداث جديدة لكل بوت
-            loop = asyncio.new_event_loop()
-            
-            # إنشاء التطبيق داخل الحلقة
-            def run_bot():
-                asyncio.set_event_loop(loop)
-                try:
-                    app = Application.builder().token(bot_token).build()
-                    self._setup_bot_handlers(app, bot_data)
-                    
-                    loop.run_until_complete(app.initialize())
-                    loop.run_until_complete(app.start())
-                    loop.run_until_complete(app.updater.start_polling(drop_pending_updates=True))
-                    loop.run_forever()
-                except Exception as e:
-                    logger.error(f"Bot {bot_token} error: {e}")
-                finally:
-                    try:
-                        loop.close()
-                    except:
-                        pass
-            
-            thread = threading.Thread(target=run_bot, daemon=True)
-            thread.start()
-            
-            self.bot_instances[bot_token] = None  # سنحصل على app لاحقاً
-            self.active_bots[bot_token] = {"thread": thread, "loop": loop}
-            
-            logger.info(f"✅ Bot {bot_token} started successfully")
-            return True, "تم تشغيل البوت بنجاح ✅"
-            
-        except Exception as e:
-            logger.error(f"Error starting bot: {e}")
-            return False, f"خطأ: {str(e)}"
-    
-    def stop_bot(self, bot_token):
-        try:
-            if bot_token in self.active_bots:
-                loop = self.active_bots[bot_token].get("loop")
-                if loop:
-                    try:
-                        loop.call_soon_threadsafe(loop.stop)
-                    except:
-                        pass
-                
-                del self.active_bots[bot_token]
-                if bot_token in self.bot_instances:
-                    del self.bot_instances[bot_token]
-                
-                self.db.update_bot_active(bot_token, False)
-                logger.info(f"⏸️ Bot {bot_token} stopped")
-                return True, "تم إيقاف البوت ⏸️"
-            
-            return False, "البوت غير قيد التشغيل"
-        except Exception as e:
-            logger.error(f"Error stopping bot: {e}")
-            return False, str(e)
-    
-    def _setup_bot_handlers(self, app, bot_data):
-        owner_id = bot_data['owner_id']
-        developer_username = bot_data['developer_username']
+# ========== تشغيل بوت فرعي في عملية منفصلة ==========
+def run_sub_bot(bot_token, owner_id, developer_username):
+    """تشغيل بوت فرعي في عملية منفصلة"""
+    try:
+        # إنشاء حلقة أحداث جديدة
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         
+        # إنشاء التطبيق
+        app = Application.builder().token(bot_token).build()
+        
+        # إضافة المعالجات
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = update.message.from_user
             user_id = user.id
@@ -322,6 +255,65 @@ class BotManager:
         app.add_handler(CommandHandler("start", start))
         app.add_handler(CallbackQueryHandler(button_handler))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        # تشغيل البوت
+        loop.run_until_complete(app.initialize())
+        loop.run_until_complete(app.start())
+        loop.run_until_complete(app.updater.start_polling(drop_pending_updates=True))
+        loop.run_forever()
+        
+    except Exception as e:
+        logger.error(f"Sub bot {bot_token} error: {e}")
+
+# ========== نظام إدارة البوتات ==========
+class BotManager:
+    def __init__(self, db):
+        self.db = db
+        self.active_bots = {}
+        self.bot_threads = {}
+    
+    def start_bot_process(self, bot_token):
+        try:
+            bot_data = self.db.get_bot(bot_token)
+            if not bot_data:
+                return False, "البوت غير موجود"
+            
+            if not bot_data['is_active']:
+                return False, "البوت معطل"
+            
+            # تشغيل البوت في خيط منفصل
+            thread = threading.Thread(
+                target=run_sub_bot,
+                args=(bot_token, bot_data['owner_id'], bot_data['developer_username']),
+                daemon=True
+            )
+            thread.start()
+            
+            self.active_bots[bot_token] = True
+            self.bot_threads[bot_token] = thread
+            
+            logger.info(f"✅ Bot {bot_token} started successfully")
+            return True, "تم تشغيل البوت بنجاح ✅"
+            
+        except Exception as e:
+            logger.error(f"Error starting bot: {e}")
+            return False, f"خطأ: {str(e)}"
+    
+    def stop_bot(self, bot_token):
+        try:
+            if bot_token in self.active_bots:
+                del self.active_bots[bot_token]
+                if bot_token in self.bot_threads:
+                    del self.bot_threads[bot_token]
+                
+                self.db.update_bot_active(bot_token, False)
+                logger.info(f"⏸️ Bot {bot_token} stopped")
+                return True, "تم إيقاف البوت ⏸️"
+            
+            return False, "البوت غير قيد التشغيل"
+        except Exception as e:
+            logger.error(f"Error stopping bot: {e}")
+            return False, str(e)
 
 bot_manager = BotManager(db)
 
