@@ -141,14 +141,10 @@ class BotFactoryDB:
 
 db = BotFactoryDB()
 
-# ========== تشغيل بوت فرعي في عملية منفصلة ==========
+# ========== تشغيل بوت فرعي ==========
 def run_sub_bot(bot_token, owner_id, developer_username):
-    """تشغيل بوت فرعي في عملية منفصلة"""
+    """تشغيل بوت فرعي"""
     try:
-        # إنشاء حلقة أحداث جديدة
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
         # إنشاء التطبيق
         app = Application.builder().token(bot_token).build()
         
@@ -256,11 +252,8 @@ def run_sub_bot(bot_token, owner_id, developer_username):
         app.add_handler(CallbackQueryHandler(button_handler))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
-        # تشغيل البوت
-        loop.run_until_complete(app.initialize())
-        loop.run_until_complete(app.start())
-        loop.run_until_complete(app.updater.start_polling(drop_pending_updates=True))
-        loop.run_forever()
+        # تشغيل البوت باستخدام asyncio.run()
+        asyncio.run(app.run_polling(drop_pending_updates=True))
         
     except Exception as e:
         logger.error(f"Sub bot {bot_token} error: {e}")
