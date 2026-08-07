@@ -248,7 +248,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                     logger.error(f"Error registering user: {e}")
             return user
         
-        # ===== عرض المطور =====
         def get_developer_display():
             return developer_username if developer_username else "المطور"
         
@@ -262,7 +261,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 await update.message.reply_text("🚫 **أنت محظور**", parse_mode="Markdown")
                 return
             
-            # الأزرار الرئيسية
             buttons = [
                 [InlineKeyboardButton("📩 إرسال رسالة", callback_data="send_message"), InlineKeyboardButton("🖼️ إرسال صورة", callback_data="send_photo")],
                 [InlineKeyboardButton("🎥 إرسال فيديو", callback_data="send_video"), InlineKeyboardButton("🎵 إرسال صوت", callback_data="send_audio")],
@@ -355,7 +353,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 parse_mode="Markdown"
             )
         
-        # ===== أمر الرد - الأزرار الجديدة حسب الصورة =====
+        # ===== أمر الرد =====
         async def reply_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = update.message.from_user
             user_id = user.id
@@ -386,7 +384,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 context.user_data['reply_target'] = target_id
                 context.user_data['waiting_for'] = 'reply_choice'
                 
-                # أزرار الرد حسب الصورة المرفقة
                 keyboard = [
                     [InlineKeyboardButton("✉️ رد برسالة مخصصة", callback_data="reply_message")],
                     [InlineKeyboardButton("🎥 رد بفيديو", callback_data="reply_video")],
@@ -518,7 +515,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 )
             
             elif data == "reply_all_messages":
-                # عرض جميع رسائل المستخدم
                 users = db.get_users(bot_token, 50)
                 text = "📋 **جميع الرسائل**\n\n"
                 for u in users:
@@ -536,7 +532,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 )
             
             elif data == "reply_back":
-                # العودة لقائمة الرد
                 keyboard = [
                     [InlineKeyboardButton("✉️ رد برسالة مخصصة", callback_data="reply_message")],
                     [InlineKeyboardButton("🎥 رد بفيديو", callback_data="reply_video")],
@@ -886,6 +881,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 return
             
             if waiting_for == 'message':
+                # تم حذف سطر الرد
                 await context.bot.send_message(
                     chat_id=owner_id,
                     text=f"📩 **رسالة جديدة**\n\n"
@@ -893,7 +889,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                          f"🆔 ID: `{user_id}`\n"
                          f"📝 المحتوى:\n{update.message.text}\n\n"
                          f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                         f"💡 للرد: اكتب /reply {user_id}\n"
                          f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -917,7 +912,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"🆔 ID: `{user_id}`\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -940,7 +934,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"🆔 ID: `{user_id}`\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -963,7 +956,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"🆔 ID: `{user_id}`\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -987,7 +979,6 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                             f"📄 الاسم: {doc.file_name}\n"
                             f"📝 التعليق: {caption}\n\n"
                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                            f"💡 للرد: اكتب /reply {user_id}\n"
                             f"🔧 المبرمج: @SSSTlF",
                     parse_mode="Markdown"
                 )
@@ -1090,7 +1081,7 @@ def stop_sub_bot(bot_token):
         logger.error(f"Error stopping bot: {e}")
         return False, str(e)
 
-# ========== البوت الرئيسي (مع نظام الطلبات) ==========
+# ========== البوت الرئيسي ==========
 class MasterBot:
     def __init__(self, token):
         self.token = token
