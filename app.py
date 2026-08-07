@@ -165,7 +165,8 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                 await update.message.reply_text("🚫 **أنت محظور**", parse_mode="Markdown")
                 return
             
-            keyboard = [
+            # بناء الأزرار بشكل صحيح
+            buttons = [
                 [InlineKeyboardButton("📩 رسالة", callback_data="send_message")],
                 [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
                 [InlineKeyboardButton("🎥 فيديو", callback_data="send_video")],
@@ -174,9 +175,9 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
             ]
             
             if user_id == owner_id or user_id == MASTER_OWNER_ID:
-                keyboard.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
+                buttons.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
             
-            reply_markup = InlineKeyboardMarkup([keyboard[i:i+2] for i in range(0, len(keyboard), 2)])
+            reply_markup = InlineKeyboardMarkup(buttons)
             
             await update.message.reply_text(
                 f"📩 **بوت التواصل**\n\n👨‍💻 المطور: {developer_username}",
@@ -217,7 +218,7 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                     parse_mode="Markdown"
                 )
             elif data == "back_to_start":
-                keyboard = [
+                buttons = [
                     [InlineKeyboardButton("📩 رسالة", callback_data="send_message")],
                     [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
                     [InlineKeyboardButton("🎥 فيديو", callback_data="send_video")],
@@ -225,8 +226,8 @@ async def run_sub_bot_async(bot_token, owner_id, developer_username):
                     [InlineKeyboardButton("📎 ملف", callback_data="send_document")],
                 ]
                 if user_id == owner_id or user_id == MASTER_OWNER_ID:
-                    keyboard.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
-                reply_markup = InlineKeyboardMarkup([keyboard[i:i+2] for i in range(0, len(keyboard), 2)])
+                    buttons.append([InlineKeyboardButton("⚙️ لوحة التحكم", callback_data="admin_panel")])
+                reply_markup = InlineKeyboardMarkup(buttons)
                 await query.edit_message_text(
                     f"📩 **بوت التواصل**\n\n👨‍💻 المطور: {developer_username}",
                     reply_markup=reply_markup,
@@ -285,24 +286,25 @@ def start_sub_bot(bot_token, owner_id, developer_username):
         if bot_token in active_bots:
             return False, "البوت يعمل بالفعل"
         
-        # إنشاء مهمة جديدة
+        # إنشاء حلقة جديدة
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
-        task = loop.create_task(run_sub_bot_async(bot_token, owner_id, developer_username))
-        
-        # تشغيل الحلقة في خيط منفصل
-        def run_loop():
+        # تشغيل البوت في حلقة منفصلة
+        def run_bot():
             try:
-                loop.run_forever()
+                asyncio.set_event_loop(loop)
+                loop.run_until_complete(run_sub_bot_async(bot_token, owner_id, developer_username))
             except Exception as e:
-                logger.error(f"Loop error: {e}")
+                logger.error(f"Error in bot loop: {e}")
+            finally:
+                loop.close()
         
-        thread = threading.Thread(target=run_loop, daemon=True)
+        thread = threading.Thread(target=run_bot, daemon=True)
         thread.start()
         
         active_bots[bot_token] = True
-        bot_tasks[bot_token] = task
+        bot_tasks[bot_token] = thread
         
         logger.info(f"✅ Bot {bot_token[:10]}... started in background")
         return True, "تم تشغيل البوت ✅"
@@ -317,9 +319,6 @@ def stop_sub_bot(bot_token):
         if bot_token in active_bots:
             del active_bots[bot_token]
         if bot_token in bot_tasks:
-            # إلغاء المهمة
-            task = bot_tasks[bot_token]
-            task.cancel()
             del bot_tasks[bot_token]
         
         db.update_bot_active(bot_token, False)
