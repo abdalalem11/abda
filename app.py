@@ -5,20 +5,22 @@ import asyncio
 import threading
 import sqlite3
 from datetime import datetime
+from flask import Flask, request, jsonify, render_template_string
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
-from flask import Flask, request, jsonify
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import random
 import string
 
-# ========== إعدادات النظام ==========
+# ========== إعدادات التسجيل ==========
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # ========== المعرفات الأساسية ==========
 MASTER_OWNER_ID = 1170411845
-MASTER_BOT_TOKEN = "8760673859:AAF04DjMq2-mDSo33maG0cdUpa5TsiObddY"  # توكن بوت المصنع الرئيسي
+MASTER_BOT_TOKEN = "8909739497:AAHmL5nLCKm6OKkRsjJDIoNQoC_VP9uN5TM"
+
+# ========== تطبيق Flask ==========
+flask_app = Flask(__name__)
 
 # ========== قاعدة البيانات ==========
 class BotFactoryDB:
@@ -121,6 +123,12 @@ class BotFactoryDB:
         self.cursor.execute("DELETE FROM bots WHERE bot_token = ?", (bot_token,))
         self.conn.commit()
     
+    def get_all_bots(self):
+        self.cursor.execute("SELECT * FROM bots")
+        rows = self.cursor.fetchall()
+        columns = [desc[0] for desc in self.cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    
     def close(self):
         self.conn.close()
 
@@ -180,6 +188,13 @@ class BotManager:
             user_name = user.first_name
             username = user.username
             
+            # التحقق من الحظر الشامل
+            cursor = self.db.conn.cursor()
+            cursor.execute("SELECT 1 FROM global_banned WHERE user_id = ?", (user_id,))
+            if cursor.fetchone() and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                await update.message.reply_text("🚫 **أنت محظور من استخدام هذا البوت.**\n\nللتواصل: @SSSTlF", parse_mode="Markdown")
+                return
+            
             keyboard = [
                 [InlineKeyboardButton("📩 رسالة", callback_data="send_message")],
                 [InlineKeyboardButton("🖼️ صورة", callback_data="send_photo")],
@@ -211,11 +226,11 @@ class BotManager:
             user_id = query.from_user.id
             data_callback = query.data
             
-            # التحقق من أن المستخدم ليس محظوراً على مستوى النظام
+            # التحقق من الحظر الشامل
             cursor = self.db.conn.cursor()
             cursor.execute("SELECT 1 FROM global_banned WHERE user_id = ?", (user_id,))
             if cursor.fetchone() and user_id != owner_id and user_id != MASTER_OWNER_ID:
-                await query.edit_message_text("🚫 **أنت محظور من استخدام النظام.**", parse_mode="Markdown")
+                await query.edit_message_text("🚫 **أنت محظور.**", parse_mode="Markdown")
                 return
             
             if data_callback == "send_message":
@@ -588,6 +603,7 @@ class MasterBot:
                     [InlineKeyboardButton("⚙️ إدارة البوتات", callback_data="manage_bots")],
                     [InlineKeyboardButton("🚫 حظر شامل", callback_data="global_ban")],
                     [InlineKeyboardButton("✅ الغاء حظر شامل", callback_data="global_unban")],
+                    [InlineKeyboardButton("📊 إحصائيات المصنع", callback_data="factory_stats")],
                 ])
             
             keyboard.append([InlineKeyboardButton("ℹ️ عن المصنع", callback_data="about")])
@@ -624,7 +640,8 @@ class MasterBot:
                     "• حماية ضد الهجمات\n"
                     "• تحديثات مستمرة\n"
                     "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                    "👨‍💻 **للمطور الرئيسي:** @SSSTlF",
+                    "👨‍💻 **للمطور الرئيسي:** @SSSTlF\n"
+                    "🆔 **ID:** 1170411845",
                     parse_mode="Markdown"
                 )
                 return
@@ -702,16 +719,20 @@ class MasterBot:
                     [InlineKeyboardButton("▶️ تشغيل", callback_data=f"start_bot_{bot_token}")],
                     [InlineKeyboardButton("⏸️ إيقاف", callback_data=f"stop_bot_{bot_token}")],
                     [InlineKeyboardButton("🗑️ حذف", callback_data=f"delete_bot_{bot_token}")],
+                    [InlineKeyboardButton("🔄 إعادة تشغيل", callback_data=f"restart_bot_{bot_token}")],
                     [InlineKeyboardButton("🔙 رجوع", callback_data="manage_bots")],
                 ]
                 reply_markup = InlineKeyboardMarkup(keyboard)
                 
                 status = "🟢 مفعل" if bot_data['is_active'] else "🔴 معطل"
+                is_running = "🟢 يعمل" if bot_token in self.bot_manager.active_bots else "🔴 متوقف"
+                
                 await query.edit_message_text(
                     f"⚙️ **إدارة البوت**\n\n"
                     f"🤖 الاسم: {bot_data['bot_name']}\n"
                     f"🆔 @{bot_data['bot_username']}\n"
                     f"📌 الحالة: {status}\n"
+                    f"🔄 التشغيل: {is_running}\n"
                     f"📅 تم الإنشاء: {bot_data['created_at']}\n"
                     f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯",
                     reply_markup=reply_markup,
@@ -720,6 +741,7 @@ class MasterBot:
             
             elif data_callback.startswith("start_bot_"):
                 bot_token = data_callback.replace("start_bot_", "")
+                self.db.update_bot_active(bot_token, True)
                 success, message = self.bot_manager.start_bot_process(bot_token)
                 await query.edit_message_text(
                     f"{'✅' if success else '❌'} {message}",
@@ -729,18 +751,65 @@ class MasterBot:
             elif data_callback.startswith("stop_bot_"):
                 bot_token = data_callback.replace("stop_bot_", "")
                 if bot_token in self.bot_manager.active_bots:
+                    # إيقاف البوت
+                    try:
+                        # محاولة إيقاف التطبيق
+                        app = self.bot_manager.bot_instances.get(bot_token)
+                        if app:
+                            asyncio.create_task(app.stop())
+                    except:
+                        pass
+                    
                     del self.bot_manager.active_bots[bot_token]
+                    if bot_token in self.bot_manager.bot_instances:
+                        del self.bot_manager.bot_instances[bot_token]
+                    
                     self.db.update_bot_active(bot_token, False)
                     await query.edit_message_text("⏸️ **تم إيقاف البوت.**", parse_mode="Markdown")
                 else:
                     await query.edit_message_text("❌ البوت غير قيد التشغيل.", parse_mode="Markdown")
             
+            elif data_callback.startswith("restart_bot_"):
+                bot_token = data_callback.replace("restart_bot_", "")
+                
+                # إيقاف
+                if bot_token in self.bot_manager.active_bots:
+                    try:
+                        app = self.bot_manager.bot_instances.get(bot_token)
+                        if app:
+                            asyncio.create_task(app.stop())
+                    except:
+                        pass
+                    
+                    del self.bot_manager.active_bots[bot_token]
+                    if bot_token in self.bot_manager.bot_instances:
+                        del self.bot_manager.bot_instances[bot_token]
+                
+                # تشغيل
+                self.db.update_bot_active(bot_token, True)
+                success, message = self.bot_manager.start_bot_process(bot_token)
+                await query.edit_message_text(
+                    f"{'✅' if success else '❌'} إعادة التشغيل: {message}",
+                    parse_mode="Markdown"
+                )
+            
             elif data_callback.startswith("delete_bot_"):
                 bot_token = data_callback.replace("delete_bot_", "")
                 
+                # إيقاف البوت إذا كان يعمل
                 if bot_token in self.bot_manager.active_bots:
+                    try:
+                        app = self.bot_manager.bot_instances.get(bot_token)
+                        if app:
+                            asyncio.create_task(app.stop())
+                    except:
+                        pass
+                    
                     del self.bot_manager.active_bots[bot_token]
+                    if bot_token in self.bot_manager.bot_instances:
+                        del self.bot_manager.bot_instances[bot_token]
                 
+                # حذف من قاعدة البيانات
                 self.db.delete_bot(bot_token)
                 await query.edit_message_text("🗑️ **تم حذف البوت.**", parse_mode="Markdown")
             
@@ -765,6 +834,29 @@ class MasterBot:
                     parse_mode="Markdown"
                 )
             
+            elif data_callback == "factory_stats":
+                bots = self.db.get_all_bots()
+                active_bots = len(self.bot_manager.active_bots)
+                total_bots = len(bots)
+                
+                stats_text = f"📊 **إحصائيات المصنع**\n\n"
+                stats_text += f"🤖 إجمالي البوتات: {total_bots}\n"
+                stats_text += f"🟢 البوتات النشطة: {active_bots}\n"
+                stats_text += f"🔴 البوتات المتوقفة: {total_bots - active_bots}\n"
+                stats_text += f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                
+                if bots:
+                    stats_text += "📋 **البوتات:**\n"
+                    for bot in bots[-5:]:  # آخر 5 بوتات
+                        status = "🟢" if bot['is_active'] else "🔴"
+                        running = "🔄" if bot['bot_token'] in self.bot_manager.active_bots else "⏸️"
+                        stats_text += f"{status} {bot['bot_name']} {running}\n"
+                
+                keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]]
+                reply_markup = InlineKeyboardMarkup(keyboard)
+                
+                await query.edit_message_text(stats_text, reply_markup=reply_markup, parse_mode="Markdown")
+            
             elif data_callback == "back_to_main":
                 keyboard = []
                 if self.db.is_master_developer(user_id):
@@ -774,6 +866,7 @@ class MasterBot:
                         [InlineKeyboardButton("⚙️ إدارة البوتات", callback_data="manage_bots")],
                         [InlineKeyboardButton("🚫 حظر شامل", callback_data="global_ban")],
                         [InlineKeyboardButton("✅ الغاء حظر شامل", callback_data="global_unban")],
+                        [InlineKeyboardButton("📊 إحصائيات المصنع", callback_data="factory_stats")],
                     ])
                 keyboard.append([InlineKeyboardButton("ℹ️ عن المصنع", callback_data="about")])
                 reply_markup = InlineKeyboardMarkup(keyboard)
@@ -846,13 +939,18 @@ class MasterBot:
                     await update.message.reply_text(
                         "❌ **توكن غير صحيح**\n\n"
                         "📌 يجب أن يكون على شكل:\n"
-                        "`1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`",
+                        "`1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`\n\n"
+                        "🔄 أرسل توكن صحيح أو /cancel للإلغاء",
                         parse_mode="Markdown"
                     )
                     return
                 
                 if self.db.get_bot(bot_token):
-                    await update.message.reply_text("❌ **هذا البوت مستخدم بالفعل**", parse_mode="Markdown")
+                    await update.message.reply_text(
+                        "❌ **هذا البوت مستخدم بالفعل**\n\n"
+                        "🔄 أرسل توكن آخر أو /cancel للإلغاء",
+                        parse_mode="Markdown"
+                    )
                     return
                 
                 context.user_data['bot_token'] = bot_token
@@ -860,8 +958,9 @@ class MasterBot:
                 
                 await update.message.reply_text(
                     "✅ **تم التحقق من التوكن**\n\n"
-                    "📌 **الخطوة 2:** أرسل اسم البوت\n"
-                    "مثال: `بوت التواصل الرسمي`",
+                    "📌 **الخطوة 2:** أرسل اسم البوت (الاسم الذي سيظهر للمستخدمين)\n"
+                    "مثال: `بوت التواصل الرسمي`\n\n"
+                    "🔄 /cancel للإلغاء",
                     parse_mode="Markdown"
                 )
                 return
@@ -874,7 +973,8 @@ class MasterBot:
                 await update.message.reply_text(
                     "✅ **تم حفظ الاسم**\n\n"
                     "📌 **الخطوة 3:** أرسل يوزر البوت (بدون @)\n"
-                    "مثال: `MySupportBot`",
+                    "مثال: `MySupportBot`\n\n"
+                    "🔄 /cancel للإلغاء",
                     parse_mode="Markdown"
                 )
                 return
@@ -884,6 +984,12 @@ class MasterBot:
                 bot_token = context.user_data.get('bot_token')
                 bot_name = context.user_data.get('bot_name')
                 
+                if not bot_token or not bot_name:
+                    await update.message.reply_text("❌ **حدث خطأ في البيانات**\n\nيرجى البدء من جديد.", parse_mode="Markdown")
+                    context.user_data.clear()
+                    return
+                
+                # حفظ البوت في قاعدة البيانات
                 bot_id = self.db.add_bot(
                     bot_token=bot_token,
                     bot_name=bot_name,
@@ -891,10 +997,11 @@ class MasterBot:
                     owner_id=user_id,
                     owner_username=user.username,
                     developer_username=f"@{user.username or 'unknown'}",
-                    config={"created_by": "bot_factory"}
+                    config={"created_by": "bot_factory", "version": "2.0"}
                 )
                 
                 if bot_id:
+                    # تشغيل البوت
                     success, message = self.bot_manager.start_bot_process(bot_token)
                     
                     await update.message.reply_text(
@@ -926,70 +1033,185 @@ class MasterBot:
         self.app.add_handler(CallbackQueryHandler(button_handler))
         self.app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
+# ========== مسارات Flask ==========
+@flask_app.route('/')
+def index():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>🏭 مصنع بوتات التواصل</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                margin: 0;
+                color: white;
+                text-align: center;
+                padding: 20px;
+            }
+            .container {
+                background: rgba(255,255,255,0.05);
+                padding: 50px;
+                border-radius: 30px;
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255,255,255,0.1);
+                max-width: 600px;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            }
+            .icon { font-size: 80px; margin-bottom: 20px; }
+            h1 { 
+                font-size: 2.5em; 
+                margin-bottom: 15px;
+                font-weight: 700;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            p { font-size: 1.2em; opacity: 0.9; line-height: 1.6; margin-bottom: 10px; }
+            .status { 
+                color: #4ade80; 
+                font-weight: bold;
+                font-size: 1.1em;
+                display: inline-block;
+                background: rgba(74, 222, 128, 0.15);
+                padding: 8px 25px;
+                border-radius: 50px;
+                margin: 15px 0;
+                border: 1px solid rgba(74, 222, 128, 0.3);
+            }
+            hr { border: 1px solid rgba(255,255,255,0.08); margin: 25px 0; }
+            .info-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                margin-top: 20px;
+            }
+            .info-item {
+                background: rgba(255,255,255,0.05);
+                padding: 20px;
+                border-radius: 15px;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.05);
+                transition: transform 0.3s;
+            }
+            .info-item:hover {
+                transform: translateY(-5px);
+                background: rgba(255,255,255,0.08);
+            }
+            .info-item .label {
+                font-size: 0.8em;
+                opacity: 0.6;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            .info-item .value {
+                font-size: 1.3em;
+                font-weight: 600;
+                margin-top: 8px;
+                color: #4ade80;
+            }
+            .footer {
+                margin-top: 30px;
+                font-size: 0.9em;
+                opacity: 0.6;
+            }
+            .highlight {
+                color: #a78bfa;
+            }
+            @media (max-width: 500px) {
+                .container { padding: 30px 20px; }
+                h1 { font-size: 1.8em; }
+                .icon { font-size: 60px; }
+                .info-grid { grid-template-columns: 1fr; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="icon">🏭</div>
+            <h1>مصنع بوتات التواصل</h1>
+            <p>✅ النظام يعمل بنجاح</p>
+            <div class="status">🟢 Online</div>
+            <hr>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">🤖 الحالة</div>
+                    <div class="value">مفعل</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">⚡️ الإصدار</div>
+                    <div class="value" style="color: #a78bfa;">v2.0</div>
+                </div>
+            </div>
+            <div class="footer">
+                👨‍💻 المطور الرئيسي: <span class="highlight">@SSSTlF</span><br>
+                🆔 ID: <span class="highlight">1170411845</span>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+@flask_app.route('/health')
+def health():
+    return jsonify({
+        "status": "ok",
+        "bot": "running",
+        "master_id": MASTER_OWNER_ID,
+        "version": "2.0"
+    })
+
+@flask_app.route('/api/bots')
+def api_bots():
+    """API لعرض جميع البوتات"""
+    try:
+        db = BotFactoryDB()
+        bots = db.get_all_bots()
+        db.close()
+        
+        return jsonify({
+            "success": True,
+            "count": len(bots),
+            "bots": bots
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
 # ========== التشغيل الرئيسي ==========
 def main():
     db = BotFactoryDB()
     master = MasterBot(MASTER_BOT_TOKEN, db)
     
-    # تشغيل سيرفر Flask للتشغيل المستمر
-    flask_app = Flask(__name__)
+    # تشغيل البوت الرئيسي في thread منفصل
+    def run_master_bot():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(master.start())
+        loop.run_forever()
     
-    @flask_app.route('/')
-    def index():
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head><title>🏭 مصنع البوتات</title>
-        <meta charset="UTF-8">
-        <style>
-            body { font-family: Arial; text-align: center; padding: 50px; 
-                   background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; }
-            .container { max-width: 600px; margin: auto; background: rgba(255,255,255,0.1); 
-                        padding: 30px; border-radius: 20px; }
-            .status { color: #4ade80; font-weight: bold; }
-        </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>🏭 مصنع بوتات التواصل</h1>
-                <p>✅ النظام يعمل بنجاح</p>
-                <p class="status">🟢 Online</p>
-                <hr>
-                <p>👨‍💻 المطور الرئيسي: @SSSTlF</p>
-                <p>🆔 ID: 1170411845</p>
-            </div>
-        </body>
-        </html>
-        """
+    bot_thread = threading.Thread(target=run_master_bot, daemon=True)
+    bot_thread.start()
     
-    @flask_app.route('/health')
-    def health():
-        return jsonify({
-            "status": "ok", 
-            "bots": len(master.bot_manager.active_bots),
-            "master_id": MASTER_OWNER_ID
-        })
+    # تشغيل Flask
+    port = int(os.environ.get('PORT', 8080))
+    print(f"🚀 Starting Flask on port {port}")
+    print(f"🤖 Master Bot Token: {MASTER_BOT_TOKEN[:10]}...")
+    print(f"👨‍💻 Master Owner ID: {MASTER_OWNER_ID}")
+    print(f"🏭 Bot Factory v2.0 is running!")
     
-    # تشغيل Flask في thread منفصل
-    def run_flask():
-        port = int(os.environ.get('PORT', 8080))
-        flask_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
-    
-    flask_thread = threading.Thread(target=run_flask, daemon=True)
-    flask_thread.start()
-    
-    # تشغيل البوت الرئيسي
-    async def run():
-        await master.start()
-        logger.info(f"✅ Master bot running with owner ID: {MASTER_OWNER_ID}")
-        await asyncio.Event().wait()
-    
-    try:
-        asyncio.run(run())
-    except KeyboardInterrupt:
-        logger.info("Shutting down...")
-    finally:
-        db.close()
+    flask_app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == "__main__":
     main()
