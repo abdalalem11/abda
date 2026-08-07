@@ -1,1 +1,6 @@
-python-3.11.10
+Flask==2.3.0
+gunicorn==23.0.0
+uvicorn==0.30.0
+python-telegram-bot==20.7
+Pyrogram==2.0.106
+PySocks==1.7.1
