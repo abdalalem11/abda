@@ -2,21 +2,14 @@ import os
 import json
 import logging
 import asyncio
-import threading
 import sqlite3
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
 
-# تثبيت nest_asyncio إذا لم يكن موجوداً
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-except ImportError:
-    pass
-
-# ========== سيرفر HTTP ==========
+# ========== سيرفر HTTP للـ Health Check ==========
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -148,18 +141,20 @@ class BotFactoryDB:
 
 db = BotFactoryDB()
 
-# ========== تشغيل بوت فرعي ==========
-def run_sub_bot(bot_token, owner_id, developer_username):
-    """تشغيل بوت فرعي"""
+# ========== قائمة البوتات النشطة ==========
+active_bots = {}
+bot_tasks = {}
+
+# ========== تشغيل بوت فرعي (طريقة صحيحة 100%) ==========
+async def run_sub_bot_async(bot_token, owner_id, developer_username):
+    """تشغيل بوت فرعي باستخدام asyncio - الطريقة الصحيحة"""
     try:
-        # إنشاء حلقة أحداث جديدة
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        logger.info(f"🚀 Starting sub bot: {bot_token[:10]}...")
         
         # إنشاء التطبيق
         app = Application.builder().token(bot_token).build()
         
-        # إضافة المعالجات
+        # ===== معالجات البوت الفرعي =====
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = update.message.from_user
             user_id = user.id
@@ -259,70 +254,80 @@ def run_sub_bot(bot_token, owner_id, developer_username):
                 await update.message.reply_text("✅ تم الإرسال")
                 context.user_data['waiting_for'] = None
         
+        # إضافة المعالجات
         app.add_handler(CommandHandler("start", start))
         app.add_handler(CallbackQueryHandler(button_handler))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
-        # تشغيل البوت باستخدام الحلقة المخصصة
-        loop.run_until_complete(app.initialize())
-        loop.run_until_complete(app.start())
-        loop.run_until_complete(app.updater.start_polling(drop_pending_updates=True))
-        loop.run_forever()
+        # تشغيل البوت
+        await app.initialize()
+        await app.start()
+        await app.updater.start_polling(drop_pending_updates=True)
+        
+        logger.info(f"✅ Sub bot {bot_token[:10]}... started successfully!")
+        
+        # البقاء قيد التشغيل
+        while True:
+            await asyncio.sleep(10)
+            
+    except Exception as e:
+        logger.error(f"❌ Sub bot {bot_token[:10]}... error: {e}")
+        # إزالة البوت من القائمة النشطة عند الخطأ
+        if bot_token in active_bots:
+            del active_bots[bot_token]
+        if bot_token in bot_tasks:
+            del bot_tasks[bot_token]
+
+def start_sub_bot(bot_token, owner_id, developer_username):
+    """بدء تشغيل بوت فرعي في الخلفية"""
+    try:
+        # إذا كان البوت شغال بالفعل، أوقفه
+        if bot_token in active_bots:
+            return False, "البوت يعمل بالفعل"
+        
+        # إنشاء مهمة جديدة
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        task = loop.create_task(run_sub_bot_async(bot_token, owner_id, developer_username))
+        
+        # تشغيل الحلقة في خيط منفصل
+        def run_loop():
+            try:
+                loop.run_forever()
+            except Exception as e:
+                logger.error(f"Loop error: {e}")
+        
+        thread = threading.Thread(target=run_loop, daemon=True)
+        thread.start()
+        
+        active_bots[bot_token] = True
+        bot_tasks[bot_token] = task
+        
+        logger.info(f"✅ Bot {bot_token[:10]}... started in background")
+        return True, "تم تشغيل البوت ✅"
         
     except Exception as e:
-        logger.error(f"Sub bot {bot_token} error: {e}")
+        logger.error(f"Error starting sub bot: {e}")
+        return False, f"خطأ: {str(e)}"
 
-# ========== نظام إدارة البوتات ==========
-class BotManager:
-    def __init__(self, db):
-        self.db = db
-        self.active_bots = {}
-        self.bot_threads = {}
-    
-    def start_bot_process(self, bot_token):
-        try:
-            bot_data = self.db.get_bot(bot_token)
-            if not bot_data:
-                return False, "البوت غير موجود"
-            
-            if not bot_data['is_active']:
-                return False, "البوت معطل"
-            
-            # تشغيل البوت في خيط منفصل
-            thread = threading.Thread(
-                target=run_sub_bot,
-                args=(bot_token, bot_data['owner_id'], bot_data['developer_username']),
-                daemon=True
-            )
-            thread.start()
-            
-            self.active_bots[bot_token] = True
-            self.bot_threads[bot_token] = thread
-            
-            logger.info(f"✅ Bot {bot_token} started successfully")
-            return True, "تم تشغيل البوت بنجاح ✅"
-            
-        except Exception as e:
-            logger.error(f"Error starting bot: {e}")
-            return False, f"خطأ: {str(e)}"
-    
-    def stop_bot(self, bot_token):
-        try:
-            if bot_token in self.active_bots:
-                del self.active_bots[bot_token]
-                if bot_token in self.bot_threads:
-                    del self.bot_threads[bot_token]
-                
-                self.db.update_bot_active(bot_token, False)
-                logger.info(f"⏸️ Bot {bot_token} stopped")
-                return True, "تم إيقاف البوت ⏸️"
-            
-            return False, "البوت غير قيد التشغيل"
-        except Exception as e:
-            logger.error(f"Error stopping bot: {e}")
-            return False, str(e)
-
-bot_manager = BotManager(db)
+def stop_sub_bot(bot_token):
+    """إيقاف بوت فرعي"""
+    try:
+        if bot_token in active_bots:
+            del active_bots[bot_token]
+        if bot_token in bot_tasks:
+            # إلغاء المهمة
+            task = bot_tasks[bot_token]
+            task.cancel()
+            del bot_tasks[bot_token]
+        
+        db.update_bot_active(bot_token, False)
+        logger.info(f"⏸️ Bot {bot_token[:10]}... stopped")
+        return True, "تم إيقاف البوت ⏸️"
+    except Exception as e:
+        logger.error(f"Error stopping bot: {e}")
+        return False, str(e)
 
 # ========== البوت الرئيسي ==========
 class MasterBot:
@@ -408,7 +413,7 @@ class MasterBot:
                 text = "📋 **بوتاتي**\n\n"
                 for bot in bots:
                     status = "🟢 مفعل" if bot['is_active'] else "🔴 معطل"
-                    running = "🔄 يعمل" if bot['bot_token'] in bot_manager.active_bots else "⏸️ متوقف"
+                    running = "🔄 يعمل" if bot['bot_token'] in active_bots else "⏸️ متوقف"
                     text += f"🤖 **{bot['bot_name']}**\n"
                     text += f"🆔 @{bot['bot_username']}\n"
                     text += f"📌 {status} | {running}\n"
@@ -445,7 +450,7 @@ class MasterBot:
                     await query.edit_message_text("❌ البوت غير موجود.", parse_mode="Markdown")
                     return
                 
-                is_running = bot_token in bot_manager.active_bots
+                is_running = bot_token in active_bots
                 
                 keyboard = []
                 if is_running:
@@ -472,32 +477,42 @@ class MasterBot:
             
             elif data.startswith("start_"):
                 bot_token = data.replace("start_", "")
+                bot_data = db.get_bot(bot_token)
+                if not bot_data:
+                    await query.edit_message_text("❌ البوت غير موجود", parse_mode="Markdown")
+                    return
+                
                 db.update_bot_active(bot_token, True)
-                success, msg = bot_manager.start_bot_process(bot_token)
+                success, msg = start_sub_bot(bot_token, bot_data['owner_id'], bot_data['developer_username'])
                 await query.edit_message_text(f"{'✅' if success else '❌'} {msg}", parse_mode="Markdown")
             
             elif data.startswith("stop_"):
                 bot_token = data.replace("stop_", "")
-                success, msg = bot_manager.stop_bot(bot_token)
+                success, msg = stop_sub_bot(bot_token)
                 await query.edit_message_text(f"{'✅' if success else '❌'} {msg}", parse_mode="Markdown")
             
             elif data.startswith("restart_"):
                 bot_token = data.replace("restart_", "")
-                bot_manager.stop_bot(bot_token)
+                bot_data = db.get_bot(bot_token)
+                if not bot_data:
+                    await query.edit_message_text("❌ البوت غير موجود", parse_mode="Markdown")
+                    return
+                
+                stop_sub_bot(bot_token)
                 db.update_bot_active(bot_token, True)
-                success, msg = bot_manager.start_bot_process(bot_token)
+                success, msg = start_sub_bot(bot_token, bot_data['owner_id'], bot_data['developer_username'])
                 await query.edit_message_text(f"{'✅' if success else '❌'} إعادة تشغيل: {msg}", parse_mode="Markdown")
             
             elif data.startswith("delete_"):
                 bot_token = data.replace("delete_", "")
-                bot_manager.stop_bot(bot_token)
+                stop_sub_bot(bot_token)
                 db.delete_bot(bot_token)
                 await query.edit_message_text("🗑️ **تم حذف البوت**", parse_mode="Markdown")
             
             elif data == "factory_stats":
                 bots = db.get_all_bots()
                 total = len(bots)
-                active = len(bot_manager.active_bots)
+                active = len(active_bots)
                 
                 text = f"📊 **إحصائيات المصنع**\n\n"
                 text += f"🤖 إجمالي البوتات: {total}\n"
@@ -507,7 +522,7 @@ class MasterBot:
                 
                 if bots:
                     for bot in bots[-5:]:
-                        running = "🔄" if bot['bot_token'] in bot_manager.active_bots else "⏸️"
+                        running = "🔄" if bot['bot_token'] in active_bots else "⏸️"
                         text += f"{running} {bot['bot_name']}\n"
                 
                 keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]]
@@ -609,7 +624,7 @@ class MasterBot:
                 
                 if bot_id:
                     # تشغيل البوت مباشرة
-                    success, msg = bot_manager.start_bot_process(bot_token)
+                    success, msg = start_sub_bot(bot_token, user_id, f"@{user.username or 'unknown'}")
                     
                     await update.message.reply_text(
                         f"🤖 **تم صنع البوت بنجاح!**\n\n"
@@ -634,24 +649,30 @@ class MasterBot:
         self.app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 # ========== التشغيل ==========
-def main():
+async def main_async():
     print("🚀 Starting Bot Factory...")
     print(f"🤖 Master Bot: {MASTER_BOT_TOKEN[:10]}...")
     print(f"👨‍💻 Owner ID: {MASTER_OWNER_ID}")
     
     master = MasterBot(MASTER_BOT_TOKEN)
+    await master.start()
     
-    async def run():
-        await master.start()
-        print("✅ Bot Factory is running!")
-        print("📱 Open: @SSSTlF_bot")
-        while True:
-            await asyncio.sleep(3600)
+    # تشغيل البوتات المخزنة في قاعدة البيانات
+    all_bots = db.get_all_bots()
+    for bot in all_bots:
+        if bot['is_active']:
+            success, msg = start_sub_bot(bot['bot_token'], bot['owner_id'], bot['developer_username'])
+            logger.info(f"Auto-start {bot['bot_name']}: {msg}")
     
-    try:
-        asyncio.run(run())
-    except KeyboardInterrupt:
-        print("\n🛑 Stopped.")
+    print("✅ Bot Factory is running!")
+    print("📱 Open: @SSSTlF_bot")
+    
+    # البقاء قيد التشغيل
+    while True:
+        await asyncio.sleep(3600)
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        print("\n🛑 Stopped.")
