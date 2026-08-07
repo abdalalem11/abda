@@ -11,6 +11,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 import signal
 import sys
+import time
 
 # ========== سيرفر HTTP للـ Health Check ==========
 class HealthHandler(BaseHTTPRequestHandler):
@@ -261,15 +262,62 @@ db = BotFactoryDB()
 
 # ========== قاموس البوتات النشطة ==========
 active_bots = {}
-bot_tasks = {}
-bot_apps = {}
 bot_threads = {}
+bot_apps = {}
 
-# ========== قالب البوت الفرعي ==========
-def create_sub_bot_handler(bot_token, owner_id, developer_username):
-    """إنشاء معالجات البوت الفرعي"""
+# ========== تشغيل البوت الفرعي ==========
+def run_sub_bot_sync(bot_token, owner_id, developer_username):
+    """تشغيل البوت الفرعي في thread منفصل"""
+    try:
+        logger.info(f"🚀 Starting sub bot: {bot_token[:10]}...")
+        
+        # إنشاء حلقة asyncio جديدة
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        # تشغيل البوت
+        loop.run_until_complete(start_sub_bot_async(bot_token, owner_id, developer_username))
+        
+    except Exception as e:
+        logger.error(f"❌ Sub bot error: {e}")
+        import traceback
+        traceback.print_exc()
+
+async def start_sub_bot_async(bot_token, owner_id, developer_username):
+    """تشغيل البوت الفرعي بشكل غير متزامن"""
+    try:
+        # إنشاء التطبيق
+        app = Application.builder().token(bot_token).build()
+        
+        # إضافة المعالجات
+        await setup_bot_handlers(app, bot_token, owner_id, developer_username)
+        
+        # بدء البوت
+        await app.initialize()
+        await app.start()
+        
+        # حذف أي webhook موجود واستخدام polling
+        await app.bot.delete_webhook()
+        await app.updater.start_polling(drop_pending_updates=True)
+        
+        # تخزين التطبيق
+        bot_apps[bot_token] = app
+        
+        logger.info(f"✅ Sub bot {bot_token[:10]}... started successfully!")
+        
+        # الحفاظ على التشغيل
+        while True:
+            await asyncio.sleep(10)
+            
+    except Exception as e:
+        logger.error(f"❌ Sub bot error: {e}")
+        import traceback
+        traceback.print_exc()
+
+async def setup_bot_handlers(app, bot_token, owner_id, developer_username):
+    """إعداد معالجات البوت الفرعي"""
     
-    # ملفات البيانات الخاصة بكل بوت
+    # ملفات البيانات
     DATA_FILE = f"bot_data_{bot_token[:10]}.json"
     REPLIES_FILE = f"replies_data_{bot_token[:10]}.json"
     
@@ -1088,85 +1136,37 @@ def create_sub_bot_handler(bot_token, owner_id, developer_username):
         context.user_data.clear()
         await update.message.reply_text("❌ **تم الإلغاء.**", parse_mode="Markdown")
     
-    # إرجاع الدوال
-    return {
-        "start": start,
-        "help": help_command,
-        "dev": dev_command,
-        "panel": panel_command,
-        "cancel": cancel_command,
-        "button": button_handler,
-        "message": handle_message,
-        "photo": handle_photo,
-        "video": handle_video,
-        "audio": handle_audio,
-        "sticker": handle_sticker,
-        "document": handle_document,
-    }
+    # إضافة المعالجات
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("dev", dev_command))
+    app.add_handler(CommandHandler("panel", panel_command))
+    app.add_handler(CommandHandler("cancel", cancel_command))
+    app.add_handler(CallbackQueryHandler(button_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app.add_handler(MessageHandler(filters.VIDEO, handle_video))
+    app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
+    app.add_handler(MessageHandler(filters.Sticker.ALL, handle_sticker))
+    app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
 
-# ========== تشغيل البوت الفرعي ==========
-async def run_sub_bot(bot_token, owner_id, developer_username):
-    """تشغيل بوت فرعي"""
-    try:
-        logger.info(f"🚀 Starting sub bot: {bot_token[:10]}...")
-        
-        # إنشاء التطبيق
-        app = Application.builder().token(bot_token).build()
-        
-        # الحصول على معالجات البوت
-        handlers = create_sub_bot_handler(bot_token, owner_id, developer_username)
-        
-        # إضافة المعالجات
-        app.add_handler(CommandHandler("start", handlers["start"]))
-        app.add_handler(CommandHandler("help", handlers["help"]))
-        app.add_handler(CommandHandler("dev", handlers["dev"]))
-        app.add_handler(CommandHandler("panel", handlers["panel"]))
-        app.add_handler(CommandHandler("cancel", handlers["cancel"]))
-        app.add_handler(CallbackQueryHandler(handlers["button"]))
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handlers["message"]))
-        app.add_handler(MessageHandler(filters.PHOTO, handlers["photo"]))
-        app.add_handler(MessageHandler(filters.VIDEO, handlers["video"]))
-        app.add_handler(MessageHandler(filters.AUDIO, handlers["audio"]))
-        app.add_handler(MessageHandler(filters.Sticker.ALL, handlers["sticker"]))
-        app.add_handler(MessageHandler(filters.Document.ALL, handlers["document"]))
-        
-        # بدء البوت
-        await app.initialize()
-        await app.start()
-        await app.bot.delete_webhook()
-        await app.updater.start_polling(drop_pending_updates=True)
-        
-        bot_apps[bot_token] = app
-        logger.info(f"✅ Sub bot {bot_token[:10]}... started successfully!")
-        
-        # الحفاظ على التشغيل
-        while True:
-            await asyncio.sleep(10)
-            
-    except Exception as e:
-        logger.error(f"❌ Sub bot error: {e}")
-        import traceback
-        traceback.print_exc()
-        if bot_token in active_bots:
-            active_bots[bot_token] = False
-        if bot_token in bot_apps:
-            del bot_apps[bot_token]
-
+# ========== بدء البوت الفرعي ==========
 def start_sub_bot(bot_token, owner_id, developer_username):
-    """بدء بوت فرعي"""
+    """بدء بوت فرعي في thread منفصل"""
     try:
         if bot_token in active_bots and active_bots[bot_token]:
             return False, "البوت يعمل بالفعل"
         
         # تشغيل في thread جديد
-        def run_bot():
-            try:
-                asyncio.run(run_sub_bot(bot_token, owner_id, developer_username))
-            except Exception as e:
-                logger.error(f"Error in bot thread: {e}")
-        
-        thread = threading.Thread(target=run_bot, daemon=True)
+        thread = threading.Thread(
+            target=run_sub_bot_sync,
+            args=(bot_token, owner_id, developer_username),
+            daemon=True
+        )
         thread.start()
+        
+        # انتظار قليلاً للتأكد من بدء التشغيل
+        time.sleep(1)
         
         active_bots[bot_token] = True
         bot_threads[bot_token] = thread
