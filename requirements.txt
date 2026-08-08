@@ -1,2 +1,5 @@
 python-telegram-bot>=20.0
 httpx>=0.24
+aiofiles>=23.0.0
+aiohttp>=3.8.0
+colorlog>=6.7.0
