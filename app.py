@@ -66,6 +66,7 @@ class AdvancedLogger:
     def warning(self, msg): self.logger.warning(msg)
     def debug(self, msg): self.logger.debug(msg)
 
+# إنشاء كائن اللوغر
 logger = AdvancedLogger()
 
 # ========== نظام المراقبة الذكي ==========
@@ -84,12 +85,20 @@ class PerformanceMonitor:
             'total_users': 0
         }
         self.response_times = []
+        self.cache = {}  # إضافة كاش محلي
     
     async def collect_metrics(self):
         while True:
             try:
-                self.metrics['active_bots'] = len(active_bots)
-                self.metrics['total_users'] = sum(b.get('total_users', 0) for b in db.get_all_bots())
+                # الوصول إلى active_bots من النطاق العام
+                global active_bots
+                self.metrics['active_bots'] = len(active_bots) if 'active_bots' in globals() else 0
+                
+                # الوصول إلى قاعدة البيانات
+                try:
+                    self.metrics['total_users'] = sum(b.get('total_users', 0) for b in db.get_all_bots())
+                except:
+                    self.metrics['total_users'] = 0
                 
                 memory = psutil.virtual_memory()
                 self.metrics['total_memory_usage'] = memory.percent
@@ -122,12 +131,12 @@ class PerformanceMonitor:
             logger.warning("⚠️ تقليل عدد البوتات لتخفيف الضغط")
     
     async def optimize_bots(self):
-        for bot_token, app in bot_apps.items():
-            if bot_token in active_bots and not active_bots[bot_token]:
-                try:
+        try:
+            for bot_token, app in bot_apps.items():
+                if bot_token in active_bots and not active_bots[bot_token]:
                     await asyncio.sleep(0.1)
-                except:
-                    pass
+        except:
+            pass
 
 performance_monitor = PerformanceMonitor()
 
@@ -282,7 +291,10 @@ class AdvancedDatabase:
         conn.commit()
         conn.close()
         
-        self.add_master_developer(MASTER_OWNER_ID, "SSSTlF")
+        try:
+            self.add_master_developer(MASTER_OWNER_ID, "SSSTlF")
+        except:
+            pass
     
     def execute(self, query, params=None, commit=True):
         conn = self._get_connection()
@@ -586,6 +598,7 @@ class BotManager:
                     parse_mode="Markdown"
                 )
                 
+                # إصلاح: استخدام performance_monitor الموجود
                 if hasattr(performance_monitor, 'response_times'):
                     performance_monitor.response_times.append(0.5)
                 
@@ -786,11 +799,17 @@ class BotManager:
     
     async def _handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
+            # التحقق من وجود message
+            if not update.message:
+                return
+                
             user_id = update.message.from_user.id
             user_name = update.message.from_user.first_name
             username = update.message.from_user.username
             
             media_type = "📎 ملف"
+            file_id = None
+            
             if update.message.photo:
                 media_type = "🖼️ صورة"
                 file_id = update.message.photo[-1].file_id
@@ -809,13 +828,14 @@ class BotManager:
             else:
                 return
             
-            await context.bot.send_message(
-                chat_id=owner_id,
-                text=f"{media_type} **جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`",
-                parse_mode="Markdown"
-            )
-            
-            await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
+            if file_id:
+                await context.bot.send_message(
+                    chat_id=context.bot_data.get('owner_id', MASTER_OWNER_ID),
+                    text=f"{media_type} **جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`",
+                    parse_mode="Markdown"
+                )
+                
+                await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
             
         except Exception as e:
             logger.error(f"Media handler error: {e}")
@@ -1323,8 +1343,12 @@ class BotFactory:
                 await asyncio.sleep(10)
 
 # ========== المطور الرئيسي ==========
-MASTER_OWNER_ID = 1170411845
+MASTER_OWNER_ID = 1170411845  # تأكد من صحة هذا المعرف
 MASTER_BOT_TOKEN = "8909739497:AAHmL5nLCKm6OKkRsjJDIoNQoC_VP9uN5TM"
+
+# تعريف المتغيرات العامة
+active_bots = {}
+bot_apps = {}
 
 # ========== التشغيل ==========
 if __name__ == "__main__":
