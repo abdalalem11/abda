@@ -1075,13 +1075,10 @@ class BotFactory:
                     await query.edit_message_text("❌ البوت غير موجود", parse_mode="Markdown")
                     return
                 
-                # إيقاف البوت
                 await self.bot_manager.stop_bot(bot_token)
                 
-                # حذف من قاعدة البيانات
                 db.delete_bot(bot_token)
                 
-                # حذف ملفات البوت
                 try:
                     os.remove(f"data/bot_{bot_token[:10]}.json")
                 except:
@@ -1189,7 +1186,6 @@ class BotFactory:
                     context.user_data.clear()
                     return
                 
-                # تشغيل البوت فوراً
                 success, msg = await self.bot_manager.start_bot(
                     bot_token,
                     user_id,
