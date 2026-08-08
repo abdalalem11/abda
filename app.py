@@ -45,13 +45,11 @@ class AdvancedLogger:
         )
         self.logger = logging.getLogger('BotFactory')
         
-        # إضافة معالج لكتابة الأخطاء في ملف منفصل
         error_handler = logging.FileHandler('errors.log')
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)-8s | %(name)s | %(message)s'))
         self.logger.addHandler(error_handler)
         
-        # إضافة معالج لعرض الألوان في الكونسول
         try:
             import colorlog
             handler = colorlog.StreamHandler()
@@ -88,7 +86,6 @@ class PerformanceMonitor:
         self.response_times = []
     
     async def collect_metrics(self):
-        """جمع المقاييس بشكل دوري"""
         while True:
             try:
                 self.metrics['active_bots'] = len(active_bots)
@@ -98,13 +95,11 @@ class PerformanceMonitor:
                 self.metrics['total_memory_usage'] = memory.percent
                 self.metrics['cpu_usage'] = psutil.cpu_percent(interval=0.5)
                 
-                # حساب متوسط زمن الاستجابة
                 if self.response_times:
                     self.metrics['avg_response_time'] = sum(self.response_times) / len(self.response_times)
                     if len(self.response_times) > 100:
                         self.response_times = self.response_times[-50:]
                 
-                # تسجيل في حالة ارتفاع الضغط
                 if self.metrics['total_memory_usage'] > MEMORY_THRESHOLD:
                     logger.warning(f"⚠️ عالية الذاكرة: {self.metrics['total_memory_usage']}%")
                     await self.cleanup_resources()
@@ -120,21 +115,13 @@ class PerformanceMonitor:
                 await asyncio.sleep(10)
     
     async def cleanup_resources(self):
-        """تنظيف الموارد عند الضغط"""
         gc.collect()
-        
-        # تنظيف الكاش إذا كان كبيراً
         if hasattr(self, 'cache') and len(self.cache) > CACHE_SIZE:
             self.cache.clear()
-        
-        # تقليل عدد البوتات إذا لزم الأمر
         if len(active_bots) > 25 and self.metrics['total_memory_usage'] > 90:
             logger.warning("⚠️ تقليل عدد البوتات لتخفيف الضغط")
-            # يمكن إضافة منطق لإيقاف بعض البوتات مؤقتاً
     
     async def optimize_bots(self):
-        """تحسين أداء البوتات"""
-        # تقليل وتيرة التحديث للبوتات غير النشطة
         for bot_token, app in bot_apps.items():
             if bot_token in active_bots and not active_bots[bot_token]:
                 try:
@@ -165,7 +152,6 @@ class AdvancedCache:
     async def set(self, key, value):
         async with self.lock:
             if len(self.cache) >= self.max_size:
-                # حذف أقدم عنصر
                 oldest_key = min(self.cache.keys(), key=lambda k: self.cache[k][1])
                 del self.cache[oldest_key]
             self.cache[key] = (value, datetime.now().timestamp())
@@ -186,30 +172,25 @@ class AdvancedDatabase:
         self._init_db()
     
     def _get_connection(self):
-        """الحصول على اتصال من المجموعة"""
         if self.conn_pool:
             return self.conn_pool.pop()
         return sqlite3.connect(self.db_path, check_same_thread=False)
     
     def _return_connection(self, conn):
-        """إعادة الاتصال إلى المجموعة"""
         if len(self.conn_pool) < self.max_connections:
             self.conn_pool.append(conn)
         else:
             conn.close()
     
     def _init_db(self):
-        """تهيئة قاعدة البيانات مع تحسينات الأداء"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        # تحسينات الأداء
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.execute("PRAGMA synchronous=NORMAL")
-        cursor.execute("PRAGMA cache_size=-20000")  # 20MB cache
+        cursor.execute("PRAGMA cache_size=-20000")
         cursor.execute("PRAGMA temp_store=MEMORY")
         
-        # إنشاء الجداول مع الفهارس
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS bots (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -234,24 +215,6 @@ class AdvancedDatabase:
         ''')
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_bots_owner ON bots(owner_id)
-        ''')
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS pending_requests (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                username TEXT,
-                bot_token TEXT NOT NULL,
-                bot_name TEXT NOT NULL,
-                bot_username TEXT NOT NULL,
-                requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                status TEXT DEFAULT 'pending',
-                priority INTEGER DEFAULT 0
-            )
-        ''')
-        
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_requests_status ON pending_requests(status)
         ''')
         
         cursor.execute('''
@@ -319,11 +282,9 @@ class AdvancedDatabase:
         conn.commit()
         conn.close()
         
-        # إضافة المطور الرئيسي
         self.add_master_developer(MASTER_OWNER_ID, "SSSTlF")
     
     def execute(self, query, params=None, commit=True):
-        """تنفيذ استعلام مع إعادة الاتصال التلقائي"""
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
@@ -357,7 +318,6 @@ class AdvancedDatabase:
     
     def add_bot(self, bot_token, bot_name, bot_username, owner_id, owner_username, developer_username):
         try:
-            # التحقق من الحد الأقصى
             result = self.execute("SELECT COUNT(*) FROM bots WHERE is_active = 1")
             active_count = result[0][0] if result else 0
             
@@ -391,6 +351,11 @@ class AdvancedDatabase:
                   'last_heartbeat', 'start_count', 'error_count']
         return [dict(zip(columns, row)) for row in result]
     
+    def delete_bot(self, bot_token):
+        self.execute("DELETE FROM bots WHERE bot_token = ?", (bot_token,))
+        self.execute("DELETE FROM bot_users WHERE bot_token = ?", (bot_token,))
+        self.execute("DELETE FROM bot_replies WHERE bot_token = ?", (bot_token,))
+    
     def update_heartbeat(self, bot_token):
         self.execute("UPDATE bots SET last_heartbeat = CURRENT_TIMESTAMP WHERE bot_token = ?", (bot_token,))
     
@@ -415,26 +380,21 @@ class BotManager:
         self.lock = asyncio.Lock()
     
     async def start_bot(self, bot_token, owner_id, developer_username):
-        """تشغيل بوت مع نظام ذكي لإدارة الموارد"""
         async with self.semaphore:
             try:
-                # التحقق من الموارد المتاحة
                 memory = psutil.virtual_memory()
                 if memory.percent > 90:
                     logger.warning(f"⚠️ ذاكرة منخفضة: {memory.percent}%، تأخير بدء البوت")
                     await asyncio.sleep(5)
                 
-                # إنشاء قائمة انتظار للبوت
                 self.bot_queues[bot_token] = Queue(maxsize=200)
                 
-                # إنشاء مهمة البوت
                 task = asyncio.create_task(
                     self._run_bot_async(bot_token, owner_id, developer_username)
                 )
                 self.bot_tasks[bot_token] = task
                 self.active_bots[bot_token] = True
                 
-                # انتظار بدء التشغيل
                 await asyncio.sleep(2)
                 
                 if bot_token in self.active_bots and self.active_bots[bot_token]:
@@ -447,23 +407,59 @@ class BotManager:
                 logger.error(f"خطأ بدء البوت: {e}")
                 return False, str(e)
     
+    async def stop_bot(self, bot_token):
+        try:
+            if bot_token in self.active_bots:
+                self.active_bots[bot_token] = False
+            
+            if bot_token in self.bot_apps:
+                app = self.bot_apps[bot_token]
+                try:
+                    await app.updater.stop()
+                except:
+                    pass
+                try:
+                    await app.stop()
+                except:
+                    pass
+                try:
+                    await app.shutdown()
+                except:
+                    pass
+                del self.bot_apps[bot_token]
+            
+            if bot_token in self.bot_tasks:
+                task = self.bot_tasks[bot_token]
+                if not task.done():
+                    task.cancel()
+                del self.bot_tasks[bot_token]
+            
+            if bot_token in self.bot_queues:
+                del self.bot_queues[bot_token]
+            
+            logger.info(f"⏹️ إيقاف البوت: {bot_token[:10]}")
+            return True, "تم الإيقاف ✅"
+        except Exception as e:
+            logger.error(f"خطأ إيقاف البوت: {e}")
+            return False, str(e)
+    
+    async def restart_bot(self, bot_token, owner_id, developer_username):
+        await self.stop_bot(bot_token)
+        await asyncio.sleep(2)
+        return await self.start_bot(bot_token, owner_id, developer_username)
+    
     async def _run_bot_async(self, bot_token, owner_id, developer_username):
-        """تشغيل البوت مع معالجة الأخطاء وإعادة المحاولة"""
         retry_count = 0
         
         while retry_count < MAX_RETRIES:
             try:
-                # إنشاء التطبيق
                 app = Application.builder().token(bot_token).build()
                 
-                # إعداد المعالجات
                 await self._setup_handlers(app, bot_token, owner_id, developer_username)
                 
-                # بدء التطبيق
                 await app.initialize()
                 await app.start()
                 
-                # إعداد polling مع إعادة المحاولة
                 try:
                     await app.bot.delete_webhook()
                     await app.updater.start_polling(
@@ -481,7 +477,6 @@ class BotManager:
                 
                 logger.info(f"✅ البوت جاهز: {bot_token[:10]}...")
                 
-                # حلقة heartbeat
                 while self.active_bots.get(bot_token, False):
                     try:
                         db.update_heartbeat(bot_token)
@@ -490,7 +485,7 @@ class BotManager:
                         logger.error(f"Heartbeat error: {e}")
                         await asyncio.sleep(5)
                 
-                break  # خروج من حلقة إعادة المحاولة عند النجاح
+                break
                 
             except Exception as e:
                 retry_count += 1
@@ -505,12 +500,9 @@ class BotManager:
                     break
     
     async def _setup_handlers(self, app, bot_token, owner_id, developer_username):
-        """إعداد المعالجات مع تحسينات السرعة"""
-        # ملفات البيانات مع استخدام aiofiles للسرعة
         DATA_FILE = f"data/bot_{bot_token[:10]}.json"
         REPLIES_FILE = f"data/replies_{bot_token[:10]}.json"
         
-        # إنشاء المجلد إذا لم يكن موجوداً
         os.makedirs("data", exist_ok=True)
         
         async def load_data():
@@ -537,13 +529,11 @@ class BotManager:
             async with aiofiles.open(REPLIES_FILE, 'w', encoding='utf-8') as f:
                 await f.write(json.dumps(replies, ensure_ascii=False, indent=2))
         
-        # تهيئة الملفات
         if not os.path.exists(DATA_FILE):
             await save_data({"users": [], "banned_users": [], "bot_active": True, "total_users": 0})
         if not os.path.exists(REPLIES_FILE):
             await save_replies({})
         
-        # ===== معالجات البوت (مُحسّنة للسرعة) =====
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 user_id = update.message.from_user.id
@@ -596,9 +586,8 @@ class BotManager:
                     parse_mode="Markdown"
                 )
                 
-                # تسجيل وقت الاستجابة
                 if hasattr(performance_monitor, 'response_times'):
-                    performance_monitor.response_times.append(0.5)  # تقريبي
+                    performance_monitor.response_times.append(0.5)
                 
             except Exception as e:
                 logger.error(f"Start error: {e}")
@@ -617,7 +606,6 @@ class BotManager:
                 
                 data_callback = query.data
                 
-                # معالجة سريعة للأزرار
                 if data_callback == "send_message":
                     context.user_data['waiting_for'] = 'message_to_dev'
                     await query.edit_message_text("📝 **أرسل رسالتك**\n@SSSTlF", parse_mode="Markdown")
@@ -787,7 +775,6 @@ class BotManager:
             except Exception as e:
                 logger.error(f"Message handler error: {e}")
         
-        # إضافة المعالجات
         app.add_handler(CommandHandler("start", start))
         app.add_handler(CallbackQueryHandler(button_handler))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
@@ -798,13 +785,11 @@ class BotManager:
         app.add_handler(MessageHandler(filters.Document.ALL, self._handle_media))
     
     async def _handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """معالجة الوسائط بسرعة عالية"""
         try:
             user_id = update.message.from_user.id
             user_name = update.message.from_user.first_name
             username = update.message.from_user.username
             
-            # معالجة سريعة للوسائط
             media_type = "📎 ملف"
             if update.message.photo:
                 media_type = "🖼️ صورة"
@@ -824,7 +809,6 @@ class BotManager:
             else:
                 return
             
-            # إرسال للمطور
             await context.bot.send_message(
                 chat_id=owner_id,
                 text=f"{media_type} **جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`",
@@ -845,7 +829,6 @@ class BotFactory:
         self.monitor_task = None
         self.stats_task = None
         
-        # ========== سيرفر الصحة ==========
         class HealthHandler(BaseHTTPRequestHandler):
             def do_GET(self):
                 active = len(self.server.bot_manager.active_bots)
@@ -870,7 +853,6 @@ class BotFactory:
             def log_message(self, format, *args):
                 pass
         
-        # بدء سيرفر الصحة
         port = int(os.environ.get("PORT", 8080))
         server = HTTPServer(('0.0.0.0', port), HealthHandler)
         server.bot_manager = self.bot_manager
@@ -880,37 +862,28 @@ class BotFactory:
         logger.info(f"🌐 سيرفر الصحة: http://localhost:{port}")
     
     async def start(self):
-        """تشغيل المصنع بشكل كامل"""
-        logger.info("🚀 **بدء تشغيل مصنع البوتات**")
+        logger.info("🚀 **بدء تشغيل مصنع البوتات الماسي**")
         logger.info(f"📊 الحد الأقصى: {MAX_BOTS} بوت")
         
-        # بدء البوت الرئيسي
         await self._start_master_bot()
         
-        # بدء مراقبة الأداء
         asyncio.create_task(performance_monitor.collect_metrics())
         
-        # تشغيل البوتات المخزنة
         await self._load_existing_bots()
         
-        # بدء حلقة المراقبة
         asyncio.create_task(self._monitor_bots())
         
         logger.info("✅ **المصنع جاهز للعمل!**")
         
-        # الحفاظ على التشغيل
         while True:
             await asyncio.sleep(60)
     
     async def _start_master_bot(self):
-        """بدء البوت الرئيسي"""
         try:
             self.master_app = Application.builder().token(self.master_token).build()
             
-            # إعداد معالجات البوت الرئيسي
             await self._setup_master_handlers()
             
-            # بدء التطبيق
             await self.master_app.initialize()
             await self.master_app.start()
             await self.master_app.bot.delete_webhook()
@@ -923,19 +896,16 @@ class BotFactory:
             raise
     
     async def _setup_master_handlers(self):
-        """إعداد معالجات البوت الرئيسي"""
-        
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = update.message.from_user
             user_id = user.id
             
             keyboard = [
-                [InlineKeyboardButton("🤖 طلب بوت جديد", callback_data="request_bot")],
+                [InlineKeyboardButton("🤖 صنع بوت جديد", callback_data="create_bot")],
             ]
             
             if user_id == MASTER_OWNER_ID:
                 keyboard.extend([
-                    [InlineKeyboardButton("📋 الطلبات المعلقة", callback_data="pending_requests")],
                     [InlineKeyboardButton("📊 إحصائيات المصنع", callback_data="factory_stats")],
                     [InlineKeyboardButton("⚙️ إدارة البوتات", callback_data="manage_bots")],
                 ])
@@ -944,8 +914,8 @@ class BotFactory:
             
             await update.message.reply_text(
                 f"🏭 **مصنع البوتات الماسي**\n\n"
-                f"📌 اطلب بوت التواصل الخاص بك\n"
-                f"⚡ تشغيل فوري بعد الموافقة\n"
+                f"📌 صنع بوت التواصل الخاص بك فوراً\n"
+                f"⚡ تشغيل فوري بدون موافقة\n"
                 f"🤖 الحد الأقصى: {MAX_BOTS} بوت\n"
                 f"📊 النشط: {len(self.bot_manager.active_bots)}\n"
                 f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
@@ -976,7 +946,7 @@ class BotFactory:
                 )
                 return
             
-            if data == "request_bot":
+            if data == "create_bot":
                 active_count = len(self.bot_manager.active_bots)
                 if active_count >= MAX_BOTS:
                     await query.edit_message_text(
@@ -990,7 +960,7 @@ class BotFactory:
                 
                 context.user_data['waiting_for'] = 'bot_token'
                 await query.edit_message_text(
-                    f"🤖 **طلب بوت جديد**\n\n"
+                    f"🤖 **صنع بوت جديد**\n\n"
                     f"📊 النشط: {active_count}/{MAX_BOTS}\n"
                     f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                     "📌 **أرسل توكن البوت**\n"
@@ -1006,98 +976,11 @@ class BotFactory:
                 await query.edit_message_text("🚫 **غير مصرح**", parse_mode="Markdown")
                 return
             
-            if data == "pending_requests":
-                pending = db.execute("SELECT * FROM pending_requests WHERE status = 'pending' ORDER BY requested_at DESC")
-                if not pending:
-                    await query.edit_message_text("📭 **لا توجد طلبات**", parse_mode="Markdown")
-                    return
-                
-                text = "📋 **الطلبات المعلقة**\n\n"
-                for req in pending:
-                    text += f"📌 طلب #{req[0]}\n"
-                    text += f"👤 @{req[2] or 'unknown'}\n"
-                    text += f"🤖 {req[4]}\n"
-                    text += f"🆔 @{req[5]}\n"
-                    text += f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                
-                keyboard = []
-                for req in pending:
-                    keyboard.append([
-                        InlineKeyboardButton(f"✅ قبول", callback_data=f"approve_{req[0]}"),
-                        InlineKeyboardButton(f"❌ رفض", callback_data=f"reject_{req[0]}")
-                    ])
-                keyboard.append([InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")])
-                
-                await query.edit_message_text(
-                    text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode="Markdown"
-                )
-                return
-            
-            elif data.startswith("approve_"):
-                request_id = int(data.replace("approve_", ""))
-                req = db.execute("SELECT * FROM pending_requests WHERE id = ?", (request_id,))
-                if not req:
-                    await query.edit_message_text("❌ الطلب غير موجود", parse_mode="Markdown")
-                    return
-                
-                req = req[0]
-                success, msg = await self.bot_manager.start_bot(
-                    req[3], req[1], f"@{req[2] or 'unknown'}"
-                )
-                
-                if success:
-                    bot_id, add_msg = db.add_bot(
-                        req[3], req[4], req[5], req[1], req[2], f"@{req[2] or 'unknown'}"
-                    )
-                    db.execute("UPDATE pending_requests SET status = 'approved' WHERE id = ?", (request_id,))
-                    
-                    try:
-                        await context.bot.send_message(
-                            chat_id=req[1],
-                            text=f"✅ **تم قبول طلبك وتشغيل البوت!**\n\n"
-                                 f"🤖 @{req[5]}\n"
-                                 f"📊 النشط: {len(self.bot_manager.active_bots)}/{MAX_BOTS}\n"
-                                 f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                                 f"🔧 @SSSTlF",
-                            parse_mode="Markdown"
-                        )
-                    except:
-                        pass
-                    
-                    await query.edit_message_text(
-                        f"✅ **تم قبول وتشغيل البوت**\n\n"
-                        f"🤖 @{req[5]}\n"
-                        f"📊 النشط: {len(self.bot_manager.active_bots)}/{MAX_BOTS}\n"
-                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                        f"🔧 @SSSTlF",
-                        parse_mode="Markdown"
-                    )
-                else:
-                    await query.edit_message_text(
-                        f"❌ **فشل التشغيل:** {msg}\n\n"
-                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                        f"🔧 @SSSTlF",
-                        parse_mode="Markdown"
-                    )
-                return
-            
-            elif data.startswith("reject_"):
-                request_id = int(data.replace("reject_", ""))
-                req = db.execute("SELECT * FROM pending_requests WHERE id = ?", (request_id,))
-                if req:
-                    db.execute("UPDATE pending_requests SET status = 'rejected' WHERE id = ?", (request_id,))
-                
-                await query.edit_message_text("❌ **تم رفض الطلب**", parse_mode="Markdown")
-                return
-            
-            elif data == "factory_stats":
+            if data == "factory_stats":
                 bots = db.get_all_bots()
                 total_bots = len(bots)
                 total_users = sum(b.get('total_users', 0) for b in bots)
                 active = len(self.bot_manager.active_bots)
-                pending = len(db.execute("SELECT * FROM pending_requests WHERE status = 'pending'"))
                 
                 memory = psutil.virtual_memory()
                 cpu = psutil.cpu_percent()
@@ -1107,7 +990,6 @@ class BotFactory:
                     f"🤖 إجمالي البوتات: {total_bots}\n"
                     f"🟢 النشطة: {active}/{MAX_BOTS}\n"
                     f"👥 إجمالي المستخدمين: {total_users}\n"
-                    f"📋 الطلبات المعلقة: {pending}\n"
                     f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                     f"💾 الذاكرة: {memory.percent}%\n"
                     f"⚡ المعالج: {cpu}%\n"
@@ -1125,28 +1007,107 @@ class BotFactory:
                     return
                 
                 text = f"🤖 **قائمة البوتات ({len(bots)}/{MAX_BOTS})**\n\n"
-                for b in bots[:15]:
-                    status = "🟢" if b['is_active'] else "🔴"
+                keyboard = []
+                
+                for i, b in enumerate(bots[:15]):
+                    status = "🟢" if b['is_active'] and b['bot_token'] in self.bot_manager.active_bots else "🔴"
                     text += f"{status} {b['bot_name']}\n"
                     text += f"🆔 @{b['bot_username']}\n"
                     text += f"👥 {b['total_users']} مستخدم\n"
                     text += f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    keyboard.append([
+                        InlineKeyboardButton(f"🔄 إعادة تشغيل {i+1}", callback_data=f"restart_{b['bot_token']}"),
+                        InlineKeyboardButton(f"🗑️ حذف {i+1}", callback_data=f"delete_{b['bot_token']}")
+                    ])
+                
+                keyboard.append([InlineKeyboardButton("🔄 تحديث", callback_data="manage_bots")])
+                keyboard.append([InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")])
                 
                 await query.edit_message_text(
-                    text + f"\n🔧 @SSSTlF",
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔄 تحديث", callback_data="manage_bots")],
-                                                      [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]]),
+                    text,
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
+                return
+            
+            elif data.startswith("restart_"):
+                bot_token = data.replace("restart_", "")
+                bot_info = db.get_bot(bot_token)
+                
+                if not bot_info:
+                    await query.edit_message_text("❌ البوت غير موجود", parse_mode="Markdown")
+                    return
+                
+                await query.edit_message_text(
+                    f"🔄 **جاري إعادة تشغيل البوت...**\n"
+                    f"🤖 {bot_info['bot_name']}",
+                    parse_mode="Markdown"
+                )
+                
+                success, msg = await self.bot_manager.restart_bot(
+                    bot_token,
+                    bot_info['owner_id'],
+                    bot_info['developer_username']
+                )
+                
+                if success:
+                    await query.edit_message_text(
+                        f"✅ **تم إعادة التشغيل بنجاح**\n\n"
+                        f"🤖 {bot_info['bot_name']}\n"
+                        f"🆔 @{bot_info['bot_username']}\n"
+                        f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                        f"🔧 @SSSTlF",
+                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 رجوع", callback_data="manage_bots")]]),
+                        parse_mode="Markdown"
+                    )
+                else:
+                    await query.edit_message_text(
+                        f"❌ **فشل إعادة التشغيل:** {msg}",
+                        parse_mode="Markdown"
+                    )
+                return
+            
+            elif data.startswith("delete_"):
+                bot_token = data.replace("delete_", "")
+                bot_info = db.get_bot(bot_token)
+                
+                if not bot_info:
+                    await query.edit_message_text("❌ البوت غير موجود", parse_mode="Markdown")
+                    return
+                
+                # إيقاف البوت
+                await self.bot_manager.stop_bot(bot_token)
+                
+                # حذف من قاعدة البيانات
+                db.delete_bot(bot_token)
+                
+                # حذف ملفات البوت
+                try:
+                    os.remove(f"data/bot_{bot_token[:10]}.json")
+                except:
+                    pass
+                try:
+                    os.remove(f"data/replies_{bot_token[:10]}.json")
+                except:
+                    pass
+                
+                await query.edit_message_text(
+                    f"🗑️ **تم حذف البوت**\n\n"
+                    f"🤖 {bot_info['bot_name']}\n"
+                    f"🆔 @{bot_info['bot_username']}\n"
+                    f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+                    f"🔧 @SSSTlF",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 رجوع", callback_data="manage_bots")]]),
                     parse_mode="Markdown"
                 )
                 return
             
             elif data == "back_to_main":
                 keyboard = [
-                    [InlineKeyboardButton("🤖 طلب بوت جديد", callback_data="request_bot")],
+                    [InlineKeyboardButton("🤖 صنع بوت جديد", callback_data="create_bot")],
                 ]
                 if user_id == MASTER_OWNER_ID:
                     keyboard.extend([
-                        [InlineKeyboardButton("📋 الطلبات المعلقة", callback_data="pending_requests")],
                         [InlineKeyboardButton("📊 إحصائيات المصنع", callback_data="factory_stats")],
                         [InlineKeyboardButton("⚙️ إدارة البوتات", callback_data="manage_bots")],
                     ])
@@ -1154,8 +1115,8 @@ class BotFactory:
                 
                 await query.edit_message_text(
                     f"🏭 **مصنع البوتات الماسي**\n\n"
-                    f"📌 اطلب بوت التواصل الخاص بك\n"
-                    f"⚡ تشغيل فوري بعد الموافقة\n"
+                    f"📌 صنع بوت التواصل الخاص بك فوراً\n"
+                    f"⚡ تشغيل فوري بدون موافقة\n"
                     f"🤖 النشط: {len(self.bot_manager.active_bots)}/{MAX_BOTS}\n"
                     f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                     f"🔧 @SSSTlF",
@@ -1228,50 +1189,47 @@ class BotFactory:
                     context.user_data.clear()
                     return
                 
-                request_id = db.execute(
-                    '''INSERT INTO pending_requests (user_id, username, bot_token, bot_name, bot_username, priority)
-                       VALUES (?, ?, ?, ?, ?, ?) RETURNING id''',
-                    (user_id, user.username, bot_token, bot_name, bot_info.get('username', 'unknown'), 1)
+                # تشغيل البوت فوراً
+                success, msg = await self.bot_manager.start_bot(
+                    bot_token,
+                    user_id,
+                    f"@{user.username or 'unknown'}"
                 )
                 
-                if request_id:
+                if success:
+                    bot_id, add_msg = db.add_bot(
+                        bot_token,
+                        bot_name,
+                        bot_info.get('username', 'unknown'),
+                        user_id,
+                        user.username,
+                        f"@{user.username or 'unknown'}"
+                    )
+                    
                     await update.message.reply_text(
-                        f"✅ **تم إرسال الطلب!**\n\n"
+                        f"✅ **تم إنشاء وتشغيل البوت!**\n\n"
                         f"🤖 {bot_name}\n"
                         f"🆔 @{bot_info.get('username', 'unknown')}\n"
-                        f"📊 النشط: {active_count}/{MAX_BOTS}\n"
+                        f"📊 النشط: {active_count + 1}/{MAX_BOTS}\n"
                         f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                        f"📌 سيتم مراجعة طلبك قريباً\n"
+                        f"📌 البوت جاهز للاستخدام\n"
                         f"🔧 @SSSTlF",
                         parse_mode="Markdown"
                     )
-                    
-                    await context.bot.send_message(
-                        chat_id=MASTER_OWNER_ID,
-                        text=f"📋 **طلب بوت جديد**\n\n"
-                             f"👤 @{user.username or 'unknown'}\n"
-                             f"🆔 `{user_id}`\n"
-                             f"🤖 {bot_name}\n"
-                             f"🆔 @{bot_info.get('username', 'unknown')}\n"
-                             f"📊 النشط: {active_count}/{MAX_BOTS}\n\n"
-                             f"📌 استخدم /start لإدارة الطلبات\n"
-                             f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                             f"🔧 @SSSTlF",
+                else:
+                    await update.message.reply_text(
+                        f"❌ **فشل التشغيل:** {msg}",
                         parse_mode="Markdown"
                     )
-                else:
-                    await update.message.reply_text("❌ **حدث خطأ**", parse_mode="Markdown")
                 
                 context.user_data.clear()
                 return
         
-        # إضافة المعالجات
         self.master_app.add_handler(CommandHandler("start", start))
         self.master_app.add_handler(CallbackQueryHandler(button_handler))
         self.master_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
     
     async def _load_existing_bots(self):
-        """تحميل البوتات المخزنة"""
         bots = db.get_all_bots()
         if not bots:
             logger.info("📭 لا توجد بوتات مخزنة")
@@ -1292,32 +1250,26 @@ class BotFactory:
                 else:
                     logger.error(f"❌ فشل تحميل {bot['bot_token'][:10]}: {msg}")
                 
-                # تأخير ذكي لتوزيع الحمل
                 await asyncio.sleep(0.5 + (i * 0.2))
                 
             except Exception as e:
                 logger.error(f"خطأ تحميل البوت: {e}")
     
     async def _monitor_bots(self):
-        """مراقبة البوتات وإعادة التشغيل التلقائي"""
         while True:
             try:
-                # التحقق من الموارد
                 memory = psutil.virtual_memory()
                 if memory.percent > 90:
                     logger.warning(f"⚠️ ذاكرة عالية: {memory.percent}%")
                     gc.collect()
                 
-                # التحقق من البوتات المتوقفة
                 bots = db.get_all_bots()
                 for bot in bots:
                     bot_token = bot['bot_token']
                     
-                    # إذا كان البوت مفعل ولكن غير موجود في الذاكرة
                     if bot['is_active'] and bot_token not in self.bot_manager.active_bots:
                         logger.warning(f"⚠️ البوت {bot_token[:10]} متوقف، إعادة التشغيل...")
                         
-                        # إعادة التشغيل
                         success, msg = await self.bot_manager.start_bot(
                             bot_token,
                             bot['owner_id'],
@@ -1331,7 +1283,6 @@ class BotFactory:
                         
                         await asyncio.sleep(2)
                     
-                    # التحقق من heartbeat
                     elif bot_token in self.bot_manager.active_bots:
                         last_heartbeat = bot.get('last_heartbeat')
                         if last_heartbeat:
@@ -1340,7 +1291,6 @@ class BotFactory:
                                 if datetime.now() - last_time > timedelta(seconds=HEARTBEAT_TIMEOUT):
                                     logger.warning(f"⚠️ {bot_token[:10]} heartbeat منتهي، إعادة التشغيل...")
                                     
-                                    # إعادة التشغيل
                                     self.bot_manager.active_bots[bot_token] = False
                                     await asyncio.sleep(1)
                                     
@@ -1357,7 +1307,6 @@ class BotFactory:
                             except:
                                 pass
                 
-                # تنظيف البوتات غير النشطة من الذاكرة
                 for bot_token in list(self.bot_manager.active_bots.keys()):
                     if not self.bot_manager.active_bots[bot_token]:
                         if bot_token in self.bot_manager.bot_apps:
@@ -1387,10 +1336,8 @@ if __name__ == "__main__":
         logger.info("🚀 **بدء تشغيل مصنع البوتات الماسي**")
         logger.info(f"📊 الحد الأقصى: {MAX_BOTS} بوت")
         
-        # إنشاء مجلد البيانات
         os.makedirs("data", exist_ok=True)
         
-        # تشغيل المصنع
         factory = BotFactory()
         asyncio.run(factory.start())
         
