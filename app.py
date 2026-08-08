@@ -14,12 +14,29 @@ import sys
 import time
 import random
 import gc
-import psutil
 from asyncio import Queue, Semaphore
 from concurrent.futures import ThreadPoolExecutor
 import aiofiles
 import aiohttp
 from typing import Dict, Any, Optional
+
+# ========== معالجة psutil ==========
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+    # إنشاء كائن بديل
+    class FakePsutil:
+        class virtual_memory:
+            @staticmethod
+            def percent():
+                return 0
+        class cpu_percent:
+            @staticmethod
+            def percent(interval=0.5):
+                return 0
+    psutil = FakePsutil()
 
 # ========== إعدادات متقدمة ==========
 MAX_BOTS = 30
@@ -66,7 +83,6 @@ class AdvancedLogger:
     def warning(self, msg): self.logger.warning(msg)
     def debug(self, msg): self.logger.debug(msg)
 
-# إنشاء كائن اللوغر
 logger = AdvancedLogger()
 
 # ========== نظام المراقبة الذكي ==========
@@ -85,35 +101,37 @@ class PerformanceMonitor:
             'total_users': 0
         }
         self.response_times = []
-        self.cache = {}  # إضافة كاش محلي
+        self.cache = {}
     
     async def collect_metrics(self):
         while True:
             try:
-                # الوصول إلى active_bots من النطاق العام
                 global active_bots
                 self.metrics['active_bots'] = len(active_bots) if 'active_bots' in globals() else 0
                 
-                # الوصول إلى قاعدة البيانات
                 try:
                     self.metrics['total_users'] = sum(b.get('total_users', 0) for b in db.get_all_bots())
                 except:
                     self.metrics['total_users'] = 0
                 
-                memory = psutil.virtual_memory()
-                self.metrics['total_memory_usage'] = memory.percent
-                self.metrics['cpu_usage'] = psutil.cpu_percent(interval=0.5)
+                if PSUTIL_AVAILABLE:
+                    memory = psutil.virtual_memory()
+                    self.metrics['total_memory_usage'] = memory.percent
+                    self.metrics['cpu_usage'] = psutil.cpu_percent(interval=0.5)
+                else:
+                    self.metrics['total_memory_usage'] = 0
+                    self.metrics['cpu_usage'] = 0
                 
                 if self.response_times:
                     self.metrics['avg_response_time'] = sum(self.response_times) / len(self.response_times)
                     if len(self.response_times) > 100:
                         self.response_times = self.response_times[-50:]
                 
-                if self.metrics['total_memory_usage'] > MEMORY_THRESHOLD:
+                if self.metrics['total_memory_usage'] > MEMORY_THRESHOLD and PSUTIL_AVAILABLE:
                     logger.warning(f"⚠️ عالية الذاكرة: {self.metrics['total_memory_usage']}%")
                     await self.cleanup_resources()
                 
-                if self.metrics['cpu_usage'] > CPU_THRESHOLD:
+                if self.metrics['cpu_usage'] > CPU_THRESHOLD and PSUTIL_AVAILABLE:
                     logger.warning(f"⚠️ عالية المعالج: {self.metrics['cpu_usage']}%")
                     await self.optimize_bots()
                 
@@ -394,10 +412,11 @@ class BotManager:
     async def start_bot(self, bot_token, owner_id, developer_username):
         async with self.semaphore:
             try:
-                memory = psutil.virtual_memory()
-                if memory.percent > 90:
-                    logger.warning(f"⚠️ ذاكرة منخفضة: {memory.percent}%، تأخير بدء البوت")
-                    await asyncio.sleep(5)
+                if PSUTIL_AVAILABLE:
+                    memory = psutil.virtual_memory()
+                    if memory.percent > 90:
+                        logger.warning(f"⚠️ ذاكرة منخفضة: {memory.percent}%، تأخير بدء البوت")
+                        await asyncio.sleep(5)
                 
                 self.bot_queues[bot_token] = Queue(maxsize=200)
                 
@@ -598,7 +617,6 @@ class BotManager:
                     parse_mode="Markdown"
                 )
                 
-                # إصلاح: استخدام performance_monitor الموجود
                 if hasattr(performance_monitor, 'response_times'):
                     performance_monitor.response_times.append(0.5)
                 
@@ -799,7 +817,6 @@ class BotManager:
     
     async def _handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
-            # التحقق من وجود message
             if not update.message:
                 return
                 
@@ -852,15 +869,22 @@ class BotFactory:
         class HealthHandler(BaseHTTPRequestHandler):
             def do_GET(self):
                 active = len(self.server.bot_manager.active_bots)
-                memory = psutil.virtual_memory()
-                cpu = psutil.cpu_percent()
+                
+                if PSUTIL_AVAILABLE:
+                    memory = psutil.virtual_memory()
+                    cpu = psutil.cpu_percent()
+                    memory_usage = f"{memory.percent}%"
+                    cpu_usage = f"{cpu}%"
+                else:
+                    memory_usage = "N/A"
+                    cpu_usage = "N/A"
                 
                 response = json.dumps({
                     "status": "healthy",
                     "active_bots": active,
                     "max_bots": MAX_BOTS,
-                    "memory_usage": f"{memory.percent}%",
-                    "cpu_usage": f"{cpu}%",
+                    "memory_usage": memory_usage,
+                    "cpu_usage": cpu_usage,
                     "uptime": str(datetime.now() - self.server.start_time),
                     "total_users": sum(b.get('total_users', 0) for b in db.get_all_bots())
                 }, ensure_ascii=False, indent=2)
@@ -1002,8 +1026,14 @@ class BotFactory:
                 total_users = sum(b.get('total_users', 0) for b in bots)
                 active = len(self.bot_manager.active_bots)
                 
-                memory = psutil.virtual_memory()
-                cpu = psutil.cpu_percent()
+                if PSUTIL_AVAILABLE:
+                    memory = psutil.virtual_memory()
+                    cpu = psutil.cpu_percent()
+                    memory_usage = f"{memory.percent}%"
+                    cpu_usage = f"{cpu}%"
+                else:
+                    memory_usage = "N/A"
+                    cpu_usage = "N/A"
                 
                 await query.edit_message_text(
                     f"📊 **إحصائيات المصنع**\n\n"
@@ -1011,8 +1041,8 @@ class BotFactory:
                     f"🟢 النشطة: {active}/{MAX_BOTS}\n"
                     f"👥 إجمالي المستخدمين: {total_users}\n"
                     f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
-                    f"💾 الذاكرة: {memory.percent}%\n"
-                    f"⚡ المعالج: {cpu}%\n"
+                    f"💾 الذاكرة: {memory_usage}\n"
+                    f"⚡ المعالج: {cpu_usage}\n"
                     f"⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
                     f"🔧 @SSSTlF",
                     reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]]),
@@ -1274,10 +1304,11 @@ class BotFactory:
     async def _monitor_bots(self):
         while True:
             try:
-                memory = psutil.virtual_memory()
-                if memory.percent > 90:
-                    logger.warning(f"⚠️ ذاكرة عالية: {memory.percent}%")
-                    gc.collect()
+                if PSUTIL_AVAILABLE:
+                    memory = psutil.virtual_memory()
+                    if memory.percent > 90:
+                        logger.warning(f"⚠️ ذاكرة عالية: {memory.percent}%")
+                        gc.collect()
                 
                 bots = db.get_all_bots()
                 for bot in bots:
@@ -1343,7 +1374,7 @@ class BotFactory:
                 await asyncio.sleep(10)
 
 # ========== المطور الرئيسي ==========
-MASTER_OWNER_ID = 1170411845  # تأكد من صحة هذا المعرف
+MASTER_OWNER_ID = 1170411845
 MASTER_BOT_TOKEN = "8909739497:AAHmL5nLCKm6OKkRsjJDIoNQoC_VP9uN5TM"
 
 # تعريف المتغيرات العامة
