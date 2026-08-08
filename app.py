@@ -20,13 +20,12 @@ import aiofiles
 import aiohttp
 from typing import Dict, Any, Optional
 
-# ========== معالجة psutil ==========
+# ========== محاولة استيراد psutil مع معالجة الخطأ ==========
 try:
     import psutil
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
-    # إنشاء كائن بديل
     class FakePsutil:
         class virtual_memory:
             @staticmethod
@@ -565,6 +564,63 @@ class BotManager:
         if not os.path.exists(REPLIES_FILE):
             await save_replies({})
         
+        # ========== الأوامر الجديدة ==========
+        async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            await update.message.reply_text(
+                f"📖 **المساعدة**\n\n"
+                f"/start - القائمة الرئيسية\n"
+                f"/help - هذه المساعدة\n"
+                f"/dev - المطور\n"
+                f"/panel - لوحة التحكم\n"
+                f"/cancel - إلغاء العملية\n\n"
+                f"👨‍💻 المطور: @SSSTlF",
+                parse_mode="Markdown"
+            )
+
+        async def dev_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            await update.message.reply_text(
+                f"👨‍💻 **المطور**\n\n"
+                f"البوت من تصميم:\n"
+                f"✨ @SSSTlF ✨\n\n"
+                f"📌 للتواصل: @SSSTlF",
+                parse_mode="Markdown",
+                disable_web_page_preview=True
+            )
+
+        async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            context.user_data.clear()
+            await update.message.reply_text("❌ **تم الإلغاء.**", parse_mode="Markdown")
+
+        async def panel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            user_id = update.message.from_user.id
+            if user_id != owner_id and user_id != MASTER_OWNER_ID:
+                await update.message.reply_text("🚫 **هذا الأمر مخصص للمطور فقط.**", parse_mode="Markdown")
+                return
+            
+            data = await load_data()
+            keyboard = [
+                [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats")],
+                [InlineKeyboardButton("⏸️ تعطيل البوت", callback_data="admin_disable") if data["bot_active"] 
+                 else InlineKeyboardButton("▶️ تفعيل البوت", callback_data="admin_enable")],
+                [InlineKeyboardButton("🚫 حظر مستخدم", callback_data="admin_ban")],
+                [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
+                [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
+                [InlineKeyboardButton("📩 جميع الرسائل", callback_data="show_all_messages")],
+                [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
+            await update.message.reply_text(
+                f"⚙️ **لوحة التحكم**\n\n"
+                f"👨‍💻 المطور: {developer_username}\n"
+                f"📊 المستخدمين: {data['total_users']}\n"
+                f"🚫 المحظورين: {len(data['banned_users'])}\n"
+                f"📌 الحالة: {status}",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+
         async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 user_id = update.message.from_user.id
@@ -636,82 +692,121 @@ class BotManager:
                     return
                 
                 data_callback = query.data
+
+                # ========== رد برسالة مخصصة ==========
+                if data_callback.startswith("reply_custom_"):
+                    target_id = int(data_callback.split('_')[2])
+                    context.user_data['replying_to_custom'] = target_id
+                    context.user_data['waiting_for'] = 'custom_reply'
+                    await query.edit_message_text(
+                        f"✏️ **أرسل رسالتك المخصصة للرد**\n👤 للمستخدم: `{target_id}`\n\nلإلغاء: /cancel",
+                        parse_mode="Markdown"
+                    )
+                    return
+
+                # ========== ردود المطور ==========
+                elif data_callback.startswith("reply_photo_"):
+                    target_id = int(data_callback.split('_')[2])
+                    context.user_data['replying_to_photo'] = target_id
+                    context.user_data['waiting_for'] = 'reply_photo'
+                    await query.edit_message_text(f"🖼️ **أرسل الصورة التي تريد الرد بها**\n👤 للمستخدم: `{target_id}`\nلإلغاء: /cancel", parse_mode="Markdown")
+                    return
+
+                elif data_callback.startswith("reply_video_"):
+                    target_id = int(data_callback.split('_')[2])
+                    context.user_data['replying_to_video'] = target_id
+                    context.user_data['waiting_for'] = 'reply_video'
+                    await query.edit_message_text(f"🎥 **أرسل الفيديو الذي تريد الرد به**\n👤 للمستخدم: `{target_id}`\nلإلغاء: /cancel", parse_mode="Markdown")
+                    return
+
+                elif data_callback.startswith("reply_audio_"):
+                    target_id = int(data_callback.split('_')[2])
+                    context.user_data['replying_to_audio'] = target_id
+                    context.user_data['waiting_for'] = 'reply_audio'
+                    await query.edit_message_text(f"🎵 **أرسل الصوت الذي تريد الرد به**\n👤 للمستخدم: `{target_id}`\nلإلغاء: /cancel", parse_mode="Markdown")
+                    return
+
+                elif data_callback.startswith("reply_sticker_"):
+                    target_id = int(data_callback.split('_')[2])
+                    context.user_data['replying_to_sticker'] = target_id
+                    context.user_data['waiting_for'] = 'reply_sticker'
+                    await query.edit_message_text(f"🏷️ **أرسل الملصق الذي تريد الرد به**\n👤 للمستخدم: `{target_id}`\nلإلغاء: /cancel", parse_mode="Markdown")
+                    return
+
+                elif data_callback.startswith("reply_document_"):
+                    target_id = int(data_callback.split('_')[2])
+                    context.user_data['replying_to_document'] = target_id
+                    context.user_data['waiting_for'] = 'reply_document'
+                    await query.edit_message_text(f"📎 **أرسل الملف الذي تريد الرد به**\n👤 للمستخدم: `{target_id}`\nلإلغاء: /cancel", parse_mode="Markdown")
+                    return
                 
-                if data_callback == "send_message":
-                    context.user_data['waiting_for'] = 'message_to_dev'
-                    await query.edit_message_text("📝 **أرسل رسالتك**\n@SSSTlF", parse_mode="Markdown")
-                
-                elif data_callback == "send_photo":
-                    context.user_data['waiting_for'] = 'photo_to_dev'
-                    await query.edit_message_text("🖼️ **أرسل الصورة**", parse_mode="Markdown")
-                
-                elif data_callback == "send_video":
-                    context.user_data['waiting_for'] = 'video_to_dev'
-                    await query.edit_message_text("🎥 **أرسل الفيديو**", parse_mode="Markdown")
-                
-                elif data_callback == "send_audio":
-                    context.user_data['waiting_for'] = 'audio_to_dev'
-                    await query.edit_message_text("🎵 **أرسل الصوت**", parse_mode="Markdown")
-                
-                elif data_callback == "send_document":
-                    context.user_data['waiting_for'] = 'document_to_dev'
-                    await query.edit_message_text("📎 **أرسل الملف**", parse_mode="Markdown")
-                
-                elif data_callback == "send_sticker":
-                    context.user_data['waiting_for'] = 'sticker_to_dev'
-                    await query.edit_message_text("🏷️ **أرسل الملصق**", parse_mode="Markdown")
-                
-                elif data_callback == "admin_panel" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
-                    keyboard = [
-                        [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats")],
-                        [InlineKeyboardButton("⏸️ تعطيل", callback_data="admin_disable") if data["bot_active"] 
-                         else InlineKeyboardButton("▶️ تفعيل", callback_data="admin_enable")],
-                        [InlineKeyboardButton("🚫 حظر", callback_data="admin_ban")],
-                        [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
-                        [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
-                    ]
+                # ========== عرض المحظورين ==========
+                elif data_callback == "admin_banned_list" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
                     reply_markup = InlineKeyboardMarkup(keyboard)
                     
-                    status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
+                    if data["banned_users"]:
+                        banned_list = "\n".join([f"🚫 `{uid}`" for uid in data["banned_users"]])
+                        await query.edit_message_text(
+                            f"📋 **المحظورين**\n\n{banned_list}\n\nالعدد: {len(data['banned_users'])}",
+                            reply_markup=reply_markup,
+                            parse_mode="Markdown"
+                        )
+                    else:
+                        await query.edit_message_text("✅ **لا يوجد محظورين.**", reply_markup=reply_markup, parse_mode="Markdown")
+
+                # ========== عرض جميع الرسائل ==========
+                elif data_callback == "show_all_messages" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    replies = await load_replies()
+                    if not replies:
+                        await query.edit_message_text("📭 **لا توجد رسائل.**", parse_mode="Markdown")
+                        return
+                    
+                    message_list = []
+                    for uid, msg_data in list(replies.items())[-10:]:
+                        message_list.append(
+                            f"━━━━━━━━━━━━━━━━━━━\n"
+                            f"👤 {msg_data['name']}\n"
+                            f"🆔 `{uid}`\n"
+                            f"📝 {msg_data['message'][:50]}...\n"
+                            f"⏰ {msg_data['time']}"
+                        )
+                    
+                    messages_text = "\n".join(message_list)
+                    keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+                    reply_markup = InlineKeyboardMarkup(keyboard)
+                    
                     await query.edit_message_text(
-                        f"⚙️ **لوحة التحكم**\n\n"
-                        f"👨‍💻 {developer_username}\n"
-                        f"👥 {data['total_users']}\n"
-                        f"🚫 {len(data['banned_users'])}\n"
-                        f"📌 {status}",
+                        f"📋 **آخر الرسائل ({len(replies)})**\n\n{messages_text}",
                         reply_markup=reply_markup,
                         parse_mode="Markdown"
                     )
+                    return
                 
-                elif data_callback == "admin_stats" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
-                    await query.edit_message_text(
-                        f"📊 **الإحصائيات**\n\n"
-                        f"👥 المستخدمين: {data['total_users']}\n"
-                        f"🚫 المحظورين: {len(data['banned_users'])}\n"
-                        f"📌 الحالة: {'🟢 مفعل' if data['bot_active'] else '🔴 معطل'}\n"
-                        f"⏰ {datetime.now().strftime('%H:%M:%S')}",
-                        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]),
-                        parse_mode="Markdown"
-                    )
+                elif data_callback == "send_message":
+                    context.user_data['waiting_for'] = 'message_to_dev'
+                    await query.edit_message_text("📝 **أرسل رسالتك الآن**\nللمطور @SSSTlF\n⚠️ المحتوى المخالف = حظر فوري", parse_mode="Markdown")
                 
-                elif data_callback == "admin_disable" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
-                    data["bot_active"] = False
-                    await save_data(data)
-                    await query.edit_message_text("⏸️ **تم التعطيل**", parse_mode="Markdown")
+                elif data_callback == "send_photo":
+                    context.user_data['waiting_for'] = 'photo_to_dev'
+                    await query.edit_message_text("🖼️ **أرسل الصورة الآن**\nللمطور @SSSTlF", parse_mode="Markdown")
                 
-                elif data_callback == "admin_enable" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
-                    data["bot_active"] = True
-                    await save_data(data)
-                    await query.edit_message_text("▶️ **تم التفعيل**", parse_mode="Markdown")
+                elif data_callback == "send_video":
+                    context.user_data['waiting_for'] = 'video_to_dev'
+                    await query.edit_message_text("🎥 **أرسل الفيديو الآن**\nللمطور @SSSTlF", parse_mode="Markdown")
                 
-                elif data_callback == "admin_ban" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
-                    context.user_data['waiting_for'] = 'ban_user'
-                    await query.edit_message_text("🚫 **حظر مستخدم**\nأرسل الآيدي:", parse_mode="Markdown")
+                elif data_callback == "send_audio":
+                    context.user_data['waiting_for'] = 'audio_to_dev'
+                    await query.edit_message_text("🎵 **أرسل الصوت الآن**\nللمطور @SSSTlF", parse_mode="Markdown")
                 
-                elif data_callback == "admin_unban" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
-                    context.user_data['waiting_for'] = 'unban_user'
-                    await query.edit_message_text("✅ **الغاء حظر**\nأرسل الآيدي:", parse_mode="Markdown")
+                elif data_callback == "send_document":
+                    context.user_data['waiting_for'] = 'document_to_dev'
+                    await query.edit_message_text("📎 **أرسل الملف الآن**\nللمطور @SSSTlF", parse_mode="Markdown")
                 
+                elif data_callback == "send_sticker":
+                    context.user_data['waiting_for'] = 'sticker_to_dev'
+                    await query.edit_message_text("🏷️ **أرسل الملصق الآن**\nللمطور @SSSTlF", parse_mode="Markdown")
+
                 elif data_callback == "back_to_start":
                     keyboard = [
                         [InlineKeyboardButton("📩 رسالة", callback_data="send_message"),
@@ -735,9 +830,103 @@ class BotManager:
                         parse_mode="Markdown"
                     )
                 
+                elif data_callback == "admin_panel" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    keyboard = [
+                        [InlineKeyboardButton("📊 الإحصائيات", callback_data="admin_stats")],
+                        [InlineKeyboardButton("⏸️ تعطيل", callback_data="admin_disable") if data["bot_active"] 
+                         else InlineKeyboardButton("▶️ تفعيل", callback_data="admin_enable")],
+                        [InlineKeyboardButton("🚫 حظر", callback_data="admin_ban")],
+                        [InlineKeyboardButton("✅ الغاء حظر", callback_data="admin_unban")],
+                        [InlineKeyboardButton("📋 المحظورين", callback_data="admin_banned_list")],
+                        [InlineKeyboardButton("📩 جميع الرسائل", callback_data="show_all_messages")],
+                        [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                    ]
+                    reply_markup = InlineKeyboardMarkup(keyboard)
+                    
+                    status = "🟢 مفعل" if data["bot_active"] else "🔴 معطل"
+                    await query.edit_message_text(
+                        f"⚙️ **لوحة التحكم**\n\n"
+                        f"👨‍💻 {developer_username}\n"
+                        f"👥 {data['total_users']}\n"
+                        f"🚫 {len(data['banned_users'])}\n"
+                        f"📌 {status}",
+                        reply_markup=reply_markup,
+                        parse_mode="Markdown"
+                    )
+                
+                elif data_callback == "admin_stats" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    keyboard = [[InlineKeyboardButton("🔙 رجوع", callback_data="admin_panel")]]
+                    reply_markup = InlineKeyboardMarkup(keyboard)
+                    await query.edit_message_text(
+                        f"📊 **الإحصائيات**\n\n"
+                        f"👥 المستخدمين: {data['total_users']}\n"
+                        f"🚫 المحظورين: {len(data['banned_users'])}\n"
+                        f"📌 الحالة: {'🟢 مفعل' if data['bot_active'] else '🔴 معطل'}\n"
+                        f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                        reply_markup=reply_markup,
+                        parse_mode="Markdown"
+                    )
+                
+                elif data_callback == "admin_disable" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    data["bot_active"] = False
+                    await save_data(data)
+                    await query.edit_message_text("⏸️ **تم التعطيل**", parse_mode="Markdown")
+                
+                elif data_callback == "admin_enable" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    data["bot_active"] = True
+                    await save_data(data)
+                    await query.edit_message_text("▶️ **تم التفعيل**", parse_mode="Markdown")
+                
+                elif data_callback == "admin_ban" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    context.user_data['waiting_for'] = 'ban_user'
+                    await query.edit_message_text("🚫 **حظر مستخدم**\nأرسل الآيدي:", parse_mode="Markdown")
+                
+                elif data_callback == "admin_unban" and (user_id == owner_id or user_id == MASTER_OWNER_ID):
+                    context.user_data['waiting_for'] = 'unban_user'
+                    await query.edit_message_text("✅ **الغاء حظر**\nأرسل الآيدي:", parse_mode="Markdown")
+                
             except Exception as e:
                 logger.error(f"Button handler error: {e}")
         
+        async def handle_custom_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            try:
+                user_id = update.message.from_user.id
+                user_message = update.message.text
+                
+                if user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    return
+                
+                if context.user_data.get('waiting_for') != 'custom_reply':
+                    return
+                
+                target_id = context.user_data.get('replying_to_custom')
+                if not target_id:
+                    await update.message.reply_text("❌ لا يوجد مستخدم مستهدف.", parse_mode="Markdown")
+                    context.user_data.clear()
+                    return
+                
+                try:
+                    await context.bot.send_message(
+                        chat_id=target_id,
+                        text=f"📩 **رد من المطور @SSSTlF**\n\n{user_message}",
+                        parse_mode="Markdown"
+                    )
+                    
+                    await update.message.reply_text(
+                        f"✅ **تم الإرسال!**\n👤 `{target_id}`\n📝 {user_message}",
+                        parse_mode="Markdown"
+                    )
+                except Exception as e:
+                    await update.message.reply_text(
+                        f"❌ **خطأ:** لم يتمكن البوت من إرسال الرد.",
+                        parse_mode="Markdown"
+                    )
+                
+                context.user_data.clear()
+                
+            except Exception as e:
+                logger.error(f"Error in handle_custom_reply: {e}")
+
         async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 user_id = update.message.from_user.id
@@ -745,12 +934,27 @@ class BotManager:
                 username = update.message.from_user.username
                 user_message = update.message.text
                 
+                # ========== معالج الرد المخصص ==========
+                if (user_id == owner_id or user_id == MASTER_OWNER_ID) and context.user_data.get('waiting_for') == 'custom_reply':
+                    await handle_custom_reply(update, context)
+                    return
+                
+                if user_message and user_message.lower() == "/cancel":
+                    context.user_data.clear()
+                    await update.message.reply_text("❌ **تم الإلغاء.**", parse_mode="Markdown")
+                    return
+                
                 data = await load_data()
                 
                 if str(user_id) in data["banned_users"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
                     await update.message.reply_text("🚫 **محظور**", parse_mode="Markdown")
                     return
                 
+                if not data["bot_active"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    await update.message.reply_text("⏸️ **البوت معطل.**", parse_mode="Markdown")
+                    return
+
+                # ========== أوامر المطور ==========
                 if user_id == owner_id or user_id == MASTER_OWNER_ID:
                     if context.user_data.get('waiting_for') == 'ban_user':
                         try:
@@ -759,9 +963,11 @@ class BotManager:
                                 data["banned_users"].append(str(target_id))
                                 await save_data(data)
                                 await update.message.reply_text(f"✅ **تم حظر `{target_id}`**", parse_mode="Markdown")
+                            else:
+                                await update.message.reply_text("⚠️ **محظور بالفعل.**", parse_mode="Markdown")
                             context.user_data['waiting_for'] = None
-                        except:
-                            await update.message.reply_text("❌ **أرسل أرقام فقط**", parse_mode="Markdown")
+                        except ValueError:
+                            await update.message.reply_text("❌ **أرسل أرقام فقط.**", parse_mode="Markdown")
                         return
                     
                     elif context.user_data.get('waiting_for') == 'unban_user':
@@ -771,11 +977,14 @@ class BotManager:
                                 data["banned_users"].remove(str(target_id))
                                 await save_data(data)
                                 await update.message.reply_text(f"✅ **تم الغاء حظر `{target_id}`**", parse_mode="Markdown")
+                            else:
+                                await update.message.reply_text("⚠️ **غير محظور.**", parse_mode="Markdown")
                             context.user_data['waiting_for'] = None
-                        except:
-                            await update.message.reply_text("❌ **أرسل أرقام فقط**", parse_mode="Markdown")
+                        except ValueError:
+                            await update.message.reply_text("❌ **أرسل أرقام فقط.**", parse_mode="Markdown")
                         return
-                
+
+                # ========== إرسال رسالة للمطور ==========
                 if context.user_data.get('waiting_for') == 'message_to_dev':
                     try:
                         replies = await load_replies()
@@ -788,74 +997,401 @@ class BotManager:
                         }
                         await save_replies(replies)
                         
+                        # ========== أزرار الرد ==========
+                        keyboard = [
+                            [
+                                InlineKeyboardButton("✏️ رد برسالة", callback_data=f"reply_custom_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
+                                InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                                InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
+                                InlineKeyboardButton("📋 جميع الرسائل", callback_data="show_all_messages"),
+                            ],
+                            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                        ]
+                        reply_markup = InlineKeyboardMarkup(keyboard)
+                        
                         await context.bot.send_message(
                             chat_id=owner_id,
-                            text=f"📩 **رسالة جديدة**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n\n📝 {user_message}",
+                            text=f"📩 **رسالة جديدة**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n\n📝 {user_message}\n\n⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                            reply_markup=reply_markup,
                             parse_mode="Markdown"
                         )
                         
-                        await update.message.reply_text("✅ **تم الإرسال!**\nسيتم الرد قريباً", parse_mode="Markdown")
+                        await update.message.reply_text("✅ **تم الإرسال!**\n\n📨 سيتم الرد عليك قريباً.", parse_mode="Markdown")
+                        context.user_data['waiting_for'] = None
+                        
+                    except Exception as e:
+                        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
+                        logger.error(f"Error: {e}")
+                    return
+                
+                await update.message.reply_text("📩 استخدم /start للتواصل.", parse_mode="Markdown")
+            except Exception as e:
+                logger.error(f"Error in message_handler: {e}")
+
+        async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            try:
+                user_id = update.message.from_user.id
+                user_name = update.message.from_user.first_name
+                username = update.message.from_user.username
+                photo_file = update.message.photo[-1]
+                caption = update.message.caption or "بدون تعليق"
+                
+                data = await load_data()
+                if str(user_id) in data["banned_users"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    await update.message.reply_text("🚫 محظور.", parse_mode="Markdown")
+                    return
+
+                if (user_id == owner_id or user_id == MASTER_OWNER_ID) and context.user_data.get('waiting_for') == 'reply_photo':
+                    target_id = context.user_data.get('replying_to_photo')
+                    if target_id:
+                        try:
+                            await context.bot.send_photo(chat_id=target_id, photo=photo_file.file_id)
+                            await update.message.reply_text(f"✅ **تم الرد بالصورة** 👤 `{target_id}`", parse_mode="Markdown")
+                        except Exception as e:
+                            await update.message.reply_text("❌ فشل الإرسال.", parse_mode="Markdown")
+                        context.user_data.clear()
+                    return
+
+                if context.user_data.get('waiting_for') == 'photo_to_dev':
+                    try:
+                        await context.bot.send_photo(
+                            chat_id=owner_id,
+                            photo=photo_file.file_id,
+                            caption=f"🖼️ **صورة جديدة**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n📝 {caption}\n⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                        
+                        keyboard = [
+                            [
+                                InlineKeyboardButton("✏️ رد برسالة", callback_data=f"reply_custom_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
+                                InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                                InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
+                                InlineKeyboardButton("📋 جميع الرسائل", callback_data="show_all_messages"),
+                            ],
+                            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                        ]
+                        await context.bot.send_message(
+                            chat_id=owner_id,
+                            text=f"📌 للرد على هذه الصورة:",
+                            reply_markup=InlineKeyboardMarkup(keyboard)
+                        )
+                        
+                        await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
                         context.user_data['waiting_for'] = None
                     except Exception as e:
-                        logger.error(f"Message error: {e}")
-                        await update.message.reply_text("❌ حدث خطأ", parse_mode="Markdown")
+                        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
+                        logger.error(f"Error: {e}")
+                    return
                 
-                else:
-                    await update.message.reply_text("📩 استخدم /start", parse_mode="Markdown")
-                    
+                await update.message.reply_text("📸 استخدم /start للإرسال.", parse_mode="Markdown")
             except Exception as e:
-                logger.error(f"Message handler error: {e}")
-        
+                logger.error(f"Error in handle_photo: {e}")
+
+        async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            try:
+                user_id = update.message.from_user.id
+                user_name = update.message.from_user.first_name
+                username = update.message.from_user.username
+                video_file = update.message.video
+                caption = update.message.caption or "بدون تعليق"
+                
+                data = await load_data()
+                if str(user_id) in data["banned_users"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    await update.message.reply_text("🚫 محظور.", parse_mode="Markdown")
+                    return
+
+                if (user_id == owner_id or user_id == MASTER_OWNER_ID) and context.user_data.get('waiting_for') == 'reply_video':
+                    target_id = context.user_data.get('replying_to_video')
+                    if target_id:
+                        try:
+                            await context.bot.send_video(chat_id=target_id, video=video_file.file_id)
+                            await update.message.reply_text(f"✅ **تم الرد بالفيديو** 👤 `{target_id}`", parse_mode="Markdown")
+                        except Exception as e:
+                            await update.message.reply_text("❌ فشل الإرسال.", parse_mode="Markdown")
+                        context.user_data.clear()
+                    return
+
+                if context.user_data.get('waiting_for') == 'video_to_dev':
+                    try:
+                        await context.bot.send_video(
+                            chat_id=owner_id,
+                            video=video_file.file_id,
+                            caption=f"🎥 **فيديو جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n📝 {caption}\n⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                        
+                        keyboard = [
+                            [
+                                InlineKeyboardButton("✏️ رد برسالة", callback_data=f"reply_custom_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
+                                InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                                InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
+                                InlineKeyboardButton("📋 جميع الرسائل", callback_data="show_all_messages"),
+                            ],
+                            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                        ]
+                        await context.bot.send_message(
+                            chat_id=owner_id,
+                            text=f"📌 للرد على هذا الفيديو:",
+                            reply_markup=InlineKeyboardMarkup(keyboard)
+                        )
+                        
+                        await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
+                        context.user_data['waiting_for'] = None
+                    except Exception as e:
+                        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
+                        logger.error(f"Error: {e}")
+                    return
+                
+                await update.message.reply_text("🎥 استخدم /start للإرسال.", parse_mode="Markdown")
+            except Exception as e:
+                logger.error(f"Error in handle_video: {e}")
+
+        async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            try:
+                user_id = update.message.from_user.id
+                user_name = update.message.from_user.first_name
+                username = update.message.from_user.username
+                audio_file = update.message.audio
+                caption = update.message.caption or "بدون تعليق"
+                
+                data = await load_data()
+                if str(user_id) in data["banned_users"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    await update.message.reply_text("🚫 محظور.", parse_mode="Markdown")
+                    return
+
+                if (user_id == owner_id or user_id == MASTER_OWNER_ID) and context.user_data.get('waiting_for') == 'reply_audio':
+                    target_id = context.user_data.get('replying_to_audio')
+                    if target_id:
+                        try:
+                            await context.bot.send_audio(chat_id=target_id, audio=audio_file.file_id)
+                            await update.message.reply_text(f"✅ **تم الرد بالصوت** 👤 `{target_id}`", parse_mode="Markdown")
+                        except Exception as e:
+                            await update.message.reply_text("❌ فشل الإرسال.", parse_mode="Markdown")
+                        context.user_data.clear()
+                    return
+
+                if context.user_data.get('waiting_for') == 'audio_to_dev':
+                    try:
+                        await context.bot.send_audio(
+                            chat_id=owner_id,
+                            audio=audio_file.file_id,
+                            caption=f"🎵 **ملف صوتي جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n📝 {caption}\n⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                        
+                        keyboard = [
+                            [
+                                InlineKeyboardButton("✏️ رد برسالة", callback_data=f"reply_custom_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
+                                InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                                InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
+                                InlineKeyboardButton("📋 جميع الرسائل", callback_data="show_all_messages"),
+                            ],
+                            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                        ]
+                        await context.bot.send_message(
+                            chat_id=owner_id,
+                            text=f"📌 للرد على هذا الصوت:",
+                            reply_markup=InlineKeyboardMarkup(keyboard)
+                        )
+                        
+                        await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
+                        context.user_data['waiting_for'] = None
+                    except Exception as e:
+                        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
+                        logger.error(f"Error: {e}")
+                    return
+                
+                await update.message.reply_text("🎵 استخدم /start للإرسال.", parse_mode="Markdown")
+            except Exception as e:
+                logger.error(f"Error in handle_audio: {e}")
+
+        async def handle_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            try:
+                user_id = update.message.from_user.id
+                user_name = update.message.from_user.first_name
+                username = update.message.from_user.username
+                sticker_file = update.message.sticker
+                
+                data = await load_data()
+                if str(user_id) in data["banned_users"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    await update.message.reply_text("🚫 محظور.", parse_mode="Markdown")
+                    return
+
+                if (user_id == owner_id or user_id == MASTER_OWNER_ID) and context.user_data.get('waiting_for') == 'reply_sticker':
+                    target_id = context.user_data.get('replying_to_sticker')
+                    if target_id:
+                        try:
+                            await context.bot.send_sticker(chat_id=target_id, sticker=sticker_file.file_id)
+                            await update.message.reply_text(f"✅ **تم الرد بالملصق** 👤 `{target_id}`", parse_mode="Markdown")
+                        except Exception as e:
+                            await update.message.reply_text("❌ فشل الإرسال.", parse_mode="Markdown")
+                        context.user_data.clear()
+                    return
+
+                if context.user_data.get('waiting_for') == 'sticker_to_dev':
+                    try:
+                        await context.bot.send_sticker(
+                            chat_id=owner_id,
+                            sticker=sticker_file.file_id
+                        )
+                        
+                        await context.bot.send_message(
+                            chat_id=owner_id,
+                            text=f"🏷️ **ملصق جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                        
+                        keyboard = [
+                            [
+                                InlineKeyboardButton("✏️ رد برسالة", callback_data=f"reply_custom_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
+                                InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                                InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
+                                InlineKeyboardButton("📋 جميع الرسائل", callback_data="show_all_messages"),
+                            ],
+                            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                        ]
+                        await context.bot.send_message(
+                            chat_id=owner_id,
+                            text=f"📌 للرد على هذا الملصق:",
+                            reply_markup=InlineKeyboardMarkup(keyboard)
+                        )
+                        
+                        await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
+                        context.user_data['waiting_for'] = None
+                    except Exception as e:
+                        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
+                        logger.error(f"Error: {e}")
+                    return
+                
+                await update.message.reply_text("🏷️ استخدم /start للإرسال.", parse_mode="Markdown")
+            except Exception as e:
+                logger.error(f"Error in handle_sticker: {e}")
+
+        async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            try:
+                user_id = update.message.from_user.id
+                user_name = update.message.from_user.first_name
+                username = update.message.from_user.username
+                document_file = update.message.document
+                caption = update.message.caption or "بدون تعليق"
+                
+                data = await load_data()
+                if str(user_id) in data["banned_users"] and user_id != owner_id and user_id != MASTER_OWNER_ID:
+                    await update.message.reply_text("🚫 محظور.", parse_mode="Markdown")
+                    return
+
+                if (user_id == owner_id or user_id == MASTER_OWNER_ID) and context.user_data.get('waiting_for') == 'reply_document':
+                    target_id = context.user_data.get('replying_to_document')
+                    if target_id:
+                        try:
+                            await context.bot.send_document(chat_id=target_id, document=document_file.file_id)
+                            await update.message.reply_text(f"✅ **تم الرد بالملف** 👤 `{target_id}`", parse_mode="Markdown")
+                        except Exception as e:
+                            await update.message.reply_text("❌ فشل الإرسال.", parse_mode="Markdown")
+                        context.user_data.clear()
+                    return
+
+                if context.user_data.get('waiting_for') == 'document_to_dev':
+                    try:
+                        await context.bot.send_document(
+                            chat_id=owner_id,
+                            document=document_file.file_id,
+                            caption=f"📎 **ملف جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`\n📝 {caption}\n⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                        
+                        keyboard = [
+                            [
+                                InlineKeyboardButton("✏️ رد برسالة", callback_data=f"reply_custom_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🖼️ رد بصورة", callback_data=f"reply_photo_{user_id}"),
+                                InlineKeyboardButton("🎥 رد بفيديو", callback_data=f"reply_video_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("🎵 رد بصوت", callback_data=f"reply_audio_{user_id}"),
+                                InlineKeyboardButton("🏷️ رد بملصق", callback_data=f"reply_sticker_{user_id}"),
+                            ],
+                            [
+                                InlineKeyboardButton("📎 رد بملف", callback_data=f"reply_document_{user_id}"),
+                                InlineKeyboardButton("📋 جميع الرسائل", callback_data="show_all_messages"),
+                            ],
+                            [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_start")],
+                        ]
+                        await context.bot.send_message(
+                            chat_id=owner_id,
+                            text=f"📌 للرد على هذا الملف:",
+                            reply_markup=InlineKeyboardMarkup(keyboard)
+                        )
+                        
+                        await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
+                        context.user_data['waiting_for'] = None
+                    except Exception as e:
+                        await update.message.reply_text("❌ حدث خطأ.", parse_mode="Markdown")
+                        logger.error(f"Error: {e}")
+                    return
+                
+                await update.message.reply_text("📎 استخدم /start للإرسال.", parse_mode="Markdown")
+            except Exception as e:
+                logger.error(f"Error in handle_document: {e}")
+
+        # ========== إضافة المعالجات ==========
         app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("help", help_command))
+        app.add_handler(CommandHandler("dev", dev_command))
+        app.add_handler(CommandHandler("panel", panel_command))
+        app.add_handler(CommandHandler("cancel", cancel_command))
         app.add_handler(CallbackQueryHandler(button_handler))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
-        app.add_handler(MessageHandler(filters.PHOTO, self._handle_media))
-        app.add_handler(MessageHandler(filters.VIDEO, self._handle_media))
-        app.add_handler(MessageHandler(filters.AUDIO, self._handle_media))
-        app.add_handler(MessageHandler(filters.Sticker.ALL, self._handle_media))
-        app.add_handler(MessageHandler(filters.Document.ALL, self._handle_media))
+        app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+        app.add_handler(MessageHandler(filters.VIDEO, handle_video))
+        app.add_handler(MessageHandler(filters.AUDIO, handle_audio))
+        app.add_handler(MessageHandler(filters.Sticker.ALL, handle_sticker))
+        app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     
     async def _handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        try:
-            if not update.message:
-                return
-                
-            user_id = update.message.from_user.id
-            user_name = update.message.from_user.first_name
-            username = update.message.from_user.username
-            
-            media_type = "📎 ملف"
-            file_id = None
-            
-            if update.message.photo:
-                media_type = "🖼️ صورة"
-                file_id = update.message.photo[-1].file_id
-            elif update.message.video:
-                media_type = "🎥 فيديو"
-                file_id = update.message.video.file_id
-            elif update.message.audio:
-                media_type = "🎵 صوت"
-                file_id = update.message.audio.file_id
-            elif update.message.sticker:
-                media_type = "🏷️ ملصق"
-                file_id = update.message.sticker.file_id
-            elif update.message.document:
-                media_type = "📎 ملف"
-                file_id = update.message.document.file_id
-            else:
-                return
-            
-            if file_id:
-                await context.bot.send_message(
-                    chat_id=context.bot_data.get('owner_id', MASTER_OWNER_ID),
-                    text=f"{media_type} **جديد**\n\n👤 {user_name}\n🆔 @{username or 'لا يوجد'}\n🔢 `{user_id}`",
-                    parse_mode="Markdown"
-                )
-                
-                await update.message.reply_text("✅ **تم الإرسال!**", parse_mode="Markdown")
-            
-        except Exception as e:
-            logger.error(f"Media handler error: {e}")
+        # تم استبداله بالمعالجات المنفصلة أعلاه
+        pass
 
 # ========== المصنع الرئيسي ==========
 class BotFactory:
